@@ -23,12 +23,11 @@ function loadDbFromFile(): DatabaseSchema {
         return parsed;
       }
     }
-  } catch (error) {
-    console.error('Error reading db.json, generating default seed:', error);
+  } catch {
+    // If reading fails or file is not present in serverless environment
   }
 
   const initial = getInitialSeedData();
-  saveDbToFile(initial);
   return initial;
 }
 
@@ -37,19 +36,25 @@ export function saveDbToFile(db?: DatabaseSchema): void {
     const targetData = db || global.__taskflow_db__;
     if (targetData) {
       global.__taskflow_db__ = targetData;
-      const dir = path.dirname(DB_FILE_PATH);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
+      try {
+        const dir = path.dirname(DB_FILE_PATH);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        fs.writeFileSync(DB_FILE_PATH, JSON.stringify(targetData, null, 2), 'utf-8');
+      } catch {
+        // Read-only filesystem in Vercel serverless functions
       }
-      fs.writeFileSync(DB_FILE_PATH, JSON.stringify(targetData, null, 2), 'utf-8');
     }
   } catch (error) {
-    console.error('Error saving db.json:', error);
+    console.error('Error saving db:', error);
   }
 }
 
 export function getDatabase(): DatabaseSchema {
-  global.__taskflow_db__ = loadDbFromFile();
+  if (!global.__taskflow_db__) {
+    global.__taskflow_db__ = loadDbFromFile();
+  }
   return global.__taskflow_db__;
 }
 
