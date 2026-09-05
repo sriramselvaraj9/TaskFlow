@@ -14,7 +14,6 @@ import type React from 'react';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import { InviteMemberModal } from '@/components/users/InviteMemberModal';
 import { useDeleteUserMutation, useUsersQuery } from '@/hooks/useUsers';
 import { formatDate, getUserInitials } from '@/lib/utils';
 import { useTaskStore } from '@/store/useTaskStore';
@@ -276,8 +275,6 @@ export const TeamMembersView: React.FC = () => {
           }
         }}
       />
-
-      <InviteMemberModal />
     </div>
   );
 };

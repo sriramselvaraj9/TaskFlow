@@ -4,12 +4,13 @@ import type React from 'react';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { useCreateUserMutation } from '@/hooks/useUsers';
 import { useTaskStore } from '@/store/useTaskStore';
 import { toast } from '@/store/useToastStore';
 
 export const InviteMemberModal: React.FC = () => {
-  const queryClient = useQueryClient();
   const { isInviteMemberOpen, setInviteMemberOpen } = useTaskStore();
+  const createUserMutation = useCreateUserMutation();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -22,7 +23,6 @@ export const InviteMemberModal: React.FC = () => {
   const [designationTouched, setDesignationTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
 
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -60,42 +60,28 @@ export const InviteMemberModal: React.FC = () => {
     setDesignationTouched(true);
     setPasswordTouched(true);
 
-    if (!isFormValid || isLoading) return;
+    if (!isFormValid || createUserMutation.isPending) return;
 
-    setIsLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
 
     try {
-      const res = await fetch('/api/users/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
-          designation: designation.trim(),
-          password,
-          role: 'MEMBER',
-        }),
+      const newUser = await createUserMutation.mutateAsync({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        designation: designation.trim(),
+        password,
+        role: 'MEMBER',
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to provision team member');
-      }
-
-      setSuccessMessage(`Successfully added ${data.user.name} as ${data.user.designation}!`);
-      toast.success(`Member "${data.user.name}" created successfully!`);
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setSuccessMessage(`Successfully added ${newUser.name} as ${newUser.designation}!`);
+      toast.success(`Member "${newUser.name}" added to team successfully!`);
 
       setTimeout(() => {
         handleClose();
-      }, 1200);
+      }, 1000);
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to provision user');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -315,8 +301,8 @@ export const InviteMemberModal: React.FC = () => {
             type="submit"
             variant="primary"
             size="md"
-            loading={isLoading}
-            disabled={!isFormValid || isLoading}
+            loading={createUserMutation.isPending}
+            disabled={!isFormValid || createUserMutation.isPending}
             className="w-full justify-center py-2.5 text-xs font-bold shadow-sm"
           >
             Provision Team Member

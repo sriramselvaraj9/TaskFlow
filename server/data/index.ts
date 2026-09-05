@@ -1,18 +1,20 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { type DatabaseSchema, getDefaultColumns, getInitialSeedData } from '../database/seed';
 
 const DB_FILE_PATH = path.join(process.cwd(), 'server', 'database', 'db.json');
+const TMP_DB_FILE_PATH = path.join(os.tmpdir(), 'taskflow_db.json');
 
 declare global {
   // eslint-disable-next-line no-var
   var __taskflow_db__: DatabaseSchema | undefined;
 }
 
-function loadDbFromFile(): DatabaseSchema {
+function tryParseDb(filePath: string): DatabaseSchema | null {
   try {
-    if (fs.existsSync(DB_FILE_PATH)) {
-      const fileData = fs.readFileSync(DB_FILE_PATH, 'utf-8');
+    if (fs.existsSync(filePath)) {
+      const fileData = fs.readFileSync(filePath, 'utf-8');
       const parsed = JSON.parse(fileData);
       if (parsed && Array.isArray(parsed.users) && parsed.passwords) {
         if (!parsed.otpTokens) parsed.otpTokens = {};
@@ -24,9 +26,21 @@ function loadDbFromFile(): DatabaseSchema {
       }
     }
   } catch {
-    // If reading fails or file is not present in serverless environment
+    // ignore parse errors
   }
+  return null;
+}
 
+function loadDbFromFile(): DatabaseSchema {
+  // 1. Try reading from tmp directory (writable in serverless)
+  const tmpParsed = tryParseDb(TMP_DB_FILE_PATH);
+  if (tmpParsed) return tmpParsed;
+
+  // 2. Try reading from project directory
+  const localParsed = tryParseDb(DB_FILE_PATH);
+  if (localParsed) return localParsed;
+
+  // 3. Fallback to initial seed
   const initial = getInitialSeedData();
   return initial;
 }
@@ -36,14 +50,24 @@ export function saveDbToFile(db?: DatabaseSchema): void {
     const targetData = db || global.__taskflow_db__;
     if (targetData) {
       global.__taskflow_db__ = targetData;
+      const serialized = JSON.stringify(targetData, null, 2);
+
+      // Try saving to project directory (works in local dev)
       try {
         const dir = path.dirname(DB_FILE_PATH);
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true });
         }
-        fs.writeFileSync(DB_FILE_PATH, JSON.stringify(targetData, null, 2), 'utf-8');
+        fs.writeFileSync(DB_FILE_PATH, serialized, 'utf-8');
       } catch {
         // Read-only filesystem in Vercel serverless functions
+      }
+
+      // Also try saving to tmp directory (works across invocations in serverless)
+      try {
+        fs.writeFileSync(TMP_DB_FILE_PATH, serialized, 'utf-8');
+      } catch {
+        // ignore tmp write issues
       }
     }
   } catch (error) {

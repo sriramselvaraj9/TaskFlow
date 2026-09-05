@@ -1,23 +1,39 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  getLocalProjects,
+  mergeProjectsWithLocal,
+  removeLocalProject,
+  saveLocalProject,
+} from '@/lib/storageSync';
 import type { ProjectFormData } from '@/lib/validators';
 import type { Project } from '@/types';
 
 async function fetchProjects(): Promise<Project[]> {
-  const res = await fetch('/api/projects');
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Failed to fetch projects');
+  try {
+    const res = await fetch('/api/projects');
+    if (res.ok) {
+      const serverProjects: Project[] = await res.json();
+      return mergeProjectsWithLocal(serverProjects);
+    }
+  } catch {
+    // Network fallback
   }
-  return res.json();
+  const local = getLocalProjects();
+  return local.length > 0 ? local : [];
 }
 
 async function fetchProject(id: string): Promise<Project> {
-  const res = await fetch(`/api/projects/${id}`);
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Failed to fetch project');
+  try {
+    const res = await fetch(`/api/projects/${id}`);
+    if (res.ok) {
+      return res.json();
+    }
+  } catch {
+    // fallback
   }
-  return res.json();
+  const local = getLocalProjects().find((p) => p.id === id);
+  if (local) return local;
+  throw new Error('Project not found');
 }
 
 async function createProject(data: ProjectFormData): Promise<Project> {
@@ -30,14 +46,15 @@ async function createProject(data: ProjectFormData): Promise<Project> {
     const error = await res.json();
     throw new Error(error.message || 'Failed to create project');
   }
-  return res.json();
+  const project: Project = await res.json();
+  return project;
 }
 
 export function useProjectsQuery() {
   return useQuery({
     queryKey: ['projects'],
     queryFn: fetchProjects,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 5, // 5s
   });
 }
 
@@ -53,7 +70,10 @@ export function useCreateProjectMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createProject,
-    onSuccess: () => {
+    onSuccess: (newProj) => {
+      if (newProj) {
+        saveLocalProject(newProj);
+      }
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['activities'] });
@@ -81,6 +101,7 @@ async function updateProject({
 }
 
 async function deleteProject(id: string): Promise<{ message: string }> {
+  removeLocalProject(id);
   const res = await fetch(`/api/projects/${id}`, {
     method: 'DELETE',
   });
@@ -96,6 +117,9 @@ export function useUpdateProjectMutation() {
   return useMutation({
     mutationFn: updateProject,
     onSuccess: (updated) => {
+      if (updated) {
+        saveLocalProject(updated);
+      }
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['projects', updated.id] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });

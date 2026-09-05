@@ -13,11 +13,20 @@
       "email": "sriramselvaraj799@gmail.com",
       "role": "MEMBER",
       "createdAt": "2026-09-04T12:37:26.392Z"
+    },
+    {
+      "id": "user-1788613223023",
+      "name": "jashfhasjhka",
+      "email": "jaskdjaskjds@gmail.com",
+      "role": "MEMBER",
+      "designation": "jfhsah",
+      "createdAt": "2026-09-05T13:00:23.023Z"
     }
   ],
   "passwords": {
     "sriramccbp@gmail.com": "$2a$08$sCY6CSVv9vIruTo0LuS/cetB1xxEii75Ojvlcwi1EwveEp57/PMdO",
-    "sriramselvaraj799@gmail.com": "$2a$08$oLaExbWrsJGK1iMomXX2MOwPU2P7Z6IFIT7Zh.oyl40luTs4Q.f0O"
+    "sriramselvaraj799@gmail.com": "$2a$08$oLaExbWrsJGK1iMomXX2MOwPU2P7Z6IFIT7Zh.oyl40luTs4Q.f0O",
+    "jaskdjaskjds@gmail.com": "$2a$08$yCkQL019v1jMbxe1iUUbZefcxHyK8/S5dpCOOYJFi3xx0X49lpqtq"
   },
   "projects": [
     {
@@ -27,7 +36,10 @@
       "description": "API project",
       "status": "ACTIVE",
       "ownerId": "user-admin-1",
-      "memberIds": ["user-admin-1", "user-member-1"],
+      "memberIds": [
+        "user-admin-1",
+        "user-member-1"
+      ],
       "createdAt": "2026-09-04T12:42:35.983Z",
       "updatedAt": "2026-09-04T12:42:35.983Z"
     },
@@ -38,7 +50,10 @@
       "description": "Enterprise workflow tracking and reporting platform.",
       "status": "ACTIVE",
       "ownerId": "user-admin-1",
-      "memberIds": ["user-admin-1", "user-member-1"],
+      "memberIds": [
+        "user-admin-1",
+        "user-member-1"
+      ],
       "createdAt": "2026-09-01T10:00:00.000Z",
       "updatedAt": "2026-09-04T10:00:00.000Z"
     },
@@ -49,35 +64,51 @@
       "description": "Internal core infrastructure and API gateways.",
       "status": "ACTIVE",
       "ownerId": "user-admin-1",
-      "memberIds": ["user-admin-1"],
+      "memberIds": [
+        "user-admin-1"
+      ],
       "createdAt": "2026-09-02T11:30:00.000Z",
       "updatedAt": "2026-09-04T11:00:00.000Z"
     }
   ],
   "tasks": [
     {
+      "id": "task-06092cf5-2d5b-40c0-ac60-96c4d125287d",
+      "title": "jsakfjasf",
+      "description": "askdksakssm",
+      "projectId": "prj-1788525755983",
+      "status": "TODO",
+      "priority": "MEDIUM",
+      "assigneeId": "user-1788613223023",
+      "createdById": "user-admin-1",
+      "dueDate": "2026-09-12",
+      "tags": [],
+      "createdAt": "2026-09-05T13:01:20.274Z",
+      "updatedAt": "2026-09-05T13:01:20.274Z"
+    },
+    {
       "id": "task-1",
       "title": "Core Database Indexing & Optimizations",
       "description": "Review slow queries and apply composite indexes on active columns.",
-      "status": "TODO",
+      "status": "IN_REVIEW",
       "priority": "HIGH",
       "projectId": "prj-2",
       "assigneeId": "user-admin-1",
       "dueDate": "2026-09-12T00:00:00.000Z",
       "createdAt": "2026-09-04T08:00:00.000Z",
-      "updatedAt": "2026-09-04T08:00:00.000Z"
+      "updatedAt": "2026-09-05T13:01:22.620Z"
     },
     {
       "id": "task-2",
       "title": "API Gateway Rate Limiting & Auth Tokens",
-      "description": "Implement token bucket algorithm for public endpoints.",
+      "description": "Implement token bucket algorithm for public endpoints..",
       "status": "IN_PROGRESS",
       "priority": "MEDIUM",
       "projectId": "prj-1",
       "assigneeId": "user-member-1",
       "dueDate": "2026-09-14T00:00:00.000Z",
       "createdAt": "2026-09-04T08:30:00.000Z",
-      "updatedAt": "2026-09-04T09:00:00.000Z"
+      "updatedAt": "2026-09-05T13:01:00.976Z"
     },
     {
       "id": "task-3",
@@ -151,6 +182,48 @@
     }
   ],
   "activities": [
+    {
+      "id": "act-1788613282622-7bo2",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-2",
+      "taskId": "task-1",
+      "timestamp": "2026-09-05T13:01:22.622Z"
+    },
+    {
+      "id": "act-1788613280277-5mrf",
+      "action": "TASK_CREATED",
+      "details": "created task \"jsakfjasf\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788525755983",
+      "taskId": "task-06092cf5-2d5b-40c0-ac60-96c4d125287d",
+      "timestamp": "2026-09-05T13:01:20.277Z"
+    },
+    {
+      "id": "act-1788613260978-av67",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"API Gateway Rate Limiting & Auth Tokens\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1",
+      "taskId": "task-2",
+      "timestamp": "2026-09-05T13:01:00.978Z"
+    },
+    {
+      "id": "act-1788613223072-z9le",
+      "action": "MEMBER_ASSIGNED",
+      "details": "registered a new MEMBER account",
+      "userId": "user-1788613223023",
+      "userName": "jashfhasjhka",
+      "userRole": "MEMBER",
+      "timestamp": "2026-09-05T13:00:23.072Z"
+    },
     {
       "id": "act-1788525755985-dkwu",
       "action": "PROJECT_CREATED",

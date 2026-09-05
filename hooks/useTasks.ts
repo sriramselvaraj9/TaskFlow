@@ -1,4 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  getLocalTasks,
+  mergeTasksWithLocal,
+  removeLocalTask,
+  saveLocalTask,
+} from '@/lib/storageSync';
 import type { CreateTaskFormData } from '@/lib/validators';
 import type { Task, TaskPriority, TaskStatus } from '@/types';
 
@@ -10,6 +16,30 @@ interface TaskFilterParams {
   search?: string;
 }
 
+function applyLocalFilters(tasks: Task[], params: TaskFilterParams): Task[] {
+  return tasks.filter((t) => {
+    if (params.projectId && params.projectId !== 'ALL' && t.projectId !== params.projectId) {
+      return false;
+    }
+    if (params.status && params.status !== 'ALL' && t.status !== params.status) {
+      return false;
+    }
+    if (params.priority && params.priority !== 'ALL' && t.priority !== params.priority) {
+      return false;
+    }
+    if (params.assigneeId && params.assigneeId !== 'ALL' && t.assigneeId !== params.assigneeId) {
+      return false;
+    }
+    if (params.search) {
+      const q = params.search.toLowerCase();
+      const matchTitle = t.title.toLowerCase().includes(q);
+      const matchDesc = t.description?.toLowerCase().includes(q);
+      if (!matchTitle && !matchDesc) return false;
+    }
+    return true;
+  });
+}
+
 async function fetchTasks(params: TaskFilterParams): Promise<Task[]> {
   const query = new URLSearchParams();
   if (params.projectId && params.projectId !== 'ALL') query.set('projectId', params.projectId);
@@ -18,21 +48,33 @@ async function fetchTasks(params: TaskFilterParams): Promise<Task[]> {
   if (params.assigneeId && params.assigneeId !== 'ALL') query.set('assigneeId', params.assigneeId);
   if (params.search) query.set('search', params.search);
 
-  const res = await fetch(`/api/tasks?${query.toString()}`);
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Failed to fetch tasks');
+  try {
+    const res = await fetch(`/api/tasks?${query.toString()}`);
+    if (res.ok) {
+      const serverTasks: Task[] = await res.json();
+      const merged = mergeTasksWithLocal(serverTasks);
+      return applyLocalFilters(merged, params);
+    }
+  } catch {
+    // Network fallback
   }
-  return res.json();
+
+  const local = getLocalTasks();
+  return applyLocalFilters(local, params);
 }
 
 async function fetchTask(id: string): Promise<Task> {
-  const res = await fetch(`/api/tasks/${id}`);
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Failed to fetch task');
+  try {
+    const res = await fetch(`/api/tasks/${id}`);
+    if (res.ok) {
+      return res.json();
+    }
+  } catch {
+    // fallback
   }
-  return res.json();
+  const local = getLocalTasks().find((t) => t.id === id);
+  if (local) return local;
+  throw new Error('Task not found');
 }
 
 async function createTask(data: CreateTaskFormData): Promise<Task> {
@@ -62,6 +104,7 @@ async function updateTask({ id, updates }: { id: string; updates: Partial<Task> 
 }
 
 async function deleteTask(id: string): Promise<void> {
+  removeLocalTask(id);
   const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
   if (!res.ok) {
     const error = await res.json();
@@ -89,7 +132,10 @@ export function useCreateTaskMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createTask,
-    onSuccess: () => {
+    onSuccess: (newTask) => {
+      if (newTask) {
+        saveLocalTask(newTask);
+      }
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['task'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
@@ -133,6 +179,9 @@ export function useUpdateTaskMutation() {
       }
     },
     onSuccess: (data, variables) => {
+      if (data) {
+        saveLocalTask(data);
+      }
       // Direct replacement with server updated entity
       queryClient.setQueriesData<Task[]>({ queryKey: ['tasks'] }, (oldTasks) => {
         if (!Array.isArray(oldTasks)) return oldTasks;

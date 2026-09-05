@@ -24,7 +24,7 @@ export function useDashboardStatsQuery(projectId?: string | null) {
   return useQuery({
     queryKey: ['dashboard', projectId],
     queryFn: () => fetchDashboardStats(projectId),
-    staleTime: 1000 * 30, // 30s
+    staleTime: 1000 * 5, // 5s
   });
 }
 
@@ -32,6 +32,6 @@ export function useActivitiesQuery(limit = 20) {
   return useQuery({
     queryKey: ['activities', limit],
     queryFn: () => fetchActivities(limit),
-    staleTime: 1000 * 15, // 15s
+    staleTime: 1000 * 5, // 5s
   });
 }
