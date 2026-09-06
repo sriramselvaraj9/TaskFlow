@@ -56,22 +56,22 @@ export function getInitialSeedData(): DatabaseSchema {
     {
       id: 'user-admin-1',
       name: 'Sriram S',
-      email: 'sriramccbp@gmail.com',
+      email: 'admin@gmail.com',
       role: 'ADMIN',
       createdAt: '2026-09-04T12:37:26.392Z',
     },
     {
       id: 'user-member-1',
       name: 'Sriram Selvaraj',
-      email: 'sriramselvaraj799@gmail.com',
+      email: 'member@gmail.com',
       role: 'MEMBER',
       createdAt: '2026-09-04T12:37:26.392Z',
     },
   ];
 
   const passwords: Record<string, string> = {
-    'sriramccbp@gmail.com': '$2a$08$sCY6CSVv9vIruTo0LuS/cetB1xxEii75Ojvlcwi1EwveEp57/PMdO',
-    'sriramselvaraj799@gmail.com': '$2a$08$oLaExbWrsJGK1iMomXX2MOwPU2P7Z6IFIT7Zh.oyl40luTs4Q.f0O',
+    'admin@gmail.com': '$2a$08$sCY6CSVv9vIruTo0LuS/cetB1xxEii75Ojvlcwi1EwveEp57/PMdO',
+    'member@gmail.com': '$2a$08$oLaExbWrsJGK1iMomXX2MOwPU2P7Z6IFIT7Zh.oyl40luTs4Q.f0O',
   };
 
   const projects: Project[] = [

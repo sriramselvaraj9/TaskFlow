@@ -59,16 +59,16 @@ The staging environment is pre-seeded with sample accounts for testing both perm
 
 | Role | Email Address | Password | Permissions / Scope |
 | :--- | :--- | :--- | :--- |
-| **Admin** | `sriramccbp@gmail.com` | `AdminPass@2026` | Full access: Projects, Members, Analytics, Boards, Settings |
-| **Member** | `sriramselvaraj799@gmail.com` | `MemberPass@2026` | Member access: Task execution, Kanban board, Project view |
+| **Admin** | `Admin@gmail.com` | `AdminPass@2026` | Full access: Projects, Members, Analytics, Boards, Settings |
+| **Member** | `Member@gmail.com` | `MemberPass@2026` | Member access: Task execution, Kanban board, Project view |
 
 ---
 
 ## 🧪 Key QA Test Scenarios
 
 ### A. Authentication & Session Validation
-- [ ] Sign in with valid Admin credentials (`sriramccbp@gmail.com`).
-- [ ] Sign in with valid Member credentials (`sriramselvaraj799@gmail.com`).
+- [ ] Sign in with valid Admin credentials (`Admin@gmail.com`).
+- [ ] Sign in with valid Member credentials (`Member@gmail.com`).
 - [ ] Attempt sign-in with invalid credentials and verify error alerts.
 - [ ] Access protected routes directly while unauthenticated (expect redirect to `/auth/signin`).
 - [ ] Test logout functionality and verify session revocation.

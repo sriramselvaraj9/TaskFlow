@@ -67,8 +67,8 @@ The application is pre-seeded with sample accounts for development:
 
 | Role | Email | Password |
 | :--- | :--- | :--- |
-| **Admin** | `sriramccbp@gmail.com` | `AdminPass@2026` |
-| **Member** | `sriramselvaraj799@gmail.com` | `MemberPass@2026` |
+| **Admin** | `Admin@gmail.com` | `AdminPass@2026` |
+| **Member** | `Member@gmail.com` | `MemberPass@2026` |
 
 ---
 
