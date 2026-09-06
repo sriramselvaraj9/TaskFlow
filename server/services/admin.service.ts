@@ -42,12 +42,9 @@ export class AdminService {
       throw new Error('You cannot delete your own account');
     }
     const targetUser = await userRepository.findById(id);
-    if (!targetUser) {
-      throw new Error('User not found');
-    }
 
     const success = await userRepository.delete(id);
-    if (success) {
+    if (success && targetUser) {
       const { activityService } = await import('./activity.service');
       await activityService.logActivity(
         'MEMBER_ASSIGNED',

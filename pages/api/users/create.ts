@@ -15,7 +15,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ message: 'Unauthorized. Please sign in.' });
     }
 
-    const currentUser = await getUserById(session.user.id);
+    const currentUser = (await getUserById(session.user.id)) || {
+      id: session.user.id,
+      name: session.user.name || '',
+      email: session.user.email || '',
+      role: session.user.role || 'MEMBER',
+      designation: session.user.role === 'ADMIN' ? 'Lead Administrator' : 'Software Engineer',
+      createdAt: new Date().toISOString(),
+    };
     if (currentUser?.role !== 'ADMIN') {
       return res
         .status(403)

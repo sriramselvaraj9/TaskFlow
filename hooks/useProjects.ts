@@ -54,7 +54,7 @@ export function useProjectsQuery() {
   return useQuery({
     queryKey: ['projects'],
     queryFn: fetchProjects,
-    staleTime: 1000 * 5, // 5s
+    staleTime: 1000 * 60, // 1 min
   });
 }
 

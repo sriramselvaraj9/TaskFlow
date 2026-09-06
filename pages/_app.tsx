@@ -7,11 +7,26 @@ import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { ToastContainer } from '@/components/ui/Toast';
 
 export default function App({ Component, pageProps }: { Component: any; pageProps: any }) {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 1000 * 60 * 2, // 2 mins
+            refetchOnWindowFocus: false,
+            retry: 1,
+          },
+        },
+      }),
+  );
 
   return (
     <ErrorBoundary>
-      <SessionProvider session={pageProps.session} refetchInterval={5 * 60}>
+      <SessionProvider
+        session={pageProps.session}
+        refetchInterval={0}
+        refetchOnWindowFocus={false}
+      >
         <QueryClientProvider client={queryClient}>
           <Component {...pageProps} />
           <ToastContainer />

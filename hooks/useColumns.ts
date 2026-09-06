@@ -1,12 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+//useMutation: A React hook used to perform create/update/delete actions (used for POST, PUT, DELETE requests).
+//useQuery: A React hook used to fetch and cache data
+//useQueryClient: A React hook used to access the query client instance.
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
 import type { CreateColumnFormData } from '@/lib/validators';
 import { toast } from '@/store/useToastStore';
 import type { BoardColumn } from '@/types';
-
+// Manages all column interactions
 export const columnKeys = {
   all: ['columns'] as const,
 };
-
+// These asynchronous JavaScript functions make raw HTTP network requests to the Next.js backend API routes.
 async function fetchColumns(): Promise<BoardColumn[]> {
   const res = await fetch('/api/columns');
   if (!res.ok) {
@@ -15,7 +18,7 @@ async function fetchColumns(): Promise<BoardColumn[]> {
   }
   return res.json();
 }
-
+// create columns in the database
 async function createColumn(data: CreateColumnFormData): Promise<BoardColumn> {
   const res = await fetch('/api/columns', {
     method: 'POST',
@@ -29,6 +32,7 @@ async function createColumn(data: CreateColumnFormData): Promise<BoardColumn> {
   return res.json();
 }
 
+// delete column hood request 
 async function deleteColumn(id: string): Promise<{
   message: string;
   movedTasksCount: number;
@@ -48,10 +52,11 @@ export function useColumnsQuery() {
   return useQuery({
     queryKey: columnKeys.all,
     queryFn: fetchColumns,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5, 
   });
 }
-
+ 
+// used to create the column
 export function useCreateColumnMutation() {
   const queryClient = useQueryClient();
 

@@ -20,7 +20,7 @@ export function useUsersQuery() {
   return useQuery({
     queryKey: ['users'],
     queryFn: fetchUsers,
-    staleTime: 1000 * 5, // 5s
+    staleTime: 1000 * 60, // 1 min
   });
 }
 
@@ -65,14 +65,23 @@ export function useDeleteUserMutation() {
   return useMutation({
     mutationFn: async (userId: string) => {
       removeLocalUser(userId);
-      const res = await fetch(`/api/users/${userId}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Failed to delete member');
+      try {
+        const res = await fetch(`/api/users/${userId}`, {
+          method: 'DELETE',
+        });
+        if (!res.ok) {
+          if (res.status === 404) {
+            // Already deleted on server, local removal completed
+            return { message: 'Member removed' };
+          }
+          const error = await res.json().catch(() => ({}));
+          throw new Error(error.message || 'Failed to delete member');
+        }
+        return res.json();
+      } catch (err: any) {
+        // If network error, local removal already completed
+        return { message: 'Member removed locally' };
       }
-      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });

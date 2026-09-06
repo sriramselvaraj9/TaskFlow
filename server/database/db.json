@@ -13,20 +13,11 @@
       "email": "sriramselvaraj799@gmail.com",
       "role": "MEMBER",
       "createdAt": "2026-09-04T12:37:26.392Z"
-    },
-    {
-      "id": "user-1788613223023",
-      "name": "jashfhasjhka",
-      "email": "jaskdjaskjds@gmail.com",
-      "role": "MEMBER",
-      "designation": "jfhsah",
-      "createdAt": "2026-09-05T13:00:23.023Z"
     }
   ],
   "passwords": {
     "sriramccbp@gmail.com": "$2a$08$sCY6CSVv9vIruTo0LuS/cetB1xxEii75Ojvlcwi1EwveEp57/PMdO",
-    "sriramselvaraj799@gmail.com": "$2a$08$oLaExbWrsJGK1iMomXX2MOwPU2P7Z6IFIT7Zh.oyl40luTs4Q.f0O",
-    "jaskdjaskjds@gmail.com": "$2a$08$yCkQL019v1jMbxe1iUUbZefcxHyK8/S5dpCOOYJFi3xx0X49lpqtq"
+    "sriramselvaraj799@gmail.com": "$2a$08$oLaExbWrsJGK1iMomXX2MOwPU2P7Z6IFIT7Zh.oyl40luTs4Q.f0O"
   },
   "projects": [
     {
@@ -77,50 +68,49 @@
       "title": "jsakfjasf",
       "description": "askdksakssm",
       "projectId": "prj-1788525755983",
-      "status": "TODO",
+      "status": "BACKLOG",
       "priority": "MEDIUM",
-      "assigneeId": "user-1788613223023",
       "createdById": "user-admin-1",
       "dueDate": "2026-09-12",
       "tags": [],
       "createdAt": "2026-09-05T13:01:20.274Z",
-      "updatedAt": "2026-09-05T13:01:20.274Z"
+      "updatedAt": "2026-09-06T07:02:34.852Z"
     },
     {
       "id": "task-1",
       "title": "Core Database Indexing & Optimizations",
       "description": "Review slow queries and apply composite indexes on active columns.",
-      "status": "IN_REVIEW",
+      "status": "IN_PROGRESS",
       "priority": "HIGH",
       "projectId": "prj-2",
       "assigneeId": "user-admin-1",
       "dueDate": "2026-09-12T00:00:00.000Z",
       "createdAt": "2026-09-04T08:00:00.000Z",
-      "updatedAt": "2026-09-05T13:01:22.620Z"
+      "updatedAt": "2026-09-06T05:30:21.585Z"
     },
     {
       "id": "task-2",
       "title": "API Gateway Rate Limiting & Auth Tokens",
       "description": "Implement token bucket algorithm for public endpoints..",
-      "status": "IN_PROGRESS",
+      "status": "IN_REVIEW",
       "priority": "MEDIUM",
       "projectId": "prj-1",
       "assigneeId": "user-member-1",
       "dueDate": "2026-09-14T00:00:00.000Z",
       "createdAt": "2026-09-04T08:30:00.000Z",
-      "updatedAt": "2026-09-05T13:01:00.976Z"
+      "updatedAt": "2026-09-06T05:30:22.485Z"
     },
     {
       "id": "task-3",
       "title": "Authentication & Permissions Security Review",
       "description": "Conduct role-based access control audit for Admin and Member privileges.",
-      "status": "IN_REVIEW",
+      "status": "TODO",
       "priority": "HIGH",
       "projectId": "prj-1",
       "assigneeId": "user-admin-1",
       "dueDate": "2026-09-10T00:00:00.000Z",
       "createdAt": "2026-09-04T09:00:00.000Z",
-      "updatedAt": "2026-09-04T10:00:00.000Z"
+      "updatedAt": "2026-09-05T17:09:19.689Z"
     },
     {
       "id": "task-4",
@@ -182,6 +172,59 @@
     }
   ],
   "activities": [
+    {
+      "id": "act-1788705283640-nlc0",
+      "action": "MEMBER_ASSIGNED",
+      "details": "removed member \"jashfhasjhka\" (jaskdjaskjds@gmail.com)",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "timestamp": "2026-09-06T14:34:43.640Z"
+    },
+    {
+      "id": "act-1788678154854-djgv",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"jsakfjasf\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788525755983",
+      "taskId": "task-06092cf5-2d5b-40c0-ac60-96c4d125287d",
+      "timestamp": "2026-09-06T07:02:34.854Z"
+    },
+    {
+      "id": "act-1788672622486-ir6z",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"API Gateway Rate Limiting & Auth Tokens\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1",
+      "taskId": "task-2",
+      "timestamp": "2026-09-06T05:30:22.486Z"
+    },
+    {
+      "id": "act-1788672621588-2ftl",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-2",
+      "taskId": "task-1",
+      "timestamp": "2026-09-06T05:30:21.588Z"
+    },
+    {
+      "id": "act-1788628159693-g6bg",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"Authentication & Permissions Security Review\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1",
+      "taskId": "task-3",
+      "timestamp": "2026-09-05T17:09:19.693Z"
+    },
     {
       "id": "act-1788613282622-7bo2",
       "action": "TASK_UPDATED",

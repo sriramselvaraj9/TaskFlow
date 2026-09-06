@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-
+// Global state management (Zustand).
 export type ToastType = 'success' | 'error' | 'info';
 
 export interface ToastItem {

@@ -62,6 +62,33 @@ export function removeLocalUser(id: string): void {
   recordDeletedId(id);
   const current = getLocalUsers().filter((u) => u.id !== id);
   safeSetItem(STORAGE_KEYS.USERS, current);
+
+  // Clean up local projects
+  const currentProjects = getLocalProjects();
+  let projectsChanged = false;
+  currentProjects.forEach((proj) => {
+    if (Array.isArray(proj.memberIds) && proj.memberIds.includes(id)) {
+      proj.memberIds = proj.memberIds.filter((mId) => mId !== id);
+      projectsChanged = true;
+    }
+  });
+  if (projectsChanged) {
+    safeSetItem(STORAGE_KEYS.PROJECTS, currentProjects);
+  }
+
+  // Unassign local tasks and move them to BACKLOG space
+  const currentTasks = getLocalTasks();
+  let tasksChanged = false;
+  currentTasks.forEach((task) => {
+    if (task.assigneeId === id) {
+      task.assigneeId = undefined;
+      task.status = 'BACKLOG';
+      tasksChanged = true;
+    }
+  });
+  if (tasksChanged) {
+    safeSetItem(STORAGE_KEYS.TASKS, currentTasks);
+  }
 }
 
 export function mergeUsersWithLocal(serverUsers: User[]): User[] {

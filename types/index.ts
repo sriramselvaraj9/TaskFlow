@@ -8,7 +8,7 @@ export interface User {
   designation?: string;
   createdAt: string;
 }
-
+// literal union types allows to extend later
 export type TaskStatus = 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE' | string;
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 
@@ -49,7 +49,7 @@ export interface Project {
   createdAt: string;
   updatedAt: string;
 }
-
+// Union Types for type safety
 export type ActivityAction =
   | 'TASK_CREATED'
   | 'TASK_STATUS_CHANGED'

@@ -264,7 +264,7 @@ export const TeamMembersView: React.FC = () => {
       <ConfirmModal
         isOpen={Boolean(userToDelete)}
         title="Delete Team Member"
-        description={`Are you sure you want to remove "${userToDelete?.name}" (${userToDelete?.email})? This will unassign any active tasks and remove them from all projects. This action cannot be undone.`}
+        description={`Are you sure you want to remove "${userToDelete?.name}" (${userToDelete?.email})? This will unassign any active tasks, move them to the Backlog space, and remove them from all projects. This action cannot be undone.`}
         confirmText="Delete Member"
         cancelText="Cancel"
         isLoading={deleteUserMutation.isPending}

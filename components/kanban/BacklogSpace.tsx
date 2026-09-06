@@ -1,6 +1,6 @@
 import { Archive, ChevronDown, ChevronUp, FolderArchive, Sparkles } from 'lucide-react';
 import type React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useUpdateTaskMutation } from '@/hooks/useTasks';
 import { cn } from '@/lib/utils';
 import { toast } from '@/store/useToastStore';
@@ -17,6 +17,12 @@ export const BacklogSpace: React.FC<BacklogSpaceProps> = ({ tasks }) => {
   const [isOpen, setIsOpen] = useState(backlogTasks.length > 0);
   const [isDragOver, setIsDragOver] = useState(false);
   const updateTaskMutation = useUpdateTaskMutation();
+
+  useEffect(() => {
+    if (backlogTasks.length > 0) {
+      setIsOpen(true);
+    }
+  }, [backlogTasks.length]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();

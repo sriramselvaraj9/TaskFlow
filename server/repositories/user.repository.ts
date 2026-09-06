@@ -174,16 +174,16 @@ export class UserRepository {
   async delete(id: string): Promise<boolean> {
     const db = getDatabase();
     const userIndex = db.users.findIndex((u) => u.id === id);
-    if (userIndex === -1) return false;
+    if (userIndex !== -1) {
+      const user = db.users[userIndex];
+      db.users.splice(userIndex, 1);
 
-    const user = db.users[userIndex];
-    db.users.splice(userIndex, 1);
-
-    if (user.email) {
-      const cleanEmail = user.email.toLowerCase();
-      delete db.passwords[cleanEmail];
-      if (db.otpTokens) {
-        delete db.otpTokens[cleanEmail];
+      if (user.email) {
+        const cleanEmail = user.email.toLowerCase();
+        delete db.passwords[cleanEmail];
+        if (db.otpTokens) {
+          delete db.otpTokens[cleanEmail];
+        }
       }
     }
 
@@ -199,6 +199,7 @@ export class UserRepository {
       db.tasks.forEach((task) => {
         if (task.assigneeId === id) {
           task.assigneeId = undefined;
+          task.status = 'BACKLOG';
         }
       });
     }

@@ -40,9 +40,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, isLoading }) =>
   const handleDeleteColumnClick = (id: string, title: string, count: number) => {
     setColumnToDelete({ id, title, taskCount: count });
   };
-
+  
+  // handle column delete confirmation
   const handleConfirmDeleteColumn = () => {
     if (!columnToDelete) return;
+    // detele column comes form the react tanstack query.mutate is a function used to execute a data-changing operation.
     deleteColumnMutation.mutate(columnToDelete.id, {
       onSuccess: () => {
         setColumnToDelete(null);

@@ -15,7 +15,7 @@ interface TaskFilterParams {
   assigneeId?: string | 'ALL';
   search?: string;
 }
-
+// Manages all task interactions
 function applyLocalFilters(tasks: Task[], params: TaskFilterParams): Task[] {
   return tasks.filter((t) => {
     if (params.projectId && params.projectId !== 'ALL' && t.projectId !== params.projectId) {
@@ -39,7 +39,7 @@ function applyLocalFilters(tasks: Task[], params: TaskFilterParams): Task[] {
     return true;
   });
 }
-
+// Manages all task interactions fetch tasks
 async function fetchTasks(params: TaskFilterParams): Promise<Task[]> {
   const query = new URLSearchParams();
   if (params.projectId && params.projectId !== 'ALL') query.set('projectId', params.projectId);
@@ -116,7 +116,7 @@ export function useTasksQuery(params: TaskFilterParams = {}) {
   return useQuery({
     queryKey: ['tasks', params],
     queryFn: () => fetchTasks(params),
-    staleTime: 1000 * 5, // 5s
+    staleTime: 1000 * 60, // 1 min
   });
 }
 
