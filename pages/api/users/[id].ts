@@ -44,7 +44,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      await deleteUser(id, currentUser);
+      const deleted = await deleteUser(id, currentUser);
+      if (!deleted) {
+        return res.status(404).json({ message: 'User not found or already deleted' });
+      }
       return res.status(200).json({ message: 'Team member deleted successfully' });
     } catch (error: any) {
       const statusCode = error.message?.includes('Unauthorized') ? 403 : 400;

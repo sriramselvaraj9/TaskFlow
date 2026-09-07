@@ -58,11 +58,11 @@ export function useDeleteUserMutation() {
       const res = await fetch(`/api/users/${userId}`, {
         method: 'DELETE',
       });
-      if (!res.ok && res.status !== 404) {
-        const error = await res.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to delete member');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to delete member');
       }
-      return { message: 'Member removed' };
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
