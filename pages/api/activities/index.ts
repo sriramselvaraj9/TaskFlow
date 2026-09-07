@@ -1,12 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
+import { applyCors, getAuthenticatedUser } from '@/lib/authHelper';
 import { getActivities } from '@/lib/db';
-import { authOptions } from '../auth/[...nextauth]';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession(req, res, authOptions);
+  if (applyCors(req, res)) return;
 
-  if (!session?.user) {
+  const currentUser = await getAuthenticatedUser(req, res);
+
+  if (!currentUser) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 

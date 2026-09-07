@@ -1,29 +1,22 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { createUser, getUserByEmail, getUserById } from '@/lib/db';
-import { authOptions } from '../auth/[...nextauth]';
+import { applyCors, getAuthenticatedUser } from '@/lib/authHelper';
+import { createUser, getUserByEmail } from '@/lib/db';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (applyCors(req, res)) return;
+
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
   try {
-    const session = await getServerSession(req, res, authOptions);
+    const currentUser = await getAuthenticatedUser(req, res);
 
-    if (!session?.user) {
+    if (!currentUser) {
       return res.status(401).json({ message: 'Unauthorized. Please sign in.' });
     }
 
-    const currentUser = (await getUserById(session.user.id)) || {
-      id: session.user.id,
-      name: session.user.name || '',
-      email: session.user.email || '',
-      role: session.user.role || 'MEMBER',
-      designation: session.user.role === 'ADMIN' ? 'Lead Administrator' : 'Software Engineer',
-      createdAt: new Date().toISOString(),
-    };
-    if (currentUser?.role !== 'ADMIN') {
+    if (currentUser.role !== 'ADMIN') {
       return res
         .status(403)
         .json({ message: 'Forbidden: Only Admins can provision new team members.' });

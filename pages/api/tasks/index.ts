@@ -1,25 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { createTask, getTasks, getUserById } from '@/lib/db';
+import { applyCors, getAuthenticatedUser } from '@/lib/authHelper';
+import { createTask, getTasks } from '@/lib/db';
 import { createTaskFullSchema } from '@/lib/validators';
 import type { TaskPriority, TaskStatus } from '@/types';
-import { authOptions } from '../auth/[...nextauth]';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession(req, res, authOptions);
+  if (applyCors(req, res)) return;
 
-  if (!session?.user) {
+  const currentUser = await getAuthenticatedUser(req, res);
+
+  if (!currentUser) {
     return res.status(401).json({ message: 'Unauthorized. Please log in.' });
   }
-
-  const currentUser = (await getUserById(session.user.id)) || {
-    id: session.user.id,
-    name: session.user.name || '',
-    email: session.user.email || '',
-    role: session.user.role || 'MEMBER',
-    designation: session.user.role === 'ADMIN' ? 'Lead Administrator' : 'Software Engineer',
-    createdAt: new Date().toISOString(),
-  };
 
   if (req.method === 'GET') {
     try {

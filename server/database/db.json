@@ -68,7 +68,7 @@
       "assigneeId": "user-1788782754158",
       "dueDate": "2026-09-12T00:00:00.000Z",
       "createdAt": "2026-09-04T08:00:00.000Z",
-      "updatedAt": "2026-09-07T12:09:17.102Z"
+      "updatedAt": "2026-09-07T13:50:00.414Z"
     },
     {
       "id": "task-5",
@@ -126,6 +126,28 @@
     }
   ],
   "activities": [
+    {
+      "id": "act-1788789000417-gmjw",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-2",
+      "taskId": "task-1",
+      "timestamp": "2026-09-07T13:50:00.417Z"
+    },
+    {
+      "id": "act-1788788988137-n2u9",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-2",
+      "taskId": "task-1",
+      "timestamp": "2026-09-07T13:49:48.137Z"
+    },
     {
       "id": "act-1788782957103-v0f5",
       "action": "TASK_UPDATED",
