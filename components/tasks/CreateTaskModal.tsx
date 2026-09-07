@@ -28,6 +28,8 @@ export const CreateTaskModal: React.FC = () => {
   const createTaskMutation = useCreateTaskMutation();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step1Attempted, setStep1Attempted] = useState(false);
+  const [step2Attempted, setStep2Attempted] = useState(false);
 
   const {
     register,
@@ -38,9 +40,10 @@ export const CreateTaskModal: React.FC = () => {
     setError,
     clearErrors,
     getValues,
-    formState: { errors },
+    formState: { errors, touchedFields },
   } = useForm<CreateTaskFormData>({
     resolver: zodResolver(createTaskFullSchema),
+    mode: 'onTouched',
     shouldUnregister: false,
     defaultValues: {
       title: '',
@@ -57,6 +60,16 @@ export const CreateTaskModal: React.FC = () => {
   });
 
   const currentProjectId = watch('projectId');
+
+  // Reset errors and touched state when modal opens
+  useEffect(() => {
+    if (isCreateTaskOpen) {
+      setStep(1);
+      setStep1Attempted(false);
+      setStep2Attempted(false);
+      clearErrors();
+    }
+  }, [isCreateTaskOpen, clearErrors]);
 
   useEffect(() => {
     if (projects.length > 0) {
@@ -78,6 +91,7 @@ export const CreateTaskModal: React.FC = () => {
   }, [projects, currentProjectId, selectedProjectId, setValue]);
 
   const validateStep1 = () => {
+    setStep1Attempted(true);
     const title = getValues('title') || '';
     const description = getValues('description') || '';
     const projectId = getValues('projectId') || '';
@@ -101,6 +115,7 @@ export const CreateTaskModal: React.FC = () => {
   };
 
   const validateStep2 = () => {
+    setStep2Attempted(true);
     const priority = getValues('priority') || 'MEDIUM';
     const assigneeId = getValues('assigneeId') || '';
     const dueDate = getValues('dueDate') || '';
@@ -164,6 +179,8 @@ export const CreateTaskModal: React.FC = () => {
             status: 'TODO',
           });
           setStep(1);
+          setStep1Attempted(false);
+          setStep2Attempted(false);
           setCreateTaskOpen(false);
         },
       },
@@ -173,6 +190,8 @@ export const CreateTaskModal: React.FC = () => {
   const handleClose = () => {
     reset();
     setStep(1);
+    setStep1Attempted(false);
+    setStep2Attempted(false);
     setCreateTaskOpen(false);
   };
 
@@ -236,31 +255,47 @@ export const CreateTaskModal: React.FC = () => {
         ))}
       </div>
 
-      <form onSubmit={handleFormSubmit} className="flex flex-col justify-between h-[350px]">
+      <form onSubmit={handleFormSubmit} className="flex flex-col justify-between min-h-[370px]">
         <div className="flex-1 overflow-y-auto pr-0.5">
           {/* STEP 1: Title, Description, Project */}
-          <div className={cn('space-y-3.5 animate-fade-in', step !== 1 && 'hidden')}>
+          <div className={cn('space-y-1.5 animate-fade-in', step !== 1 && 'hidden')}>
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 Task Title *
               </label>
               <input
                 type="text"
                 placeholder="e.g., Implement OAuth2 refresh token rotation"
                 {...register('title')}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 shadow-xs font-medium"
+                className={cn(
+                  'w-full bg-slate-50 border rounded-xl px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none shadow-xs font-medium transition-colors',
+                  (touchedFields.title || step1Attempted) && errors.title
+                    ? 'border-rose-500 focus:border-rose-500'
+                    : 'border-slate-200 focus:border-indigo-500',
+                )}
               />
-              {errors.title && <p className="text-xs text-rose-600 mt-1">{errors.title.message}</p>}
+              <div className="h-4 flex items-center mt-0.5">
+                {(touchedFields.title || step1Attempted) && errors.title && (
+                  <p className="text-[11px] text-rose-500 font-medium leading-none">
+                    {errors.title.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 Target Project *
               </label>
               {projects.length > 0 ? (
                 <select
                   {...register('projectId')}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-indigo-500 cursor-pointer font-semibold shadow-xs"
+                  className={cn(
+                    'w-full bg-slate-50 border rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none cursor-pointer font-semibold shadow-xs transition-colors',
+                    (touchedFields.projectId || step1Attempted) && errors.projectId
+                      ? 'border-rose-500 focus:border-rose-500'
+                      : 'border-slate-200 focus:border-indigo-500',
+                  )}
                 >
                   {projects.map((proj) => (
                     <option key={proj.id} value={proj.id}>
@@ -269,7 +304,7 @@ export const CreateTaskModal: React.FC = () => {
                   ))}
                 </select>
               ) : (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
+                <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
                   <span className="text-xs text-amber-800 font-medium">
                     No projects available yet.
                   </span>
@@ -285,32 +320,45 @@ export const CreateTaskModal: React.FC = () => {
                   </button>
                 </div>
               )}
-              {errors.projectId && (
-                <p className="text-xs text-rose-600 mt-1">{errors.projectId.message}</p>
-              )}
+              <div className="h-4 flex items-center mt-0.5">
+                {(touchedFields.projectId || step1Attempted) && errors.projectId && (
+                  <p className="text-[11px] text-rose-500 font-medium leading-none">
+                    {errors.projectId.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 Description *
               </label>
               <textarea
-                rows={3.5}
+                rows={3}
                 placeholder="Provide comprehensive task details, AC, or links..."
                 {...register('description')}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 leading-relaxed shadow-xs"
+                className={cn(
+                  'w-full bg-slate-50 border rounded-xl px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none leading-relaxed shadow-xs transition-colors',
+                  (touchedFields.description || step1Attempted) && errors.description
+                    ? 'border-rose-500 focus:border-rose-500'
+                    : 'border-slate-200 focus:border-indigo-500',
+                )}
               />
-              {errors.description && (
-                <p className="text-xs text-rose-600 mt-1">{errors.description.message}</p>
-              )}
+              <div className="h-4 flex items-center mt-0.5">
+                {(touchedFields.description || step1Attempted) && errors.description && (
+                  <p className="text-[11px] text-rose-500 font-medium leading-none">
+                    {errors.description.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
           {/* STEP 2: Priority, Assignee, Due Date */}
-          <div className={cn('space-y-3.5 animate-fade-in', step !== 2 && 'hidden')}>
+          <div className={cn('space-y-1.5 animate-fade-in', step !== 2 && 'hidden')}>
             <input type="hidden" {...register('priority')} />
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 Priority Level *
               </label>
               <div className="grid grid-cols-3 gap-2.5">
@@ -333,18 +381,22 @@ export const CreateTaskModal: React.FC = () => {
                   );
                 })}
               </div>
-              {errors.priority && (
-                <p className="text-xs text-rose-600 mt-1">{errors.priority.message}</p>
-              )}
+              <div className="h-4 flex items-center mt-0.5">
+                {(touchedFields.priority || step2Attempted) && errors.priority && (
+                  <p className="text-[11px] text-rose-500 font-medium leading-none">
+                    {errors.priority.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 Assignee
               </label>
               <select
                 {...register('assigneeId')}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-indigo-500 cursor-pointer font-semibold shadow-xs"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-indigo-500 cursor-pointer font-semibold shadow-xs"
               >
                 <option value="">None (Unassigned)</option>
                 {users.map((u) => (
@@ -353,23 +405,36 @@ export const CreateTaskModal: React.FC = () => {
                   </option>
                 ))}
               </select>
-              {errors.assigneeId && (
-                <p className="text-xs text-rose-600 mt-1">{errors.assigneeId.message}</p>
-              )}
+              <div className="h-4 flex items-center mt-0.5">
+                {errors.assigneeId && (
+                  <p className="text-[11px] text-rose-500 font-medium leading-none">
+                    {errors.assigneeId.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 Due Date *
               </label>
               <input
                 type="date"
                 {...register('dueDate')}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-indigo-500 font-semibold shadow-xs"
+                className={cn(
+                  'w-full bg-slate-50 border rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none font-semibold shadow-xs transition-colors',
+                  (touchedFields.dueDate || step2Attempted) && errors.dueDate
+                    ? 'border-rose-500 focus:border-rose-500'
+                    : 'border-slate-200 focus:border-indigo-500',
+                )}
               />
-              {errors.dueDate && (
-                <p className="text-xs text-rose-600 mt-1">{errors.dueDate.message}</p>
-              )}
+              <div className="h-4 flex items-center mt-0.5">
+                {(touchedFields.dueDate || step2Attempted) && errors.dueDate && (
+                  <p className="text-[11px] text-rose-500 font-medium leading-none">
+                    {errors.dueDate.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
