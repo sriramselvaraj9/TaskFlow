@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  taskflow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: taskflow-app
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=taskflow-super-secure-production-secret-key-32chars
+      - DB_PATH=/app/server/database/db.json
+    volumes:
+      # Mount the database directory to preserve tasks and projects permanently across container restarts
+      - ./server/database:/app/server/database

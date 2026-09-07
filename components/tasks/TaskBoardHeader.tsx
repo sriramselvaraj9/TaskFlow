@@ -199,7 +199,6 @@ export const TaskBoardHeader: React.FC<TaskBoardHeaderProps> = ({
 
   const priorityOptions: DropdownOption[] = [
     { value: 'ALL', label: 'All Priorities' },
-    { value: 'URGENT', label: 'Urgent', dotColor: 'bg-rose-500' },
     { value: 'HIGH', label: 'High', dotColor: 'bg-amber-500' },
     { value: 'MEDIUM', label: 'Medium', dotColor: 'bg-indigo-500' },
     { value: 'LOW', label: 'Low', dotColor: 'bg-slate-400' },

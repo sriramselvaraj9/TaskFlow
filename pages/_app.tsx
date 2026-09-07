@@ -12,8 +12,8 @@ export default function App({ Component, pageProps }: { Component: any; pageProp
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 1000 * 60 * 2, // 2 mins
-            refetchOnWindowFocus: false,
+            staleTime: 1000 * 5, // 5 seconds
+            refetchOnWindowFocus: true, // Automatically re-sync when switching back to tab
             retry: 1,
           },
         },
@@ -22,11 +22,7 @@ export default function App({ Component, pageProps }: { Component: any; pageProp
 
   return (
     <ErrorBoundary>
-      <SessionProvider
-        session={pageProps.session}
-        refetchInterval={0}
-        refetchOnWindowFocus={false}
-      >
+      <SessionProvider session={pageProps.session} refetchInterval={0} refetchOnWindowFocus={false}>
         <QueryClientProvider client={queryClient}>
           <Component {...pageProps} />
           <ToastContainer />

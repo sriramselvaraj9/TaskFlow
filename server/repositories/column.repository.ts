@@ -81,12 +81,22 @@ export class ColumnRepository {
       throw new Error('Unauthorized: Only Admins can delete columns');
     }
 
+    const STATIC_COLUMNS = ['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE'];
+    if (STATIC_COLUMNS.includes(id.toUpperCase())) {
+      throw new Error('Default workflow columns (TODO, In Progress, In Review, Done) are permanent and cannot be deleted');
+    }
+
     const db = getDatabase();
     if (!Array.isArray(db.columns)) {
       db.columns = getDefaultColumns();
     }
+    if (!Array.isArray(db.tasks)) {
+      db.tasks = [];
+    }
 
-    const colIndex = db.columns.findIndex((c) => c.id === id);
+    const colIndex = db.columns.findIndex(
+      (c) => c.id === id || c.id.toLowerCase() === id.toLowerCase(),
+    );
     if (colIndex === -1) {
       throw new Error('Column not found');
     }
@@ -97,7 +107,7 @@ export class ColumnRepository {
     let movedTasksCount = 0;
     const now = new Date().toISOString();
     db.tasks.forEach((task) => {
-      if (task.status === id) {
+      if (task.status === id || task.status === deletedColumn.id) {
         task.status = 'BACKLOG';
         task.updatedAt = now;
         movedTasksCount++;

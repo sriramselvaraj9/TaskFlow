@@ -10,7 +10,7 @@ export interface User {
 }
 // literal union types allows to extend later
 export type TaskStatus = 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE' | string;
-export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export interface BoardColumn {
   id: string;

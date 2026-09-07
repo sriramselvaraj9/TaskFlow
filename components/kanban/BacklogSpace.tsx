@@ -73,33 +73,22 @@ export const BacklogSpace: React.FC<BacklogSpaceProps> = ({ tasks }) => {
           <div className="flex items-center justify-center w-7 h-7 rounded-xl bg-amber-100 text-amber-800 border border-amber-200/60 shadow-xs">
             <Archive className="w-3.5 h-3.5" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-900 tracking-tight">Backlog Space</span>
-              <span
-                className={cn(
-                  'text-[10px] font-bold px-2 py-0.5 rounded-full border',
-                  backlogTasks.length > 0
-                    ? 'bg-amber-100 text-amber-800 border-amber-300 shadow-2xs'
-                    : 'bg-slate-200 text-slate-600 border-slate-300',
-                )}
-              >
-                {backlogTasks.length} {backlogTasks.length === 1 ? 'task' : 'tasks'}
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 font-normal">
-              Holding area for unassigned workflow tasks and tasks from deleted columns.
-            </p>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-900 tracking-tight">Backlog Space</span>
+            <span
+              className={cn(
+                'text-[10px] font-bold px-2 py-0.5 rounded-full border',
+                backlogTasks.length > 0
+                  ? 'bg-amber-100 text-amber-800 border-amber-300 shadow-2xs'
+                  : 'bg-slate-200 text-slate-600 border-slate-300',
+              )}
+            >
+              {backlogTasks.length} {backlogTasks.length === 1 ? 'task' : 'tasks'}
+            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {backlogTasks.length > 0 && (
-            <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-lg font-medium border border-amber-200">
-              <Sparkles className="w-3 h-3 text-amber-600" />
-              Drag tasks into board columns to activate
-            </span>
-          )}
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
@@ -125,11 +114,9 @@ export const BacklogSpace: React.FC<BacklogSpaceProps> = ({ tasks }) => {
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center gap-2 py-4 px-4 text-center border border-dashed border-slate-300/80 rounded-xl bg-white/40 my-1">
+            <div className="flex items-center justify-center gap-2 py-3 px-4 text-center border border-dashed border-slate-300/80 rounded-xl bg-white/40 my-1">
               <FolderArchive className="w-4 h-4 text-slate-400" />
-              <p className="text-xs text-slate-500 font-medium">
-                Backlog space is empty. When a column is deleted, its tasks automatically park here.
-              </p>
+              <p className="text-xs text-slate-500 font-medium">No tasks in backlog.</p>
             </div>
           )}
         </div>

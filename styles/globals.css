@@ -86,3 +86,13 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: #0f172a;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+/* Hide native browser password reveal / clear buttons */
+input::-ms-reveal,
+input::-ms-clear,
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-credentials-auto-fill-button {
+  display: none;
+  visibility: hidden;
+  pointer-events: none;
+}

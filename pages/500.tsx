@@ -1,4 +1,5 @@
-import { AlertTriangle, CheckSquare } from 'lucide-react';
+import { AlertTriangle, CheckSquare, Home } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Custom500() {
   return (
@@ -26,7 +27,19 @@ export default function Custom500() {
             An unexpected backend exception occurred. The error has been isolated and logged.
           </p>
         </div>
+
+        {/* Action Button */}
+        <div className="pt-2 flex justify-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold transition-all shadow-lg shadow-indigo-600/30 active:scale-[0.98] cursor-pointer"
+          >
+            <Home className="w-4 h-4" />
+            <span>Back to Home</span>
+          </Link>
+        </div>
       </div>
     </div>
   );
 }
+

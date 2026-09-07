@@ -3,7 +3,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { type DatabaseSchema, getDefaultColumns, getInitialSeedData } from '../database/seed';
 
-const DB_FILE_PATH = path.join(process.cwd(), 'server', 'database', 'db.json');
+const DB_FILE_PATH =
+  process.env.DB_PATH || path.join(process.cwd(), 'server', 'database', 'db.json');
 const TMP_DB_FILE_PATH = path.join(os.tmpdir(), 'taskflow_db.json');
 
 declare global {
@@ -32,16 +33,25 @@ function tryParseDb(filePath: string): DatabaseSchema | null {
 }
 
 function loadDbFromFile(): DatabaseSchema {
-  // 1. Try reading from tmp directory (writable in serverless)
-  const tmpParsed = tryParseDb(TMP_DB_FILE_PATH);
-  if (tmpParsed) return tmpParsed;
-
-  // 2. Try reading from project directory
+  // 1. Primary: Try reading from configured database path (Docker/Render/Local)
   const localParsed = tryParseDb(DB_FILE_PATH);
   if (localParsed) return localParsed;
 
-  // 3. Fallback to initial seed
+  // 2. Secondary: Try reading from tmp directory (fallback in serverless)
+  const tmpParsed = tryParseDb(TMP_DB_FILE_PATH);
+  if (tmpParsed) return tmpParsed;
+
+  // 3. Fallback: Initialize with seed data and persist immediately
   const initial = getInitialSeedData();
+  try {
+    const dir = path.dirname(DB_FILE_PATH);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(DB_FILE_PATH, JSON.stringify(initial, null, 2), 'utf-8');
+  } catch {
+    // Ignore initial write failure if environment is read-only
+  }
   return initial;
 }
 
@@ -52,18 +62,18 @@ export function saveDbToFile(db?: DatabaseSchema): void {
       global.__taskflow_db__ = targetData;
       const serialized = JSON.stringify(targetData, null, 2);
 
-      // Try saving to project directory (works in local dev)
+      // Primary: Save to configured database file (works in Docker / Render / Local)
       try {
         const dir = path.dirname(DB_FILE_PATH);
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true });
         }
         fs.writeFileSync(DB_FILE_PATH, serialized, 'utf-8');
-      } catch {
-        // Read-only filesystem in Vercel serverless functions
+      } catch (err) {
+        // Read-only filesystem in some serverless environments
       }
 
-      // Also try saving to tmp directory (works across invocations in serverless)
+      // Secondary: Also sync to tmp directory
       try {
         fs.writeFileSync(TMP_DB_FILE_PATH, serialized, 'utf-8');
       } catch {
@@ -71,7 +81,7 @@ export function saveDbToFile(db?: DatabaseSchema): void {
       }
     }
   } catch (error) {
-    console.error('Error saving db:', error);
+    console.error('Error saving database:', error);
   }
 }
 

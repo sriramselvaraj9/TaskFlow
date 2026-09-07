@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-// Global state management (Zustand).
+// Global state management (Zustand).Manages popup toast notifications (success messages, warnings, error banners).
 export type ToastType = 'success' | 'error' | 'info';
 
 export interface ToastItem {

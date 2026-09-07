@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
+    "docker:build": "docker build -t taskflow .",
+    "docker:run": "docker run -p 3000:3000 -v %cd%/server/database:/app/server/database taskflow",
+    "docker:compose": "docker compose up -d",
     "biome:check": "biome check .",
     "biome:format": "biome format --write ."
   },
@@ -26,18 +29,18 @@
     "recharts": "^2.13.0",
     "tailwind-merge": "^2.5.4",
     "zod": "^3.23.8",
-    "zustand": "^5.0.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.5.11",
+    "zustand": "^5.0.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.17.0",
     "@types/nodemailer": "^8.0.1",
     "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.1",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.14",
-    "typescript": "^5.6.3"
+    "@types/react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.11"
   }
 }

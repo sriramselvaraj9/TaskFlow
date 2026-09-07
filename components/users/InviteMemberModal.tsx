@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
@@ -105,22 +104,23 @@ export const InviteMemberModal: React.FC = () => {
       onClose={handleClose}
       title="Provision New Team Member"
       description="Invite a new corporate member to TaskFlow workspace."
+      maxWidth="md"
     >
       {/* Feedback Alerts */}
       {errorMessage && (
-        <div className="mt-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold">
+        <div className="mt-2.5 p-2.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold">
           {errorMessage}
         </div>
       )}
       {successMessage && (
-        <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs font-bold flex items-center gap-2">
+        <div className="mt-2.5 p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs font-bold flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           <span>{successMessage}</span>
         </div>
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="mt-4 space-y-4" autoComplete="off">
+      <form onSubmit={handleSubmit} className="mt-3 space-y-1.5" autoComplete="off">
         {/* Hidden decoy fields to absorb browser credential autofill */}
         <div
           className="sr-only"
@@ -157,7 +157,7 @@ export const InviteMemberModal: React.FC = () => {
             }}
             onBlur={() => setNameTouched(true)}
             placeholder="e.g. Kathryn Murphy"
-            className={`w-full bg-slate-50 border rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:bg-white shadow-xs transition-colors ${
+            className={`w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:bg-white shadow-xs transition-colors ${
               nameTouched
                 ? isNameValid
                   ? 'border-emerald-500 focus:border-emerald-500'
@@ -165,11 +165,13 @@ export const InviteMemberModal: React.FC = () => {
                 : 'border-slate-200 focus:border-indigo-500'
             }`}
           />
-          {nameTouched && !isNameValid && (
-            <p className="text-xs text-rose-500 mt-1 font-medium">
-              Must be 3-25 alphanumeric characters.
-            </p>
-          )}
+          <div className="h-4 flex items-center mt-0.5">
+            {nameTouched && !isNameValid && (
+              <p className="text-[11px] text-rose-500 font-medium leading-none">
+                Must be 3-25 alphanumeric characters.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Corporate Email */}
@@ -196,7 +198,7 @@ export const InviteMemberModal: React.FC = () => {
             }}
             onBlur={() => setEmailTouched(true)}
             placeholder="e.g. kathryn@taskflow.dev"
-            className={`w-full bg-slate-50 border rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:bg-white shadow-xs transition-colors ${
+            className={`w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:bg-white shadow-xs transition-colors ${
               emailTouched
                 ? isEmailValid
                   ? 'border-emerald-500 focus:border-emerald-500'
@@ -204,11 +206,13 @@ export const InviteMemberModal: React.FC = () => {
                 : 'border-slate-200 focus:border-indigo-500'
             }`}
           />
-          {emailTouched && !isEmailValid && (
-            <p className="text-xs text-rose-500 mt-1 font-medium">
-              Please enter a complete email address (e.g. name@domain.com).
-            </p>
-          )}
+          <div className="h-4 flex items-center mt-0.5">
+            {emailTouched && !isEmailValid && (
+              <p className="text-[11px] text-rose-500 font-medium leading-none">
+                Please enter a complete email address (e.g. name@domain.com).
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Role / Designation */}
@@ -232,7 +236,7 @@ export const InviteMemberModal: React.FC = () => {
             }}
             onBlur={() => setDesignationTouched(true)}
             placeholder="e.g. Web Designer, Full Stack Developer, Marketing Coordinator"
-            className={`w-full bg-slate-50 border rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:bg-white shadow-xs transition-colors ${
+            className={`w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:bg-white shadow-xs transition-colors ${
               designationTouched
                 ? isDesignationValid
                   ? 'border-emerald-500 focus:border-emerald-500'
@@ -240,11 +244,13 @@ export const InviteMemberModal: React.FC = () => {
                 : 'border-slate-200 focus:border-indigo-500'
             }`}
           />
-          {designationTouched && !isDesignationValid && (
-            <p className="text-xs text-rose-500 mt-1 font-medium">
-              Designation must be at least 2 characters long.
-            </p>
-          )}
+          <div className="h-4 flex items-center mt-0.5">
+            {designationTouched && !isDesignationValid && (
+              <p className="text-[11px] text-rose-500 font-medium leading-none">
+                Designation must be at least 2 characters long.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Temporary Password */}
@@ -272,7 +278,7 @@ export const InviteMemberModal: React.FC = () => {
               }}
               onBlur={() => setPasswordTouched(true)}
               placeholder="Enter temporary password (min 6 characters)"
-              className={`w-full bg-slate-50 border rounded-xl pl-3.5 pr-10 py-2.5 text-xs text-slate-900 font-mono focus:outline-none focus:bg-white shadow-xs transition-colors ${
+              className={`w-full bg-slate-50 border rounded-xl pl-3 pr-10 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:bg-white shadow-xs transition-colors ${
                 passwordTouched
                   ? isPasswordValid
                     ? 'border-emerald-500 focus:border-emerald-500'
@@ -288,15 +294,17 @@ export const InviteMemberModal: React.FC = () => {
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-          {passwordTouched && !isPasswordValid && (
-            <p className="text-xs text-rose-500 mt-1 font-medium">
-              Password must be at least 6 characters long.
-            </p>
-          )}
+          <div className="h-4 flex items-center mt-0.5">
+            {passwordTouched && !isPasswordValid && (
+              <p className="text-[11px] text-rose-500 font-medium leading-none">
+                Password must be at least 6 characters long.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Actions (Single primary button, close via top-right X) */}
-        <div className="pt-3 border-t border-slate-200">
+        <div className="pt-2 border-t border-slate-100">
           <Button
             type="submit"
             variant="primary"

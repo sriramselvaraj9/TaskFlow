@@ -1,39 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  getLocalProjects,
-  mergeProjectsWithLocal,
-  removeLocalProject,
-  saveLocalProject,
-} from '@/lib/storageSync';
 import type { ProjectFormData } from '@/lib/validators';
 import type { Project } from '@/types';
 
 async function fetchProjects(): Promise<Project[]> {
-  try {
-    const res = await fetch('/api/projects');
-    if (res.ok) {
-      const serverProjects: Project[] = await res.json();
-      return mergeProjectsWithLocal(serverProjects);
-    }
-  } catch {
-    // Network fallback
+  const res = await fetch('/api/projects');
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || 'Failed to fetch projects');
   }
-  const local = getLocalProjects();
-  return local.length > 0 ? local : [];
+  return res.json();
 }
 
 async function fetchProject(id: string): Promise<Project> {
-  try {
-    const res = await fetch(`/api/projects/${id}`);
-    if (res.ok) {
-      return res.json();
-    }
-  } catch {
-    // fallback
+  const res = await fetch(`/api/projects/${id}`);
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || 'Project not found');
   }
-  const local = getLocalProjects().find((p) => p.id === id);
-  if (local) return local;
-  throw new Error('Project not found');
+  return res.json();
 }
 
 async function createProject(data: ProjectFormData): Promise<Project> {
@@ -43,18 +27,17 @@ async function createProject(data: ProjectFormData): Promise<Project> {
     body: JSON.stringify(data),
   });
   if (!res.ok) {
-    const error = await res.json();
+    const error = await res.json().catch(() => ({}));
     throw new Error(error.message || 'Failed to create project');
   }
-  const project: Project = await res.json();
-  return project;
+  return res.json();
 }
 
 export function useProjectsQuery() {
   return useQuery({
     queryKey: ['projects'],
     queryFn: fetchProjects,
-    staleTime: 1000 * 60, // 1 min
+    staleTime: 1000 * 5, // 5 seconds
   });
 }
 
@@ -70,10 +53,7 @@ export function useCreateProjectMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createProject,
-    onSuccess: (newProj) => {
-      if (newProj) {
-        saveLocalProject(newProj);
-      }
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['activities'] });
@@ -94,22 +74,21 @@ async function updateProject({
     body: JSON.stringify(updates),
   });
   if (!res.ok) {
-    const error = await res.json();
+    const error = await res.json().catch(() => ({}));
     throw new Error(error.message || 'Failed to update project');
   }
   return res.json();
 }
 
 async function deleteProject(id: string): Promise<{ message: string }> {
-  removeLocalProject(id);
   const res = await fetch(`/api/projects/${id}`, {
     method: 'DELETE',
   });
-  if (!res.ok) {
-    const error = await res.json();
+  if (!res.ok && res.status !== 404) {
+    const error = await res.json().catch(() => ({}));
     throw new Error(error.message || 'Failed to delete project');
   }
-  return res.json();
+  return { message: 'Project deleted' };
 }
 
 export function useUpdateProjectMutation() {
@@ -117,9 +96,6 @@ export function useUpdateProjectMutation() {
   return useMutation({
     mutationFn: updateProject,
     onSuccess: (updated) => {
-      if (updated) {
-        saveLocalProject(updated);
-      }
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['projects', updated.id] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -141,3 +117,4 @@ export function useDeleteProjectMutation() {
     },
   });
 }
+

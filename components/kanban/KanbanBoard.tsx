@@ -2,12 +2,7 @@ import { Plus, RotateCcw, Search } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import type React from 'react';
 import { useState } from 'react';
-import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import {
-  useColumnsQuery,
-  useDeleteColumnMutation,
-  useReorderColumnsMutation,
-} from '@/hooks/useColumns';
+import { useColumnsQuery } from '@/hooks/useColumns';
 import { useTaskStore } from '@/store/useTaskStore';
 import type { Task } from '@/types';
 import { AddColumnModal } from './AddColumnModal';
@@ -19,50 +14,14 @@ interface KanbanBoardProps {
   isLoading?: boolean;
 }
 
-interface ColumnToDelete {
-  id: string;
-  title: string;
-  taskCount: number;
-}
-
 export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, isLoading }) => {
   const { data: session } = useSession();
   const { searchQuery, setSearchQuery } = useTaskStore();
   const { data: columns = [], isLoading: isColumnsLoading } = useColumnsQuery();
-  const deleteColumnMutation = useDeleteColumnMutation();
-  const reorderColumnsMutation = useReorderColumnsMutation();
 
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
-  const [columnToDelete, setColumnToDelete] = useState<ColumnToDelete | null>(null);
 
   const isAdmin = session?.user?.role === 'ADMIN';
-
-  const handleDeleteColumnClick = (id: string, title: string, count: number) => {
-    setColumnToDelete({ id, title, taskCount: count });
-  };
-  
-  // handle column delete confirmation
-  const handleConfirmDeleteColumn = () => {
-    if (!columnToDelete) return;
-    // detele column comes form the react tanstack query.mutate is a function used to execute a data-changing operation.
-    deleteColumnMutation.mutate(columnToDelete.id, {
-      onSuccess: () => {
-        setColumnToDelete(null);
-      },
-    });
-  };
-
-  const handleMoveColumn = (index: number, direction: 'left' | 'right') => {
-    const targetIndex = direction === 'left' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= columns.length) return;
-
-    const newColumnIds = columns.map((c) => c.id);
-    const temp = newColumnIds[index];
-    newColumnIds[index] = newColumnIds[targetIndex];
-    newColumnIds[targetIndex] = temp;
-
-    reorderColumnsMutation.mutate(newColumnIds);
-  };
 
   if (isLoading || isColumnsLoading) {
     return (
@@ -103,8 +62,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, isLoading }) =>
         </div>
       )}
 
+      {/* Dedicated Backlog Space (Positioned at the TOP for maximum visibility) */}
+      <BacklogSpace tasks={tasks} columns={columns} />
+
       {/* Active Kanban Columns */}
-      <div className="flex gap-4 overflow-x-auto select-none min-h-[calc(100vh-300px)] pb-4 items-start">
+      <div className="flex gap-4 overflow-x-auto select-none min-h-[calc(100vh-340px)] pb-4 items-start">
         {columns.map((col, index) => {
           const columnTasks = tasks.filter((task) => task.status === col.id);
           return (
@@ -115,11 +77,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, isLoading }) =>
               tasks={columnTasks}
               accentColor={col.accentColor}
               dotColor={col.dotColor}
-              onDeleteColumn={handleDeleteColumnClick}
-              onMoveLeft={() => handleMoveColumn(index, 'left')}
-              onMoveRight={() => handleMoveColumn(index, 'right')}
-              canMoveLeft={index > 0}
-              canMoveRight={index < columns.length - 1}
             />
           );
         })}
@@ -142,26 +99,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, isLoading }) =>
         )}
       </div>
 
-      {/* Dedicated Backlog Space (Collapsible Holding & Migration area for deleted columns) */}
-      <BacklogSpace tasks={tasks} columns={columns} />
-
       {/* Add Column Modal */}
       <AddColumnModal isOpen={isAddColumnOpen} onClose={() => setIsAddColumnOpen(false)} />
-
-      {/* Delete Column Confirmation Modal */}
-      <ConfirmModal
-        isOpen={Boolean(columnToDelete)}
-        title="Delete Board Column"
-        description={`Are you sure you want to delete the "${columnToDelete?.title}" column? ${
-          columnToDelete && columnToDelete.taskCount > 0
-            ? `All ${columnToDelete.taskCount} task(s) currently in this column will be safely moved to the Backlog space.`
-            : 'This column has no tasks.'
-        }`}
-        confirmText="Delete Column"
-        isLoading={deleteColumnMutation.isPending}
-        onConfirm={handleConfirmDeleteColumn}
-        onClose={() => setColumnToDelete(null)}
-      />
     </div>
   );
 };

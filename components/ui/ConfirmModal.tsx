@@ -1,4 +1,4 @@
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import type React from 'react';
 import { Button } from '@/components/ui/Button';
 
@@ -35,13 +35,6 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
       {/* Modal Dialog */}
       <div className="relative w-full max-w-md bg-white rounded-2xl border border-slate-200 p-6 shadow-2xl z-10 animate-scale-in max-h-[90vh] flex flex-col justify-between overflow-hidden">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
         <div className="flex items-start gap-4 min-w-0">
           <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100">
             <AlertTriangle className="w-5 h-5" />

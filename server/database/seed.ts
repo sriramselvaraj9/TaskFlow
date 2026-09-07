@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import type { ActivityLog, BoardColumn, Project, Task, User } from '@/types';
 
 export interface DatabaseSchema {
@@ -50,8 +49,6 @@ export function getDefaultColumns(): BoardColumn[] {
 }
 
 export function getInitialSeedData(): DatabaseSchema {
-  const now = new Date().toISOString();
-
   const users: User[] = [
     {
       id: 'user-admin-1',

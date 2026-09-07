@@ -1,7 +1,7 @@
 //useMutation: A React hook used to perform create/update/delete actions (used for POST, PUT, DELETE requests).
 //useQuery: A React hook used to fetch and cache data
 //useQueryClient: A React hook used to access the query client instance.
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { CreateColumnFormData } from '@/lib/validators';
 import { toast } from '@/store/useToastStore';
 import type { BoardColumn } from '@/types';
@@ -13,11 +13,12 @@ export const columnKeys = {
 async function fetchColumns(): Promise<BoardColumn[]> {
   const res = await fetch('/api/columns');
   if (!res.ok) {
-    const error = await res.json();
+    const error = await res.json().catch(() => ({}));
     throw new Error(error.message || 'Failed to fetch columns');
   }
-  return res.json();
+  return res.json().catch(() => []);
 }
+
 // create columns in the database
 async function createColumn(data: CreateColumnFormData): Promise<BoardColumn> {
   const res = await fetch('/api/columns', {
@@ -26,13 +27,13 @@ async function createColumn(data: CreateColumnFormData): Promise<BoardColumn> {
     body: JSON.stringify(data),
   });
   if (!res.ok) {
-    const error = await res.json();
+    const error = await res.json().catch(() => ({}));
     throw new Error(error.message || 'Failed to create column');
   }
   return res.json();
 }
 
-// delete column hood request 
+// delete column hood request
 async function deleteColumn(id: string): Promise<{
   message: string;
   movedTasksCount: number;
@@ -42,20 +43,24 @@ async function deleteColumn(id: string): Promise<{
     method: 'DELETE',
   });
   if (!res.ok) {
-    const error = await res.json();
+    const error = await res.json().catch(() => ({}));
     throw new Error(error.message || 'Failed to delete column');
   }
-  return res.json();
+  return res.json().catch(() => ({
+    message: 'Column deleted',
+    movedTasksCount: 0,
+    deletedColumn: { id, title: '', dotColor: '', accentColor: '', order: 0, createdAt: '' },
+  }));
 }
 
 export function useColumnsQuery() {
   return useQuery({
     queryKey: columnKeys.all,
     queryFn: fetchColumns,
-    staleTime: 1000 * 60 * 5, 
+    staleTime: 1000 * 5,
   });
 }
- 
+
 // used to create the column
 export function useCreateColumnMutation() {
   const queryClient = useQueryClient();
@@ -87,7 +92,7 @@ export function useDeleteColumnMutation() {
       if (result.movedTasksCount > 0) {
         toast.success(`Column deleted. ${result.movedTasksCount} task(s) moved to Backlog space.`);
       } else {
-        toast.success(`Column "${result.deletedColumn.title}" deleted.`);
+        toast.success(`Column "${result.deletedColumn.title || 'Column'}" deleted.`);
       }
     },
     onError: (err: any) => {
@@ -103,10 +108,10 @@ async function reorderColumns(columnIds: string[]): Promise<BoardColumn[]> {
     body: JSON.stringify({ columnIds }),
   });
   if (!res.ok) {
-    const error = await res.json();
+    const error = await res.json().catch(() => ({}));
     throw new Error(error.message || 'Failed to reorder columns');
   }
-  return res.json();
+  return res.json().catch(() => []);
 }
 
 export function useReorderColumnsMutation() {

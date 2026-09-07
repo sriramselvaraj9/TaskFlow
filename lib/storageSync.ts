@@ -49,7 +49,9 @@ export function saveLocalUser(user: User): void {
   deleted.delete(user.id);
   safeSetItem(STORAGE_KEYS.DELETED_IDS, Array.from(deleted));
 
-  const index = current.findIndex((u) => u.id === user.id || u.email.toLowerCase() === user.email.toLowerCase());
+  const index = current.findIndex(
+    (u) => u.id === user.id || u.email.toLowerCase() === user.email.toLowerCase(),
+  );
   if (index >= 0) {
     current[index] = { ...current[index], ...user };
   } else {

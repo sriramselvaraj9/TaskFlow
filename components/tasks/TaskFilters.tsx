@@ -109,7 +109,6 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
             className="bg-transparent text-xs text-zinc-200 focus:outline-none cursor-pointer font-medium"
           >
             <option value="ALL">All</option>
-            <option value="URGENT">Urgent</option>
             <option value="HIGH">High</option>
             <option value="MEDIUM">Medium</option>
             <option value="LOW">Low</option>

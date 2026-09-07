@@ -1,26 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getLocalUsers, mergeUsersWithLocal, removeLocalUser, saveLocalUser } from '@/lib/storageSync';
 import type { User } from '@/types';
 
 async function fetchUsers(): Promise<User[]> {
-  try {
-    const res = await fetch('/api/users');
-    if (res.ok) {
-      const serverUsers: User[] = await res.json();
-      return mergeUsersWithLocal(serverUsers);
-    }
-  } catch {
-    // Network or serverless error fallback to local storage
+  const res = await fetch('/api/users');
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || 'Failed to fetch users');
   }
-  const local = getLocalUsers();
-  return local.length > 0 ? local : [];
+  return res.json();
 }
 
 export function useUsersQuery() {
   return useQuery({
     queryKey: ['users'],
     queryFn: fetchUsers,
-    staleTime: 1000 * 60, // 1 min
+    staleTime: 1000 * 5, // 5 seconds
   });
 }
 
@@ -46,10 +40,7 @@ export function useCreateUserMutation() {
       }
       return responseData.user as User;
     },
-    onSuccess: (newUser) => {
-      if (newUser) {
-        saveLocalUser(newUser);
-      }
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -64,24 +55,14 @@ export function useDeleteUserMutation() {
 
   return useMutation({
     mutationFn: async (userId: string) => {
-      removeLocalUser(userId);
-      try {
-        const res = await fetch(`/api/users/${userId}`, {
-          method: 'DELETE',
-        });
-        if (!res.ok) {
-          if (res.status === 404) {
-            // Already deleted on server, local removal completed
-            return { message: 'Member removed' };
-          }
-          const error = await res.json().catch(() => ({}));
-          throw new Error(error.message || 'Failed to delete member');
-        }
-        return res.json();
-      } catch (err: any) {
-        // If network error, local removal already completed
-        return { message: 'Member removed locally' };
+      const res = await fetch(`/api/users/${userId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok && res.status !== 404) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || 'Failed to delete member');
       }
+      return { message: 'Member removed' };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -92,3 +73,4 @@ export function useDeleteUserMutation() {
     },
   });
 }
+

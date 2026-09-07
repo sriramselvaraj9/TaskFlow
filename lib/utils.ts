@@ -53,13 +53,6 @@ export function getPriorityBadgeColor(priority: TaskPriority): {
   dot: string;
 } {
   switch (priority) {
-    case 'URGENT':
-      return {
-        bg: 'bg-rose-50',
-        text: 'text-rose-600',
-        border: 'border-rose-100',
-        dot: 'bg-rose-500',
-      };
     case 'HIGH':
       return {
         bg: 'bg-amber-50',

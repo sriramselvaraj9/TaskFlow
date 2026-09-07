@@ -18,7 +18,7 @@ interface TaskStoreState {
   isInviteMemberOpen: boolean;
   selectedTaskId: string | null;
   selectedProjectIdForDetail: string | null;
-  
+
   // Actions
   setSelectedProjectId: (id: string | null) => void;
   setStatusFilter: (status: TaskStatus | 'ALL') => void;

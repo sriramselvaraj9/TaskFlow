@@ -120,7 +120,6 @@ export class TaskService {
       LOW: 0,
       MEDIUM: 0,
       HIGH: 0,
-      URGENT: 0,
     };
     tasks.forEach((t) => {
       priorityCounts[t.priority] = (priorityCounts[t.priority] || 0) + 1;
