@@ -47,7 +47,7 @@ COPY --from=builder /app/next.config.js ./next.config.js
 
 # Ensure permissions for the database storage directory
 RUN mkdir -p /app/server/database && \
-    chown -R nextjs:nodejs /app
+    chown -R nextjs:nodejs /app/server/database
 
 USER nextjs
 
