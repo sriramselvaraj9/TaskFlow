@@ -7,12 +7,14 @@ const nextConfig = {
     if (backendUrl) {
       // Strip trailing slash if present
       const cleanUrl = backendUrl.replace(/\/+$/, '');
-      return [
-        {
-          source: '/api/:path*',
-          destination: `${cleanUrl}/api/:path*`,
-        },
-      ];
+      return {
+        beforeFiles: [
+          {
+            source: '/api/:path*',
+            destination: `${cleanUrl}/api/:path*`,
+          },
+        ],
+      };
     }
     return [];
   },
