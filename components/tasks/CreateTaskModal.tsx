@@ -60,6 +60,17 @@ export const CreateTaskModal: React.FC = () => {
   });
 
   const currentProjectId = watch('projectId');
+  const currentTitle = watch('title') || '';
+  const currentDescription = watch('description') || '';
+  const currentDueDate = watch('dueDate') || '';
+
+  const isStep1Valid =
+    currentTitle.trim().length >= 3 &&
+    currentDescription.trim().length >= 3 &&
+    Boolean(currentProjectId);
+
+  const isStep2Valid = Boolean(currentDueDate);
+  const isAllValid = isStep1Valid && isStep2Valid;
 
   // Reset errors and touched state when modal opens
   useEffect(() => {
@@ -162,6 +173,7 @@ export const CreateTaskModal: React.FC = () => {
   };
 
   const onSubmit = (data: CreateTaskFormData) => {
+    if (!isAllValid) return;
     createTaskMutation.mutate(
       {
         ...data,
@@ -519,7 +531,13 @@ export const CreateTaskModal: React.FC = () => {
           )}
 
           {step < 3 ? (
-            <Button type="button" variant="primary" size="sm" onClick={handleNextStep}>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
+              onClick={handleNextStep}
+            >
               Next Step
               <ChevronRight className="w-3.5 h-3.5 ml-1" />
             </Button>
@@ -528,6 +546,7 @@ export const CreateTaskModal: React.FC = () => {
               type="submit"
               variant="primary"
               size="sm"
+              disabled={!isAllValid || createTaskMutation.isPending}
               loading={createTaskMutation.isPending}
             >
               Create Task
