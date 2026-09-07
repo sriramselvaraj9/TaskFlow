@@ -2,12 +2,12 @@ import type { Project, User } from '@/types';
 import { getDatabase, saveDbToFile } from '../data';
 
 export class ProjectRepository {
-  async findAll(userId?: string, userRole?: string): Promise<Project[]> {
+  async findAll(_userId?: string, _userRole?: string): Promise<Project[]> {
     const db = getDatabase();
-    if (!userId || userRole === 'ADMIN') {
-      return [...db.projects];
+    if (!Array.isArray(db.projects)) {
+      db.projects = [];
     }
-    return db.projects.filter((p) => p.memberIds.includes(userId));
+    return [...db.projects];
   }
 
   async findById(id: string): Promise<Project | undefined> {

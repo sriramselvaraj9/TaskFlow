@@ -69,6 +69,17 @@ export class UserRepository {
 
     db.users.push(newUser);
     db.passwords[newUser.email] = bcrypt.hashSync(rawPassword, 8);
+
+    // Automatically enroll new member in all active workspace projects
+    if (Array.isArray(db.projects)) {
+      db.projects.forEach((proj) => {
+        if (!Array.isArray(proj.memberIds)) proj.memberIds = [];
+        if (!proj.memberIds.includes(newUser.id)) {
+          proj.memberIds.push(newUser.id);
+        }
+      });
+    }
+
     saveDbToFile(db);
 
     await activityService.logActivity(
