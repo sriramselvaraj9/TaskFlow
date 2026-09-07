@@ -259,7 +259,7 @@ export const InviteMemberModal: React.FC = () => {
             htmlFor="new_member_temp_password"
             className="text-xs font-bold text-slate-700 block mb-1"
           >
-            Temporary Password *
+            Password *
           </label>
           <div className="relative">
             <input

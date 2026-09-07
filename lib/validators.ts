@@ -37,7 +37,7 @@ export const taskSchemaStep2 = z.object({
 });
 
 export const taskSchemaStep3 = z.object({
-  tags: z.array(z.string()).default([]),
+  tags: z.array(z.string()).optional().default([]),
 });
 
 export const createTaskFullSchema = taskSchemaStep1

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ChevronLeft, ChevronRight, Plus, Tag } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -19,8 +19,6 @@ import {
 import { useTaskStore } from '@/store/useTaskStore';
 import { toast } from '@/store/useToastStore';
 
-const SUGGESTED_TAGS = ['feature', 'bug', 'frontend', 'backend', 'design', 'qa', 'docs'];
-
 export const CreateTaskModal: React.FC = () => {
   const { isCreateTaskOpen, setCreateTaskOpen, setCreateProjectOpen, selectedProjectId } =
     useTaskStore();
@@ -30,7 +28,6 @@ export const CreateTaskModal: React.FC = () => {
   const createTaskMutation = useCreateTaskMutation();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [tagInput, setTagInput] = useState('');
 
   const {
     register,
@@ -55,12 +52,10 @@ export const CreateTaskModal: React.FC = () => {
       priority: 'MEDIUM',
       assigneeId: '',
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      tags: [],
       status: 'TODO',
     },
   });
 
-  const tags = watch('tags') || [];
   const currentProjectId = watch('projectId');
 
   useEffect(() => {
@@ -81,22 +76,6 @@ export const CreateTaskModal: React.FC = () => {
       }
     }
   }, [projects, currentProjectId, selectedProjectId, setValue]);
-
-  const handleAddTag = (tagToAdd?: string) => {
-    const raw = tagToAdd || tagInput;
-    const trimmed = raw.trim().toLowerCase();
-    if (trimmed && !tags.includes(trimmed)) {
-      setValue('tags', [...tags, trimmed]);
-      if (!tagToAdd) setTagInput('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setValue(
-      'tags',
-      tags.filter((t) => t !== tagToRemove),
-    );
-  };
 
   const validateStep1 = () => {
     const title = getValues('title') || '';
@@ -168,16 +147,9 @@ export const CreateTaskModal: React.FC = () => {
   };
 
   const onSubmit = (data: CreateTaskFormData) => {
-    const finalTags = [...(data.tags || [])];
-    const pendingTag = tagInput.trim().toLowerCase();
-    if (pendingTag && !finalTags.includes(pendingTag)) {
-      finalTags.push(pendingTag);
-    }
-
     createTaskMutation.mutate(
       {
         ...data,
-        tags: finalTags,
       },
       {
         onSuccess: () => {
@@ -189,10 +161,8 @@ export const CreateTaskModal: React.FC = () => {
             priority: 'MEDIUM',
             assigneeId: '',
             dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            tags: [],
             status: 'TODO',
           });
-          setTagInput('');
           setStep(1);
           setCreateTaskOpen(false);
         },
@@ -202,7 +172,6 @@ export const CreateTaskModal: React.FC = () => {
 
   const handleClose = () => {
     reset();
-    setTagInput('');
     setStep(1);
     setCreateTaskOpen(false);
   };
@@ -464,76 +433,6 @@ export const CreateTaskModal: React.FC = () => {
                 )}
                 <option value="BACKLOG">📦 Backlog Space</option>
               </select>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                Tags (Optional)
-              </label>
-              <div className="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  placeholder="e.g. frontend, auth, security..."
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddTag();
-                    }
-                  }}
-                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 font-mono shadow-xs"
-                />
-                <Button type="button" variant="secondary" size="sm" onClick={() => handleAddTag()}>
-                  <Plus className="w-3.5 h-3.5 mr-1" />
-                  Add Tag
-                </Button>
-              </div>
-
-              {/* Quick Tag Suggestions */}
-              <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
-                <span className="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
-                  <Tag className="w-3 h-3" /> Quick suggestions:
-                </span>
-                {SUGGESTED_TAGS.map((st) => (
-                  <button
-                    key={st}
-                    type="button"
-                    onClick={() => handleAddTag(st)}
-                    className={cn(
-                      'text-[10px] font-mono px-2 py-0.5 rounded-md border transition-colors cursor-pointer',
-                      tags.includes(st)
-                        ? 'bg-indigo-50 text-indigo-700 border-indigo-200 font-bold'
-                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100',
-                    )}
-                  >
-                    +{st}
-                  </button>
-                ))}
-              </div>
-
-              {/* Active Tag Pills */}
-              <div className="flex flex-wrap gap-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl min-h-[44px]">
-                {tags.map((t) => (
-                  <span
-                    key={t}
-                    className="inline-flex items-center gap-1 text-xs bg-white text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 font-mono font-semibold shadow-xs"
-                  >
-                    #{t}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(t)}
-                      className="hover:text-rose-600 ml-1 font-bold text-slate-400 cursor-pointer"
-                    >
-                      &times;
-                    </button>
-                  </span>
-                ))}
-                {tags.length === 0 && (
-                  <span className="text-xs text-slate-400 py-1">No tags added yet. (Optional)</span>
-                )}
-              </div>
-              {errors.tags && <p className="text-xs text-rose-600 mt-1">{errors.tags.message}</p>}
             </div>
           </div>
         </div>
