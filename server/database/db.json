@@ -5,92 +5,70 @@
       "name": "Sriram S",
       "email": "sriramccbp@gmail.com",
       "role": "ADMIN",
-      "createdAt": "2026-09-04T12:37:26.392Z"
+      "designation": "Lead Administrator",
+      "createdAt": "2026-09-08T00:00:00.000Z"
     },
     {
-      "id": "user-1788782754158",
-      "name": "hgwehwaawegagewagahegw",
-      "email": "jhweawe@gmail.com",
+      "id": "user-member-1",
+      "name": "Member User",
+      "email": "member@gmail.com",
       "role": "MEMBER",
-      "designation": "hfhtf",
-      "createdAt": "2026-09-07T12:05:54.158Z"
-    },
-    {
-      "id": "user-1788782850722",
-      "name": "adhashdfhsgf",
-      "email": "jhwdh@gmail.com",
-      "role": "MEMBER",
-      "designation": "wedf",
-      "createdAt": "2026-09-07T12:07:30.722Z"
+      "designation": "Software Engineer",
+      "createdAt": "2026-09-08T00:00:00.000Z"
     }
   ],
   "passwords": {
-    "sriramccbp@gmail.com": "$2a$08$sCY6CSVv9vIruTo0LuS/cetB1xxEii75Ojvlcwi1EwveEp57/PMdO",
-    "jhweawe@gmail.com": "$2a$08$TqG3/IENguDPuFU2MLn.DOP2oeaB2l7IOwhMMCsMUb8MqxWvaBtWy",
-    "jhwdh@gmail.com": "$2a$08$n3pUWB4mb1ylHqFyx33zBedw6RudXT7uKIsizadl/Ol8m87AsKCrW"
+    "sriramccbp@gmail.com": "$2a$08$6MLZwjUPsb.ljnT0PQ02oO9pNhfd.GWctFYTvlldkj/8W19eP4Lyu",
+    "sriramcccbp@gmail.com": "$2a$08$6MLZwjUPsb.ljnT0PQ02oO9pNhfd.GWctFYTvlldkj/8W19eP4Lyu",
+    "member@gmail.com": "$2a$08$HFVFArhqzFozzjQiwG3seepzIYNCq.r1pfXdcJV90ZtAr93vgjaGe"
   },
   "projects": [
     {
-      "id": "prj-1788782598608",
-      "name": "kjhhgfdszd",
-      "key": "KJHH",
-      "description": "uhytrs",
+      "id": "prj-1788852419371",
+      "name": "API",
+      "key": "API",
+      "description": "API kfdksdkflj",
       "status": "ACTIVE",
       "ownerId": "user-admin-1",
       "memberIds": [
         "user-admin-1"
       ],
-      "createdAt": "2026-09-07T12:03:18.608Z",
-      "updatedAt": "2026-09-07T12:03:18.608Z"
-    },
-    {
-      "id": "prj-2",
-      "name": "Zenith Hub",
-      "key": "ZH",
-      "description": "Internal core infrastructure and API gateways.nzcnkn",
-      "status": "ACTIVE",
-      "ownerId": "user-admin-1",
-      "memberIds": [
-        "user-admin-1"
-      ],
-      "createdAt": "2026-09-02T11:30:00.000Z",
-      "updatedAt": "2026-09-07T08:14:14.765Z"
+      "createdAt": "2026-09-08T07:26:59.371Z",
+      "updatedAt": "2026-09-08T07:26:59.371Z"
     }
   ],
   "tasks": [
     {
-      "id": "task-1",
-      "title": "Core Database Indexing & Optimizations",
-      "description": "Review slow queries and apply composite indexes on active columns.",
+      "id": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "title": "test API",
+      "description": "testing.",
+      "projectId": "prj-1788852419371",
       "status": "IN_PROGRESS",
       "priority": "HIGH",
-      "projectId": "prj-2",
-      "assigneeId": "user-1788782754158",
-      "dueDate": "2026-09-12T00:00:00.000Z",
-      "createdAt": "2026-09-04T08:00:00.000Z",
-      "updatedAt": "2026-09-07T13:50:00.414Z"
-    },
-    {
-      "id": "task-5",
-      "title": "Export Audit Logs & Analytics Pipeline",
-      "description": "Build CSV export for team activity logs and member performance.",
-      "status": "DONE",
-      "priority": "LOW",
-      "projectId": "prj-2",
-      "assigneeId": "user-admin-1",
-      "dueDate": "2026-09-07T00:00:00.000Z",
-      "createdAt": "2026-09-02T14:00:00.000Z",
-      "updatedAt": "2026-09-04T11:30:00.000Z"
+      "assigneeId": "user-member-1",
+      "createdById": "user-admin-1",
+      "dueDate": "2026-09-16T00:00:00.000Z",
+      "tags": [],
+      "createdAt": "2026-09-08T07:27:21.579Z",
+      "updatedAt": "2026-09-08T07:33:28.232Z"
     }
   ],
   "columns": [
+    {
+      "id": "TODO",
+      "title": "TODO",
+      "accentColor": "border-slate-900",
+      "dotColor": "bg-slate-900 shadow-[0_0_8px_rgba(15,23,42,0.6)]",
+      "order": 0,
+      "createdAt": "2026-09-08T00:00:00.000Z"
+    },
     {
       "id": "IN_PROGRESS",
       "title": "In Progress",
       "accentColor": "border-slate-900",
       "dotColor": "bg-slate-900 shadow-[0_0_8px_rgba(15,23,42,0.6)]",
       "order": 1,
-      "createdAt": "2026-09-04T12:37:26.505Z"
+      "createdAt": "2026-09-08T00:00:00.000Z"
     },
     {
       "id": "IN_REVIEW",
@@ -98,7 +76,7 @@
       "accentColor": "border-slate-900",
       "dotColor": "bg-slate-900 shadow-[0_0_8px_rgba(15,23,42,0.6)]",
       "order": 2,
-      "createdAt": "2026-09-04T12:37:26.505Z"
+      "createdAt": "2026-09-08T00:00:00.000Z"
     },
     {
       "id": "DONE",
@@ -106,486 +84,74 @@
       "accentColor": "border-slate-900",
       "dotColor": "bg-slate-900 shadow-[0_0_8px_rgba(15,23,42,0.6)]",
       "order": 3,
-      "createdAt": "2026-09-04T12:37:26.505Z"
-    },
-    {
-      "id": "TODO",
-      "title": "TODO",
-      "dotColor": "bg-slate-900 shadow-[0_0_8px_rgba(15,23,42,0.6)]",
-      "accentColor": "border-slate-900",
-      "order": 0,
-      "createdAt": "2026-09-07T05:54:13.321Z"
-    },
-    {
-      "id": "ASDFSDF",
-      "title": "asdfsdf",
-      "dotColor": "bg-slate-900 shadow-[0_0_8px_rgba(15,23,42,0.6)]",
-      "accentColor": "border-slate-900",
-      "order": 4,
-      "createdAt": "2026-09-07T12:04:17.022Z"
+      "createdAt": "2026-09-08T00:00:00.000Z"
     }
   ],
   "activities": [
     {
-      "id": "act-1788789000417-gmjw",
+      "id": "act-1788852808237-nvo8",
       "action": "TASK_UPDATED",
-      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
+      "details": "updated details for task \"test API\"",
       "userId": "user-admin-1",
       "userName": "Sriram S",
       "userRole": "ADMIN",
-      "projectId": "prj-2",
-      "taskId": "task-1",
-      "timestamp": "2026-09-07T13:50:00.417Z"
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-08T07:33:28.237Z"
     },
     {
-      "id": "act-1788788988137-n2u9",
+      "id": "act-1788852488945-3k13",
       "action": "TASK_UPDATED",
-      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-2",
-      "taskId": "task-1",
-      "timestamp": "2026-09-07T13:49:48.137Z"
-    },
-    {
-      "id": "act-1788782957103-v0f5",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
-      "userId": "user-1788782754158",
-      "userName": "hgwehwaawegagewagahegw",
+      "details": "updated details for task \"tets\"",
+      "userId": "user-member-1",
+      "userName": "Member User",
       "userRole": "MEMBER",
-      "projectId": "prj-2",
-      "taskId": "task-1",
-      "timestamp": "2026-09-07T12:09:17.103Z"
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-08T07:28:08.945Z"
     },
     {
-      "id": "act-1788782938935-0ca8",
+      "id": "act-1788852462174-whfd",
       "action": "TASK_UPDATED",
-      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
+      "details": "updated details for task \"tets\"",
       "userId": "user-admin-1",
       "userName": "Sriram S",
       "userRole": "ADMIN",
-      "projectId": "prj-2",
-      "taskId": "task-1",
-      "timestamp": "2026-09-07T12:08:58.935Z"
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-08T07:27:42.174Z"
     },
     {
-      "id": "act-1788782915334-zh7t",
+      "id": "act-1788852453171-64hb",
       "action": "TASK_UPDATED",
-      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
+      "details": "updated details for task \"tets\"",
       "userId": "user-admin-1",
       "userName": "Sriram S",
       "userRole": "ADMIN",
-      "projectId": "prj-2",
-      "taskId": "task-1",
-      "timestamp": "2026-09-07T12:08:35.334Z"
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-08T07:27:33.171Z"
     },
     {
-      "id": "act-1788782850773-k1oz",
-      "action": "MEMBER_ASSIGNED",
-      "details": "registered a new MEMBER account",
-      "userId": "user-1788782850722",
-      "userName": "adhashdfhsgf",
-      "userRole": "MEMBER",
-      "timestamp": "2026-09-07T12:07:30.773Z"
-    },
-    {
-      "id": "act-1788782754214-qu3y",
-      "action": "MEMBER_ASSIGNED",
-      "details": "registered a new MEMBER account",
-      "userId": "user-1788782754158",
-      "userName": "hgwehwaawegagewagahegw",
-      "userRole": "MEMBER",
-      "timestamp": "2026-09-07T12:05:54.214Z"
-    },
-    {
-      "id": "act-1788782693048-b3m6",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-2",
-      "taskId": "task-1",
-      "timestamp": "2026-09-07T12:04:53.048Z"
-    },
-    {
-      "id": "act-1788782679400-xxu3",
-      "action": "TASK_DELETED",
-      "details": "deleted task \"jhgfd\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1788782598608",
-      "timestamp": "2026-09-07T12:04:39.400Z"
-    },
-    {
-      "id": "act-1788782657024-6cmz",
-      "action": "COLUMN_CREATED",
-      "details": "added new column \"asdfsdf\" to the board",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "timestamp": "2026-09-07T12:04:17.024Z"
-    },
-    {
-      "id": "act-1788782636690-zgrf",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"jhgfd\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1788782598608",
-      "taskId": "task-ee00170c-155e-4423-9279-abff2ddfd77e",
-      "timestamp": "2026-09-07T12:03:56.690Z"
-    },
-    {
-      "id": "act-1788782625945-fv61",
+      "id": "act-1788852441583-6sxa",
       "action": "TASK_CREATED",
-      "details": "created task \"jhgfd\"",
+      "details": "created task \"tets\"",
       "userId": "user-admin-1",
       "userName": "Sriram S",
       "userRole": "ADMIN",
-      "projectId": "prj-1788782598608",
-      "taskId": "task-ee00170c-155e-4423-9279-abff2ddfd77e",
-      "timestamp": "2026-09-07T12:03:45.945Z"
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-08T07:27:21.583Z"
     },
     {
-      "id": "act-1788782598610-6tht",
-      "action": "PROJECT_CREATED",
-      "details": "created project \"kjhhgfdszd\" (KJHH)",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1788782598608",
-      "timestamp": "2026-09-07T12:03:18.610Z"
-    },
-    {
-      "id": "act-1788782587463-os0l",
-      "action": "TASK_DELETED",
-      "details": "deleted project \"ktyfyt\" and its tasks",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "timestamp": "2026-09-07T12:03:07.463Z"
-    },
-    {
-      "id": "act-1788782580249-rfn6",
-      "action": "PROJECT_CREATED",
-      "details": "created project \"ktyfyt\" (KTYF)",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1788782580246",
-      "timestamp": "2026-09-07T12:03:00.249Z"
-    },
-    {
-      "id": "act-1788782488899-o47v",
-      "action": "TASK_DELETED",
-      "details": "deleted project \"Executive Platform,\" and its tasks",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "timestamp": "2026-09-07T12:01:28.899Z"
-    },
-    {
-      "id": "act-1788782483217-co16",
-      "action": "TASK_UPDATED",
-      "details": "updated settings for project \"Executive Platform,\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1",
-      "timestamp": "2026-09-07T12:01:23.217Z"
-    },
-    {
-      "id": "act-1788782446563-a9qv",
-      "action": "MEMBER_ASSIGNED",
-      "details": "removed member \"Sriram Selvaraj\" (sriramselvaraj799@gmail.com)",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "timestamp": "2026-09-07T12:00:46.563Z"
-    },
-    {
-      "id": "act-1788777176108-qn2u",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"API Gateway Rate Limiting & Auth Tokens\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1",
-      "taskId": "task-2",
-      "timestamp": "2026-09-07T10:32:56.108Z"
-    },
-    {
-      "id": "act-1788777172904-bkxh",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-2",
-      "taskId": "task-1",
-      "timestamp": "2026-09-07T10:32:52.904Z"
-    },
-    {
-      "id": "act-1788777129176-byyx",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"API Gateway Rate Limiting & Auth Tokens\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1",
-      "taskId": "task-2",
-      "timestamp": "2026-09-07T10:32:09.176Z"
-    },
-    {
-      "id": "act-1788777105893-ye3s",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"Authentication & Permissions Security Review\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1",
-      "taskId": "task-3",
-      "timestamp": "2026-09-07T10:31:45.893Z"
-    },
-    {
-      "id": "act-1788777104707-nuse",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"API Gateway Rate Limiting & Auth Tokens\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1",
-      "taskId": "task-2",
-      "timestamp": "2026-09-07T10:31:44.707Z"
-    },
-    {
-      "id": "act-1788769963615-a7rt",
-      "action": "TASK_DELETED",
-      "details": "deleted project \"fjhfdshjfh\" and its tasks",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "timestamp": "2026-09-07T08:32:43.615Z"
-    },
-    {
-      "id": "act-1788769956702-64vo",
-      "action": "PROJECT_CREATED",
-      "details": "created project \"fjhfdshjfh\" (FJHF)",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1788769956698",
-      "timestamp": "2026-09-07T08:32:36.702Z"
-    },
-    {
-      "id": "act-1788769515255-yhcb",
-      "action": "TASK_DELETED",
-      "details": "deleted project \"sajjsahdjh\" and its tasks",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "timestamp": "2026-09-07T08:25:15.255Z"
-    },
-    {
-      "id": "act-1788769510816-a9wt",
-      "action": "PROJECT_CREATED",
-      "details": "created project \"sajjsahdjh\" (SAJJ)",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1788769510813",
-      "timestamp": "2026-09-07T08:25:10.817Z"
-    },
-    {
-      "id": "act-1788768881336-2zet",
-      "action": "TASK_DELETED",
-      "details": "deleted project \"API\" and its tasks",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "timestamp": "2026-09-07T08:14:41.336Z"
-    },
-    {
-      "id": "act-1788768854768-oxbv",
-      "action": "TASK_UPDATED",
-      "details": "updated settings for project \"Zenith Hub\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-2",
-      "timestamp": "2026-09-07T08:14:14.768Z"
-    },
-    {
-      "id": "act-1788760453322-ydsg",
-      "action": "COLUMN_CREATED",
-      "details": "added new column \"TODO\" to the board",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "timestamp": "2026-09-07T05:54:13.322Z"
-    },
-    {
-      "id": "act-1788760417155-n7rc",
-      "action": "COLUMN_DELETED",
-      "details": "deleted column \"TODO\" and moved 1 task(s) to Backlog",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "timestamp": "2026-09-07T05:53:37.155Z"
-    },
-    {
-      "id": "act-1788760318768-vk17",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-2",
-      "taskId": "task-1",
-      "timestamp": "2026-09-07T05:51:58.768Z"
-    },
-    {
-      "id": "act-1788760307577-v8e6",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"API Gateway Rate Limiting & Auth Tokens\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1",
-      "taskId": "task-2",
-      "timestamp": "2026-09-07T05:51:47.577Z"
-    },
-    {
-      "id": "act-1788760304403-y5ai",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"Authentication & Permissions Security Review\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1",
-      "taskId": "task-3",
-      "timestamp": "2026-09-07T05:51:44.403Z"
-    },
-    {
-      "id": "act-1788760298949-p86s",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"API Gateway Rate Limiting & Auth Tokens\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1",
-      "taskId": "task-2",
-      "timestamp": "2026-09-07T05:51:38.949Z"
-    },
-    {
-      "id": "act-1788705283640-nlc0",
-      "action": "MEMBER_ASSIGNED",
-      "details": "removed member \"jashfhasjhka\" (jaskdjaskjds@gmail.com)",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "timestamp": "2026-09-06T14:34:43.640Z"
-    },
-    {
-      "id": "act-1788678154854-djgv",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"jsakfjasf\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1788525755983",
-      "taskId": "task-06092cf5-2d5b-40c0-ac60-96c4d125287d",
-      "timestamp": "2026-09-06T07:02:34.854Z"
-    },
-    {
-      "id": "act-1788672622486-ir6z",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"API Gateway Rate Limiting & Auth Tokens\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1",
-      "taskId": "task-2",
-      "timestamp": "2026-09-06T05:30:22.486Z"
-    },
-    {
-      "id": "act-1788672621588-2ftl",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-2",
-      "taskId": "task-1",
-      "timestamp": "2026-09-06T05:30:21.588Z"
-    },
-    {
-      "id": "act-1788628159693-g6bg",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"Authentication & Permissions Security Review\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1",
-      "taskId": "task-3",
-      "timestamp": "2026-09-05T17:09:19.693Z"
-    },
-    {
-      "id": "act-1788613282622-7bo2",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"Core Database Indexing & Optimizations\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-2",
-      "taskId": "task-1",
-      "timestamp": "2026-09-05T13:01:22.622Z"
-    },
-    {
-      "id": "act-1788613280277-5mrf",
-      "action": "TASK_CREATED",
-      "details": "created task \"jsakfjasf\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1788525755983",
-      "taskId": "task-06092cf5-2d5b-40c0-ac60-96c4d125287d",
-      "timestamp": "2026-09-05T13:01:20.277Z"
-    },
-    {
-      "id": "act-1788613260978-av67",
-      "action": "TASK_UPDATED",
-      "details": "updated details for task \"API Gateway Rate Limiting & Auth Tokens\"",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1",
-      "taskId": "task-2",
-      "timestamp": "2026-09-05T13:01:00.978Z"
-    },
-    {
-      "id": "act-1788613223072-z9le",
-      "action": "MEMBER_ASSIGNED",
-      "details": "registered a new MEMBER account",
-      "userId": "user-1788613223023",
-      "userName": "jashfhasjhka",
-      "userRole": "MEMBER",
-      "timestamp": "2026-09-05T13:00:23.072Z"
-    },
-    {
-      "id": "act-1788525755985-dkwu",
+      "id": "act-1788852419387-ihe9",
       "action": "PROJECT_CREATED",
       "details": "created project \"API\" (API)",
       "userId": "user-admin-1",
       "userName": "Sriram S",
       "userRole": "ADMIN",
-      "projectId": "prj-1788525755983",
-      "timestamp": "2026-09-04T12:42:35.985Z"
+      "projectId": "prj-1788852419371",
+      "timestamp": "2026-09-08T07:26:59.387Z"
     }
   ],
   "otpTokens": {}

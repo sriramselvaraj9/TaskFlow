@@ -15,6 +15,7 @@ import { useRouter } from 'next/router';
 import { signOut, useSession } from 'next-auth/react';
 import type React from 'react';
 import { useState } from 'react';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { cn } from '@/lib/utils';
 
 type ActiveView = 'dashboard' | 'kanban' | 'list' | 'analytics' | 'projects' | 'members';
@@ -43,6 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { data: _session } = useSession();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
 
   const handleNavClick = (id: ActiveView, href: string) => {
     if (onViewChange) {
@@ -151,7 +153,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="p-3 sm:p-4 border-t border-white/8 shrink-0">
         <button
           type="button"
-          onClick={handleSignOut}
+          onClick={() => setIsLogoutConfirmOpen(true)}
           title="Logout"
           className={cn(
             'w-full flex items-center justify-center gap-2 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer shadow-sm',
@@ -191,6 +193,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
       )}
+
+      {/* Logout Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isLogoutConfirmOpen}
+        title="Confirm Logout"
+        description="Are you sure you want to log out of your TaskFlow workspace session?"
+        confirmText="Log Out"
+        cancelText="Cancel"
+        onConfirm={handleSignOut}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+      />
     </>
   );
 };

@@ -16,6 +16,7 @@ import type { Task, TaskPriority, TaskStatus } from '@/types';
 export const TaskDetailDrawer: React.FC = () => {
   const { data: session } = useSession();
   const { selectedTaskId, setSelectedTaskId } = useTaskStore();
+  
   const { data: task, isLoading } = useTaskQuery(selectedTaskId);
   const { data: projects = [] } = useProjectsQuery();
   const { data: users = [] } = useUsersQuery();
