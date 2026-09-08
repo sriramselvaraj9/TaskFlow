@@ -515,17 +515,10 @@ export const ProjectDetailDrawer: React.FC = () => {
 
                   <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden bg-white max-h-80 overflow-y-auto">
                     {(isAdmin ? filteredWorkspaceUsers : assignedMembers).map((user) => {
-                      const isAssigned = selectedMemberIds.includes(user.id);
-
                       return (
                         <div
                           key={user.id}
-                          onClick={() => isAdmin && handleToggleMember(user.id)}
-                          className={cn(
-                            'p-3 flex items-center justify-between transition-colors gap-3',
-                            isAdmin ? 'cursor-pointer hover:bg-slate-50' : 'cursor-default',
-                            isAssigned && isAdmin ? 'bg-indigo-50/40' : '',
-                          )}
+                          className="p-3 flex items-center justify-between transition-colors gap-3 hover:bg-slate-50"
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <div className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
@@ -546,18 +539,18 @@ export const ProjectDetailDrawer: React.FC = () => {
                             </div>
                           </div>
 
-                          {isAdmin && (
-                            <div
+                          <div className="shrink-0 flex items-center gap-1.5">
+                            <span
                               className={cn(
-                                'w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors',
-                                isAssigned
-                                  ? 'bg-indigo-600 border-indigo-600 text-white'
-                                  : 'border-slate-300 bg-white',
+                                'text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider',
+                                user.role === 'ADMIN'
+                                  ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                                  : 'bg-slate-100 text-slate-700 border-slate-200',
                               )}
                             >
-                              {isAssigned && <Check className="w-3.5 h-3.5 stroke-[2.5]" />}
-                            </div>
-                          )}
+                              {user.role}
+                            </span>
+                          </div>
                         </div>
                       );
                     })}

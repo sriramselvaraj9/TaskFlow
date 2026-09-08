@@ -13,6 +13,7 @@ import { signIn } from 'next-auth/react';
 import type React from 'react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { toast } from '@/store/useToastStore';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -40,7 +41,10 @@ export default function SignInPage() {
 
     if (res?.error) {
       setError(res.error);
+      toast.error(res.error || 'Failed to sign in');
     } else if (res?.ok) {
+      setSuccessMessage('Signed in successfully!');
+      toast.success('Signed in successfully!');
       router.push('/');
     }
   };

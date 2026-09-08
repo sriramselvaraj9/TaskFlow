@@ -54,6 +54,7 @@ export const CreateTaskModal: React.FC = () => {
           : projects[0]?.id || '',
       priority: 'MEDIUM',
       assigneeId: '',
+      startDate: new Date().toISOString().split('T')[0],
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       status: 'TODO',
     },
@@ -114,7 +115,7 @@ export const CreateTaskModal: React.FC = () => {
     });
     if (!result.success) {
       result.error.issues.forEach((issue) => {
-        const field = issue.path[0] as keyof CreateTaskFormData;
+        const field = (issue.path[0]?.toString() || '') as keyof CreateTaskFormData;
         if (field) {
           setError(field, { type: 'manual', message: issue.message });
         }
@@ -129,23 +130,25 @@ export const CreateTaskModal: React.FC = () => {
     setStep2Attempted(true);
     const priority = getValues('priority') || 'MEDIUM';
     const assigneeId = getValues('assigneeId') || '';
+    const startDate = getValues('startDate') || '';
     const dueDate = getValues('dueDate') || '';
 
     const result = taskSchemaStep2.safeParse({
       priority,
       assigneeId,
+      startDate,
       dueDate,
     });
     if (!result.success) {
       result.error.issues.forEach((issue) => {
-        const field = issue.path[0] as keyof CreateTaskFormData;
+        const field = (issue.path[0]?.toString() || '') as keyof CreateTaskFormData;
         if (field) {
           setError(field, { type: 'manual', message: issue.message });
         }
       });
       return false;
     }
-    clearErrors(['priority', 'assigneeId', 'dueDate']);
+    clearErrors(['priority', 'assigneeId', 'startDate', 'dueDate']);
     return true;
   };
 
@@ -187,6 +190,7 @@ export const CreateTaskModal: React.FC = () => {
             projectId: selectedProjectId || (projects[0]?.id ?? ''),
             priority: 'MEDIUM',
             assigneeId: '',
+            startDate: new Date().toISOString().split('T')[0],
             dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             status: 'TODO',
           });
@@ -287,9 +291,9 @@ export const CreateTaskModal: React.FC = () => {
                 )}
               />
               <div className="h-4 flex items-center mt-0.5">
-                {(touchedFields.title || step1Attempted) && errors.title && (
+                {(touchedFields.title || step1Attempted) && errors.title?.message && (
                   <p className="text-[11px] text-rose-500 font-medium leading-none">
-                    {errors.title.message}
+                    {String(errors.title.message)}
                   </p>
                 )}
               </div>
@@ -333,9 +337,9 @@ export const CreateTaskModal: React.FC = () => {
                 </div>
               )}
               <div className="h-4 flex items-center mt-0.5">
-                {(touchedFields.projectId || step1Attempted) && errors.projectId && (
+                {(touchedFields.projectId || step1Attempted) && errors.projectId?.message && (
                   <p className="text-[11px] text-rose-500 font-medium leading-none">
-                    {errors.projectId.message}
+                    {String(errors.projectId.message)}
                   </p>
                 )}
               </div>
@@ -357,9 +361,9 @@ export const CreateTaskModal: React.FC = () => {
                 )}
               />
               <div className="h-4 flex items-center mt-0.5">
-                {(touchedFields.description || step1Attempted) && errors.description && (
+                {(touchedFields.description || step1Attempted) && errors.description?.message && (
                   <p className="text-[11px] text-rose-500 font-medium leading-none">
-                    {errors.description.message}
+                    {String(errors.description.message)}
                   </p>
                 )}
               </div>
@@ -394,9 +398,9 @@ export const CreateTaskModal: React.FC = () => {
                 })}
               </div>
               <div className="h-4 flex items-center mt-0.5">
-                {(touchedFields.priority || step2Attempted) && errors.priority && (
+                {(touchedFields.priority || step2Attempted) && errors.priority?.message && (
                   <p className="text-[11px] text-rose-500 font-medium leading-none">
-                    {errors.priority.message}
+                    {String(errors.priority.message)}
                   </p>
                 )}
               </div>
@@ -418,34 +422,59 @@ export const CreateTaskModal: React.FC = () => {
                 ))}
               </select>
               <div className="h-4 flex items-center mt-0.5">
-                {errors.assigneeId && (
+                {errors.assigneeId?.message && (
                   <p className="text-[11px] text-rose-500 font-medium leading-none">
-                    {errors.assigneeId.message}
+                    {String(errors.assigneeId.message)}
                   </p>
                 )}
               </div>
             </div>
 
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                Due Date *
-              </label>
-              <input
-                type="date"
-                {...register('dueDate')}
-                className={cn(
-                  'w-full bg-slate-50 border rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none font-semibold shadow-xs transition-colors',
-                  (touchedFields.dueDate || step2Attempted) && errors.dueDate
-                    ? 'border-rose-500 focus:border-rose-500'
-                    : 'border-slate-200 focus:border-indigo-500',
-                )}
-              />
-              <div className="h-4 flex items-center mt-0.5">
-                {(touchedFields.dueDate || step2Attempted) && errors.dueDate && (
-                  <p className="text-[11px] text-rose-500 font-medium leading-none">
-                    {errors.dueDate.message}
-                  </p>
-                )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  {...register('startDate')}
+                  className={cn(
+                    'w-full bg-slate-50 border rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none font-semibold shadow-xs transition-colors',
+                    (touchedFields.startDate || step2Attempted) && errors.startDate
+                      ? 'border-rose-500 focus:border-rose-500'
+                      : 'border-slate-200 focus:border-indigo-500',
+                  )}
+                />
+                <div className="h-4 flex items-center mt-0.5">
+                  {(touchedFields.startDate || step2Attempted) && errors.startDate?.message && (
+                    <p className="text-[11px] text-rose-500 font-medium leading-none">
+                      {String(errors.startDate.message)}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  Due Date *
+                </label>
+                <input
+                  type="date"
+                  {...register('dueDate')}
+                  className={cn(
+                    'w-full bg-slate-50 border rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none font-semibold shadow-xs transition-colors',
+                    (touchedFields.dueDate || step2Attempted) && errors.dueDate
+                      ? 'border-rose-500 focus:border-rose-500'
+                      : 'border-slate-200 focus:border-indigo-500',
+                  )}
+                />
+                <div className="h-4 flex items-center mt-0.5">
+                  {(touchedFields.dueDate || step2Attempted) && errors.dueDate?.message && (
+                    <p className="text-[11px] text-rose-500 font-medium leading-none">
+                      {String(errors.dueDate.message)}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -466,7 +495,7 @@ export const CreateTaskModal: React.FC = () => {
                 <p className="text-xs font-bold text-slate-900 truncate">
                   {watch('title') || 'Untitled Task'}
                 </p>
-                <div className="flex items-center gap-3 mt-1.5 text-[11px] text-slate-500 font-medium">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1.5 text-[11px] text-slate-500 font-medium">
                   <span>
                     Priority:{' '}
                     <strong className="text-slate-800 font-bold">{watch('priority')}</strong>
@@ -478,6 +507,14 @@ export const CreateTaskModal: React.FC = () => {
                       {users.find((u) => u.id === watch('assigneeId'))?.name || 'Unassigned'}
                     </strong>
                   </span>
+                  {watch('startDate') && (
+                    <>
+                      <span>•</span>
+                      <span>
+                        Start: <strong className="text-slate-800 font-bold">{watch('startDate')}</strong>
+                      </span>
+                    </>
+                  )}
                   <span>•</span>
                   <span>
                     Due: <strong className="text-slate-800 font-bold">{watch('dueDate')}</strong>

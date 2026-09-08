@@ -171,6 +171,7 @@ export async function createTask(
     status?: TaskStatus;
     priority?: TaskPriority;
     assigneeId?: string;
+    startDate?: string;
     dueDate: string;
     tags?: string[];
   },
@@ -182,7 +183,10 @@ export async function createTask(
 export async function updateTask(
   id: string,
   data: Partial<
-    Pick<Task, 'title' | 'description' | 'status' | 'priority' | 'assigneeId' | 'dueDate' | 'tags'>
+    Pick<
+      Task,
+      'title' | 'description' | 'status' | 'priority' | 'assigneeId' | 'startDate' | 'dueDate' | 'tags'
+    >
   >,
   user: User,
 ): Promise<Task> {

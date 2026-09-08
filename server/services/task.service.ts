@@ -26,6 +26,7 @@ export class TaskService {
       status?: TaskStatus;
       priority?: TaskPriority;
       assigneeId?: string;
+      startDate?: string;
       dueDate: string;
       tags?: string[];
     },
@@ -47,7 +48,7 @@ export class TaskService {
     data: Partial<
       Pick<
         Task,
-        'title' | 'description' | 'status' | 'priority' | 'assigneeId' | 'dueDate' | 'tags'
+        'title' | 'description' | 'status' | 'priority' | 'assigneeId' | 'startDate' | 'dueDate' | 'tags'
       >
     >,
     user: User,

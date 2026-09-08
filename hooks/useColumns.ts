@@ -5,10 +5,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { CreateColumnFormData } from '@/lib/validators';
 import { toast } from '@/store/useToastStore';
 import type { BoardColumn } from '@/types';
+
 // Manages all column interactions
 export const columnKeys = {
   all: ['columns'] as const,
 };
+
 // These asynchronous JavaScript functions make raw HTTP network requests to the Next.js backend API routes.
 async function fetchColumns(): Promise<BoardColumn[]> {
   const res = await fetch('/api/columns');

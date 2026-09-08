@@ -30,22 +30,48 @@ export const taskSchemaStep1 = z.object({
   projectId: z.string().min(1, 'Please select a project'),
 });
 
-export const taskSchemaStep2 = z.object({
+export const taskSchemaStep2Base = z.object({
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).default('MEDIUM'),
   assigneeId: z.string().optional().default(''),
+  startDate: z.string().optional().default(''),
   dueDate: z.string().min(1, 'Please select a due date'),
 });
+
+export const taskSchemaStep2 = taskSchemaStep2Base.refine(
+  (data) => {
+    if (data.startDate && data.dueDate) {
+      return new Date(data.startDate) <= new Date(data.dueDate);
+    }
+    return true;
+  },
+  {
+    message: 'Start date cannot be after due date',
+    path: ['startDate'],
+  },
+);
 
 export const taskSchemaStep3 = z.object({
   tags: z.array(z.string()).optional().default([]),
 });
 
 export const createTaskFullSchema = taskSchemaStep1
-  .merge(taskSchemaStep2)
+  .merge(taskSchemaStep2Base)
   .merge(taskSchemaStep3)
   .extend({
     status: z.string().min(1, 'Status is required').default('TODO'),
-  });
+  })
+  .refine(
+    (data) => {
+      if (data.startDate && data.dueDate) {
+        return new Date(data.startDate) <= new Date(data.dueDate);
+      }
+      return true;
+    },
+    {
+      message: 'Start date cannot be after due date',
+      path: ['startDate'],
+    },
+  );
 
 export type CreateTaskFormData = z.infer<typeof createTaskFullSchema>;
 

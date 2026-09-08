@@ -9,12 +9,12 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* ./ 
 RUN npm ci
 
 # Stage 2: Builder
-FROM node:20-alpine AS builder
-WORKDIR /app
+FROM node:20-alpine AS builder 
+WORKDIR /app 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 

@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckSquare, FileQuestion, Home } from 'lucide-react';
+import { CheckSquare, FileQuestion, Home } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Custom404() {
@@ -31,8 +31,8 @@ export default function Custom404() {
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+        {/* Action Button */}
+        <div className="pt-2 flex justify-center">
           <Link
             href="/"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold transition-all shadow-lg shadow-indigo-600/30 active:scale-[0.98] cursor-pointer"
@@ -40,16 +40,8 @@ export default function Custom404() {
             <Home className="w-4 h-4" />
             <span>Back to Home</span>
           </Link>
-          <Link
-            href="/tasks"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 hover:text-white border border-white/10 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Go to Task Board</span>
-          </Link>
         </div>
       </div>
     </div>
   );
 }
-

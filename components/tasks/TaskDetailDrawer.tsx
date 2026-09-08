@@ -30,6 +30,7 @@ export const TaskDetailDrawer: React.FC = () => {
   const [status, setStatus] = useState<TaskStatus>('TODO');
   const [priority, setPriority] = useState<TaskPriority>('MEDIUM');
   const [assigneeId, setAssigneeId] = useState('');
+  const [startDate, setStartDate] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -45,6 +46,7 @@ export const TaskDetailDrawer: React.FC = () => {
       setStatus(task.status);
       setPriority(task.priority);
       setAssigneeId(task.assigneeId || '');
+      setStartDate(task.startDate ? task.startDate.split('T')[0] : '');
       setDueDate(task.dueDate.split('T')[0]);
       setSavedSuccess(false);
     }
@@ -62,6 +64,7 @@ export const TaskDetailDrawer: React.FC = () => {
         status !== task.status ||
         priority !== task.priority ||
         assigneeId !== task.assigneeId ||
+        startDate !== (task.startDate ? task.startDate.split('T')[0] : '') ||
         dueDate !== task.dueDate.split('T')[0]),
   );
 
@@ -74,6 +77,11 @@ export const TaskDetailDrawer: React.FC = () => {
           status,
           priority,
           assigneeId: assigneeId || '',
+          startDate: startDate
+            ? startDate.includes('T')
+              ? startDate
+              : `${startDate}T00:00:00.000Z`
+            : undefined,
           dueDate: dueDate
             ? dueDate.includes('T')
               ? dueDate
@@ -99,6 +107,7 @@ export const TaskDetailDrawer: React.FC = () => {
             setStatus(updatedTask.status);
             setPriority(updatedTask.priority);
             setAssigneeId(updatedTask.assigneeId || '');
+            setStartDate(updatedTask.startDate ? updatedTask.startDate.split('T')[0] : '');
             setDueDate(updatedTask.dueDate ? updatedTask.dueDate.split('T')[0] : '');
           }
           setTimeout(() => setSavedSuccess(false), 2500);
@@ -114,6 +123,7 @@ export const TaskDetailDrawer: React.FC = () => {
       setStatus(task.status);
       setPriority(task.priority);
       setAssigneeId(task.assigneeId || '');
+      setStartDate(task.startDate ? task.startDate.split('T')[0] : '');
       setDueDate(task.dueDate.split('T')[0]);
       setSavedSuccess(false);
     }
@@ -131,7 +141,7 @@ export const TaskDetailDrawer: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div className="fixed inset-0 z-[60] flex justify-end">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-fade-in"
@@ -276,6 +286,25 @@ export const TaskDetailDrawer: React.FC = () => {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* Start Date */}
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1.5">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  disabled={!isAdmin}
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className={cn(
+                    'w-full border rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none shadow-xs',
+                    isAdmin
+                      ? 'bg-white border-slate-200 focus:border-indigo-500 cursor-pointer'
+                      : 'bg-slate-100 text-slate-400 cursor-not-allowed',
+                  )}
+                />
               </div>
 
               {/* Due Date */}

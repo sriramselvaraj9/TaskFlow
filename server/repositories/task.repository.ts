@@ -55,6 +55,7 @@ export class TaskRepository {
       status?: TaskStatus;
       priority?: TaskPriority;
       assigneeId?: string;
+      startDate?: string;
       dueDate: string;
       tags?: string[];
     },
@@ -74,6 +75,7 @@ export class TaskRepository {
       priority: data.priority || 'MEDIUM',
       assigneeId: data.assigneeId || '',
       createdById: creator.id,
+      startDate: data.startDate,
       dueDate: data.dueDate,
       tags: data.tags || [],
       createdAt: new Date().toISOString(),
@@ -90,7 +92,7 @@ export class TaskRepository {
     data: Partial<
       Pick<
         Task,
-        'title' | 'description' | 'status' | 'priority' | 'assigneeId' | 'dueDate' | 'tags'
+        'title' | 'description' | 'status' | 'priority' | 'assigneeId' | 'startDate' | 'dueDate' | 'tags'
       >
     >,
     user: User,
@@ -121,6 +123,7 @@ export class TaskRepository {
     if (data.status !== undefined) task.status = data.status;
     if (data.priority !== undefined) task.priority = data.priority;
     if (data.assigneeId !== undefined) task.assigneeId = data.assigneeId;
+    if (data.startDate !== undefined) task.startDate = data.startDate;
     if (data.dueDate !== undefined) task.dueDate = data.dueDate;
     if (data.tags !== undefined) task.tags = data.tags;
     task.updatedAt = new Date().toISOString();

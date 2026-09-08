@@ -16,6 +16,8 @@ export const DashboardOverview: React.FC = () => {
     setInviteMemberOpen,
     setSelectedProjectIdForDetail,
   } = useTaskStore();
+  
+  // clientSide rendering to avoid session and stats mismatch on loading(with refresh the hole page)
   const { data: stats, isLoading } = useDashboardStatsQuery(selectedProjectId);
   const { data: projects = [] } = useProjectsQuery();
   const { data: allTasks = [] } = useTasksQuery();
