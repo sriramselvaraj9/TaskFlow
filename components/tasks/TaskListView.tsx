@@ -103,11 +103,9 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, isLoading }) 
               <th className="py-3.5 px-3.5 w-[110px] whitespace-nowrap">Priority</th>
               <th className="py-3.5 px-3.5 w-[130px] whitespace-nowrap">Assignee</th>
               <th className="py-3.5 px-3.5 w-[115px] whitespace-nowrap">Due Date</th>
-              {isAdmin && (
-                <th className="py-3.5 px-3.5 pr-5 text-right w-[85px] whitespace-nowrap">
-                  Actions
-                </th>
-              )}
+              <th className="py-3.5 px-3.5 pr-5 text-right w-[85px] whitespace-nowrap">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -116,9 +114,10 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, isLoading }) 
               const project = projects.find((p) => p.id === task.projectId);
               const overdue = isOverdue(task.dueDate, task.status);
 
-              // Members can ONLY modify status on tasks assigned to them
-              const canModifyStatus =
-                isAdmin || (session?.user?.id && task.assigneeId === session.user.id);
+              // Members can modify status/details on tasks assigned to them
+              const canEditTask =
+                isAdmin || Boolean(session?.user?.id && task.assigneeId === session.user.id);
+              const canModifyStatus = canEditTask;
 
               return (
                 <tr
@@ -151,7 +150,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, isLoading }) 
                     )}
                   </td>
 
-                  {/* Status Dropdown (Editable ONLY if Admin or Assigned Member) */}
+                  {/* Status Dropdown (Editable if Admin or Assigned Member) */}
                   <td
                     className="py-3.5 px-3.5 whitespace-nowrap"
                     onClick={(e) => e.stopPropagation()}
@@ -210,13 +209,13 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, isLoading }) 
                     </div>
                   </td>
 
-                  {/* Actions Column (Admin Only) */}
-                  {isAdmin && (
-                    <td
-                      className="py-3.5 px-3.5 pr-5 whitespace-nowrap text-right"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="flex items-center justify-end gap-1.5">
+                  {/* Actions Column */}
+                  <td
+                    className="py-3.5 px-3.5 pr-5 whitespace-nowrap text-right"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-end gap-1.5">
+                      {canEditTask && (
                         <button
                           onClick={() => setSelectedTaskId(task.id)}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
@@ -224,6 +223,8 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, isLoading }) 
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
+                      )}
+                      {isAdmin && (
                         <button
                           onClick={(e) => handleOpenDelete(e, task)}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
@@ -231,9 +232,9 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, isLoading }) 
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                      </div>
-                    </td>
-                  )}
+                      )}
+                    </div>
+                  </td>
                 </tr>
               );
             })}

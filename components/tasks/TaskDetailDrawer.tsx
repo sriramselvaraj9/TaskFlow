@@ -37,6 +37,7 @@ export const TaskDetailDrawer: React.FC = () => {
 
   const isAdmin = session?.user?.role === 'ADMIN';
   const isAssignedToUser = Boolean(session?.user?.id && task?.assigneeId === session.user.id);
+  const canEditTask = isAdmin || isAssignedToUser;
   const canModifyStatus = isAdmin || isAssignedToUser;
 
   useEffect(() => {
@@ -70,13 +71,13 @@ export const TaskDetailDrawer: React.FC = () => {
 
   const handleConfirmChanges = () => {
     if (!task) return;
-    const updates: Partial<Task> = isAdmin
+    const updates: Partial<Task> = canEditTask
       ? {
           title: title.trim(),
           description: description.trim(),
           status,
           priority,
-          assigneeId: assigneeId || '',
+          assigneeId: isAdmin ? (assigneeId || '') : task.assigneeId,
           startDate: startDate
             ? startDate.includes('T')
               ? startDate
@@ -199,7 +200,7 @@ export const TaskDetailDrawer: React.FC = () => {
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1.5">
                 Task Title
               </label>
-              {isAdmin ? (
+              {canEditTask ? (
                 <textarea
                   rows={2}
                   value={title}
@@ -248,11 +249,11 @@ export const TaskDetailDrawer: React.FC = () => {
                 </label>
                 <select
                   value={priority}
-                  disabled={!isAdmin}
+                  disabled={!canEditTask}
                   onChange={(e) => setPriority(e.target.value as TaskPriority)}
                   className={cn(
                     'w-full border rounded-xl px-3 py-2 text-xs text-slate-900 font-semibold focus:outline-none shadow-xs',
-                    isAdmin
+                    canEditTask
                       ? 'bg-white border-slate-200 focus:border-indigo-500 cursor-pointer'
                       : 'bg-slate-100 border-slate-200 text-slate-400 opacity-60 cursor-not-allowed',
                   )}
@@ -295,12 +296,12 @@ export const TaskDetailDrawer: React.FC = () => {
                 </label>
                 <input
                   type="date"
-                  disabled={!isAdmin}
+                  disabled={!canEditTask}
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   className={cn(
                     'w-full border rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none shadow-xs',
-                    isAdmin
+                    canEditTask
                       ? 'bg-white border-slate-200 focus:border-indigo-500 cursor-pointer'
                       : 'bg-slate-100 text-slate-400 cursor-not-allowed',
                   )}
@@ -314,12 +315,12 @@ export const TaskDetailDrawer: React.FC = () => {
                 </label>
                 <input
                   type="date"
-                  disabled={!isAdmin}
+                  disabled={!canEditTask}
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
                   className={cn(
                     'w-full border rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none shadow-xs',
-                    isAdmin
+                    canEditTask
                       ? 'bg-white cursor-pointer'
                       : 'bg-slate-100 text-slate-400 cursor-not-allowed',
                     overdue
@@ -337,13 +338,13 @@ export const TaskDetailDrawer: React.FC = () => {
               </label>
               <textarea
                 rows={5}
-                readOnly={!isAdmin}
+                readOnly={!canEditTask}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Task description..."
                 className={cn(
                   'w-full border rounded-2xl p-3.5 text-xs text-slate-900 leading-relaxed shadow-xs break-words [overflow-wrap:anywhere]',
-                  isAdmin
+                  canEditTask
                     ? 'bg-slate-50 border-slate-200 focus:outline-none focus:bg-white focus:border-indigo-500'
                     : 'bg-slate-100 border-slate-200 text-slate-600 cursor-default',
                 )}
@@ -353,7 +354,7 @@ export const TaskDetailDrawer: React.FC = () => {
         )}
 
         {/* Footer with Confirm Changes Action Button */}
-        {task && (canModifyStatus || isAdmin) && (
+        {task && canEditTask && (
           <div className="p-4 sm:p-5 border-t border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
             <div className="text-xs text-slate-500 font-medium">
               {isDirty ? (

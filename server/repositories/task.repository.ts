@@ -108,13 +108,8 @@ export class TaskRepository {
       if (task.assigneeId !== user.id) {
         throw new Error('Unauthorized: Members can only update tasks assigned to them');
       }
-      if (
-        (data.title !== undefined && data.title !== task.title) ||
-        (data.description !== undefined && data.description !== task.description) ||
-        (data.priority !== undefined && data.priority !== task.priority) ||
-        (data.assigneeId !== undefined && data.assigneeId !== task.assigneeId)
-      ) {
-        throw new Error('Unauthorized: Members can only update task status');
+      if (data.assigneeId !== undefined && data.assigneeId !== task.assigneeId) {
+        throw new Error('Unauthorized: Only Admins can reassign tasks');
       }
     }
 
