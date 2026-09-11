@@ -1,4 +1,4 @@
-import { Briefcase, CheckCircle2, Copy, Mail, Send, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { Briefcase, CheckCircle2, Mail, Send, ShieldCheck, User as UserIcon } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
@@ -20,8 +20,6 @@ export const InviteMemberModal: React.FC = () => {
 
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [generatedInviteUrl, setGeneratedInviteUrl] = useState('');
-  const [copiedLink, setCopiedLink] = useState(false);
 
   // Reset form whenever modal opens to prevent stale or autofilled values
   useEffect(() => {
@@ -33,8 +31,6 @@ export const InviteMemberModal: React.FC = () => {
       setEmailTouched(false);
       setErrorMessage('');
       setSuccessMessage('');
-      setGeneratedInviteUrl('');
-      setCopiedLink(false);
     }
   }, [isInviteMemberOpen]);
 
@@ -56,7 +52,6 @@ export const InviteMemberModal: React.FC = () => {
 
     setErrorMessage('');
     setSuccessMessage('');
-    setGeneratedInviteUrl('');
 
     try {
       const result = await createUserMutation.mutateAsync({
@@ -67,43 +62,21 @@ export const InviteMemberModal: React.FC = () => {
       });
 
       const invitedUser = result.user;
-      const inviteUrl = result.inviteUrl || '';
 
-      if (inviteUrl) {
-        setGeneratedInviteUrl(inviteUrl);
-      }
+      setSuccessMessage(`Invitation email sent successfully to ${invitedUser.email}!`);
+      toast.success(`Invitation email sent to "${invitedUser.name}" (${invitedUser.email})!`);
 
-      setSuccessMessage(
-        result.emailSent
-          ? `Invitation email sent successfully to ${invitedUser.email}!`
-          : `Member added! An invitation link has been generated for ${invitedUser.name}.`,
-      );
-      toast.success(`Invitation generated for "${invitedUser.name}"!`);
-
-      // If email was sent and user doesn't need to copy URL, close after 1.8s
-      if (result.emailSent) {
-        setTimeout(() => {
-          handleClose();
-        }, 1800);
-      }
+      setTimeout(() => {
+        handleClose();
+      }, 1500);
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to send invitation');
-    }
-  };
-
-  const handleCopyLink = () => {
-    if (generatedInviteUrl) {
-      navigator.clipboard.writeText(generatedInviteUrl);
-      setCopiedLink(true);
-      toast.success('Invitation link copied to clipboard!');
-      setTimeout(() => setCopiedLink(false), 2500);
     }
   };
 
   const handleClose = () => {
     setErrorMessage('');
     setSuccessMessage('');
-    setGeneratedInviteUrl('');
     setName('');
     setEmail('');
     setDesignation('');
@@ -128,36 +101,14 @@ export const InviteMemberModal: React.FC = () => {
       )}
 
       {successMessage && (
-        <div className="mt-2.5 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs space-y-2">
+        <div className="mt-2.5 p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs space-y-1">
           <div className="flex items-center gap-2 font-bold">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{successMessage}</span>
           </div>
-          {generatedInviteUrl && (
-            <div className="mt-2 pt-2 border-t border-emerald-200/60">
-              <p className="text-[11px] text-emerald-700 font-medium mb-1.5">
-                Set Password Link (Direct Access):
-              </p>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={generatedInviteUrl}
-                  className="w-full bg-white border border-emerald-300 rounded-lg px-2.5 py-1.5 text-[11px] font-mono text-slate-800 select-all"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopyLink}
-                  className="shrink-0 text-[11px] h-8 px-2.5 bg-white hover:bg-emerald-100/50 border-emerald-300 text-emerald-800"
-                >
-                  <Copy className="w-3.5 h-3.5 mr-1" />
-                  {copiedLink ? 'Copied' : 'Copy'}
-                </Button>
-              </div>
-            </div>
-          )}
+          <p className="text-[11px] text-emerald-700">
+            The member will receive an email with instructions to set their password.
+          </p>
         </div>
       )}
 

@@ -86,7 +86,10 @@ interface BrevoApiConfig {
 }
 
 function getBrevoApiConfig(): BrevoApiConfig | null {
-  const apiKey = process.env.BREVO_API_KEY || (process.env.BREVO_SMTP_KEY?.startsWith('xkeysib-') ? process.env.BREVO_SMTP_KEY : undefined);
+  const apiKey =
+    process.env.BREVO_API_KEY ||
+    (process.env.BREVO_SMTP_KEY?.startsWith('xkeysib-') ? process.env.BREVO_SMTP_KEY : undefined);
+
   if (!apiKey || !apiKey.startsWith('xkeysib-')) {
     return null;
   }
