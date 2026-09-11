@@ -51,16 +51,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Generate 7-day secure invite token
     const inviteToken = await createInviteToken(cleanEmail);
 
-    // Build absolute invitation link
-    let baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    if (req.headers.host) {
-      const rawProto = req.headers['x-forwarded-proto'];
-      const protoStr = Array.isArray(rawProto) ? rawProto[0] : rawProto;
-      const isLocal =
-        req.headers.host.includes('localhost') || req.headers.host.includes('127.0.0.1');
-      const protocol = protoStr || (isLocal ? 'http' : 'https');
-      baseUrl = `${protocol}://${req.headers.host}`;
+    // Build absolute invitation link pointing to the frontend
+    let baseUrl = process.env.NEXTAUTH_URL?.trim();
+    if (!baseUrl) {
+      if (req.headers.origin) {
+        baseUrl = req.headers.origin;
+      } else if (req.headers.host) {
+        const rawProto = req.headers['x-forwarded-proto'];
+        const protoStr = Array.isArray(rawProto) ? rawProto[0] : rawProto;
+        const isLocal =
+          req.headers.host.includes('localhost') || req.headers.host.includes('127.0.0.1');
+        const protocol = protoStr || (isLocal ? 'http' : 'https');
+        baseUrl = `${protocol}://${req.headers.host}`;
+      } else {
+        baseUrl = 'http://localhost:3000';
+      }
     }
+    // Remove any trailing slashes
+    baseUrl = baseUrl.replace(/\/+$/, '');
 
     const inviteUrl = `${baseUrl}/auth/set-password?token=${inviteToken}&email=${encodeURIComponent(cleanEmail)}`;
 
