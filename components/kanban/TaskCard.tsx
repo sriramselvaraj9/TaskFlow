@@ -6,7 +6,7 @@ import { useColumnsQuery } from '@/hooks/useColumns';
 import { useProjectsQuery } from '@/hooks/useProjects';
 import { useUpdateTaskMutation } from '@/hooks/useTasks';
 import { useUsersQuery } from '@/hooks/useUsers';
-import { cn, formatDate, isOverdue } from '@/lib/utils';
+import { cn, formatDate, isOverdue, validateStatusTransition } from '@/lib/utils';
 import { useTaskStore } from '@/store/useTaskStore';
 import { toast } from '@/store/useToastStore';
 import type { Task, TaskStatus } from '@/types';
@@ -17,7 +17,7 @@ interface TaskCardProps {
 
 export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const { data: session } = useSession();
-  const { setSelectedTaskId } = useTaskStore();
+  const { setSelectedTaskId, openRestrictionModal } = useTaskStore();
   const { data: _users = [] } = useUsersQuery();
   const { data: projects = [] } = useProjectsQuery();
   const { data: columns = [] } = useColumnsQuery();
@@ -36,21 +36,27 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     return columns.find((c) => c.id === st)?.title || st.replace('_', ' ');
   };
 
-  const handleDragStart = (e: React.DragEvent) => {
-    if (!canModifyStatus) {
-      e.preventDefault();
-      return;
-    }
-    e.dataTransfer.setData('text/plain', task.id);
-    e.dataTransfer.setData('text', task.id);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
   const handleStatusSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.stopPropagation();
     if (!canModifyStatus) return;
 
     const newStatus = e.target.value as TaskStatus;
+
+    // Workflow rule: Validate step-by-step transition (TODO -> IN_PROGRESS -> IN_REVIEW -> DONE)
+    const validation = validateStatusTransition(task.status, newStatus);
+    if (!validation.allowed) {
+      e.target.value = task.status; // Revert select
+      openRestrictionModal({
+        taskTitle: task.title,
+        taskId: task.id,
+        projectKey: project?.key || 'TASK',
+        fromStatus: getStatusName(task.status),
+        toStatus: getStatusName(newStatus),
+        remarks: validation.reason,
+      });
+      return;
+    }
+
     updateTaskMutation.mutate(
       {
         id: task.id,
@@ -60,18 +66,32 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         onSuccess: () => {
           toast.success(`Status updated to ${getStatusName(newStatus)}!`);
         },
+        onError: (err: any) => {
+          if (
+            err.message?.toLowerCase().includes('restrict') ||
+            err.message?.toLowerCase().includes('todo to done')
+          ) {
+            openRestrictionModal({
+              taskTitle: task.title,
+              taskId: task.id,
+              projectKey: project?.key || 'TASK',
+              fromStatus: 'To Do',
+              toStatus: 'Done',
+              remarks: err.message,
+            });
+          } else {
+            toast.error(err.message || 'Failed to update status');
+          }
+        },
       },
     );
   };
 
   return (
     <div
-      draggable={canModifyStatus}
-      onDragStart={handleDragStart}
       onClick={() => setSelectedTaskId(task.id)}
       className={cn(
-        'group relative bg-white hover:bg-slate-50 rounded-xl p-3.5 border border-slate-200 hover:border-slate-300 transition-all duration-150 shadow-card hover:shadow-md select-none space-y-3',
-        canModifyStatus ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer',
+        'group relative bg-white hover:bg-slate-50 rounded-xl p-3.5 border border-slate-200 hover:border-slate-300 transition-all duration-150 shadow-card hover:shadow-md select-none space-y-3 cursor-pointer',
         overdue && 'border-rose-300 bg-rose-50/20',
       )}
     >

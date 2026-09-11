@@ -1,9 +1,7 @@
-import { Archive, ChevronDown, ChevronUp, FolderArchive, Sparkles } from 'lucide-react';
+import { Archive, ChevronDown, ChevronUp, FolderArchive } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { useUpdateTaskMutation } from '@/hooks/useTasks';
 import { cn } from '@/lib/utils';
-import { toast } from '@/store/useToastStore';
 import type { BoardColumn, Task } from '@/types';
 import { TaskCard } from './TaskCard';
 
@@ -15,8 +13,6 @@ interface BacklogSpaceProps {
 export const BacklogSpace: React.FC<BacklogSpaceProps> = ({ tasks }) => {
   const backlogTasks = tasks.filter((t) => t.status === 'BACKLOG');
   const [isOpen, setIsOpen] = useState(backlogTasks.length > 0);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const updateTaskMutation = useUpdateTaskMutation();
 
   useEffect(() => {
     if (backlogTasks.length > 0) {
@@ -24,47 +20,13 @@ export const BacklogSpace: React.FC<BacklogSpaceProps> = ({ tasks }) => {
     }
   }, [backlogTasks.length]);
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    if (!isDragOver) setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const taskId = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text');
-    if (!taskId) return;
-
-    updateTaskMutation.mutate(
-      { id: taskId, updates: { status: 'BACKLOG' } },
-      {
-        onSuccess: () => {
-          toast.success('Task moved to Backlog Space!');
-        },
-        onError: (err: any) => {
-          toast.error(err.message || 'Failed to move task to backlog');
-        },
-      },
-    );
-  };
-
   return (
     <div
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
       className={cn(
         'rounded-2xl border transition-all duration-200 shadow-xs mb-4 overflow-hidden',
         backlogTasks.length > 0
           ? 'bg-amber-50/40 border-amber-200/80'
           : 'bg-slate-100/70 border-slate-200/80',
-        isDragOver && 'ring-2 ring-amber-400 border-amber-400 bg-amber-100/50',
       )}
     >
       {/* Header bar */}

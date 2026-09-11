@@ -8,14 +8,14 @@ import { useColumnsQuery } from '@/hooks/useColumns';
 import { useProjectsQuery } from '@/hooks/useProjects';
 import { useDeleteTaskMutation, useTaskQuery, useUpdateTaskMutation } from '@/hooks/useTasks';
 import { useUsersQuery } from '@/hooks/useUsers';
-import { cn, isOverdue } from '@/lib/utils';
+import { cn, isOverdue, validateStatusTransition } from '@/lib/utils';
 import { useTaskStore } from '@/store/useTaskStore';
 import { toast } from '@/store/useToastStore';
 import type { Task, TaskPriority, TaskStatus } from '@/types';
 
 export const TaskDetailDrawer: React.FC = () => {
   const { data: session } = useSession();
-  const { selectedTaskId, setSelectedTaskId } = useTaskStore();
+  const { selectedTaskId, setSelectedTaskId, openRestrictionModal } = useTaskStore();
   
   const { data: task, isLoading } = useTaskQuery(selectedTaskId);
   const { data: projects = [] } = useProjectsQuery();
@@ -39,6 +39,12 @@ export const TaskDetailDrawer: React.FC = () => {
   const isAssignedToUser = Boolean(session?.user?.id && task?.assigneeId === session.user.id);
   const canEditTask = isAdmin || isAssignedToUser;
   const canModifyStatus = isAdmin || isAssignedToUser;
+
+  const getStatusName = (st: string | null) => {
+    if (!st) return '';
+    if (st === 'BACKLOG') return 'Backlog';
+    return columns.find((c) => c.id === st)?.title || st.replace('_', ' ');
+  };
 
   useEffect(() => {
     if (task) {
@@ -71,6 +77,22 @@ export const TaskDetailDrawer: React.FC = () => {
 
   const handleConfirmChanges = () => {
     if (!task) return;
+
+    // Workflow rule: Validate step-by-step transition (TODO -> IN_PROGRESS -> IN_REVIEW -> DONE)
+    const validation = validateStatusTransition(task.status, status);
+    if (!validation.allowed) {
+      setStatus(task.status);
+      openRestrictionModal({
+        taskTitle: task.title,
+        taskId: task.id,
+        projectKey: project?.key || 'TASK',
+        fromStatus: getStatusName(task.status),
+        toStatus: getStatusName(status),
+        remarks: validation.reason,
+      });
+      return;
+    }
+
     const updates: Partial<Task> = canEditTask
       ? {
           title: title.trim(),
@@ -112,6 +134,24 @@ export const TaskDetailDrawer: React.FC = () => {
             setDueDate(updatedTask.dueDate ? updatedTask.dueDate.split('T')[0] : '');
           }
           setTimeout(() => setSavedSuccess(false), 2500);
+        },
+        onError: (err: any) => {
+          if (
+            err.message?.toLowerCase().includes('restrict') ||
+            err.message?.toLowerCase().includes('todo to done')
+          ) {
+            setStatus(task.status);
+            openRestrictionModal({
+              taskTitle: task.title,
+              taskId: task.id,
+              projectKey: project?.key || 'TASK',
+              fromStatus: 'To Do',
+              toStatus: 'Done',
+              remarks: err.message,
+            });
+          } else {
+            toast.error(err.message || 'Failed to save changes');
+          }
         },
       },
     );

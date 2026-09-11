@@ -2,6 +2,15 @@ import { create } from 'zustand';
 // Global state management (Zustand).
 import type { TaskPriority, TaskStatus } from '@/types';
 
+export interface TaskRestrictionInfo {
+  taskTitle: string;
+  taskId?: string;
+  projectKey?: string;
+  fromStatus?: string;
+  toStatus?: string;
+  remarks?: string;
+}
+
 interface TaskStoreState {
   // Filter & Search State
   selectedProjectId: string | null;
@@ -18,6 +27,7 @@ interface TaskStoreState {
   isInviteMemberOpen: boolean;
   selectedTaskId: string | null;
   selectedProjectIdForDetail: string | null;
+  restrictionModalData: TaskRestrictionInfo | null;
 
   // Actions
   setSelectedProjectId: (id: string | null) => void;
@@ -34,6 +44,8 @@ interface TaskStoreState {
   setInviteMemberOpen: (open: boolean) => void;
   setSelectedTaskId: (id: string | null) => void;
   setSelectedProjectIdForDetail: (id: string | null) => void;
+  openRestrictionModal: (data: TaskRestrictionInfo) => void;
+  closeRestrictionModal: () => void;
 }
 
 export const useTaskStore = create<TaskStoreState>((set) => ({
@@ -50,6 +62,7 @@ export const useTaskStore = create<TaskStoreState>((set) => ({
   isInviteMemberOpen: false,
   selectedTaskId: null, // Initial state
   selectedProjectIdForDetail: null,
+  restrictionModalData: null,
 
   // functions
   setSelectedProjectId: (id) => set({ selectedProjectId: id }),
@@ -73,4 +86,7 @@ export const useTaskStore = create<TaskStoreState>((set) => ({
   setInviteMemberOpen: (open) => set({ isInviteMemberOpen: open }),
   setSelectedTaskId: (id) => set({ selectedTaskId: id }), // The setter action
   setSelectedProjectIdForDetail: (id) => set({ selectedProjectIdForDetail: id }),
+  openRestrictionModal: (data) => set({ restrictionModalData: data }),
+  closeRestrictionModal: () => set({ restrictionModalData: null }),
 }));
+

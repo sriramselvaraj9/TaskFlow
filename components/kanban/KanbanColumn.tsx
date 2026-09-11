@@ -25,44 +25,12 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   dotColor = 'bg-slate-900 shadow-[0_0_6px_rgba(15,23,42,0.6)]',
 }) => {
   const { data: session } = useSession();
-  const [isDragOver, setIsDragOver] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { setCreateTaskOpen } = useTaskStore();
-  const updateTaskMutation = useUpdateTaskMutation();
   const deleteColumnMutation = useDeleteColumnMutation();
 
   const isAdmin = session?.user?.role === 'ADMIN';
   const isStaticColumn = ['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE'].includes(id.toUpperCase());
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    if (!isDragOver) setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const taskId = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text');
-    if (!taskId) return;
-
-    updateTaskMutation.mutate(
-      { id: taskId, updates: { status: id } },
-      {
-        onSuccess: () => {
-          toast.success(`Task moved to ${title}!`);
-        },
-        onError: (err: any) => {
-          toast.error(err.message || 'Failed to move task');
-        },
-      },
-    );
-  };
 
   const handleDeleteConfirm = () => {
     deleteColumnMutation.mutate(id, {
@@ -78,13 +46,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   return (
     <>
       <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        className={cn(
-          'flex flex-col min-w-[270px] sm:min-w-[290px] flex-1 rounded-2xl bg-slate-200/50 border border-slate-200/80 transition-all duration-200 min-h-[520px] shrink-0',
-          isDragOver && 'border-indigo-500 bg-indigo-50/60 ring-2 ring-indigo-300/50',
-        )}
+        className="flex flex-col min-w-[270px] sm:min-w-[290px] flex-1 rounded-2xl bg-slate-200/50 border border-slate-200/80 transition-all duration-200 min-h-[520px] shrink-0"
       >
         {/* Column header */}
         <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-slate-200/60">
@@ -131,7 +93,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
           ))}
           {tasks.length === 0 && (
             <div className="flex-1 flex items-center justify-center border-2 border-dashed border-slate-300 rounded-xl p-6 text-center">
-              <p className="text-xs font-medium text-slate-400">Drop tasks here</p>
+              <p className="text-xs font-medium text-slate-400">No tasks in this column</p>
             </div>
           )}
         </div>

@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { validateStatusTransition } from '@/lib/utils';
 import type { Task, TaskPriority, TaskStatus, User } from '@/types';
 import { getDatabase, saveDbToFile } from '../data';
 
@@ -110,6 +111,14 @@ export class TaskRepository {
       }
       if (data.assigneeId !== undefined && data.assigneeId !== task.assigneeId) {
         throw new Error('Unauthorized: Only Admins can reassign tasks');
+      }
+    }
+
+    // Workflow Rule: Step-by-step sequential transition (TODO -> IN_PROGRESS -> IN_REVIEW -> DONE)
+    if (data.status !== undefined && data.status !== task.status) {
+      const validation = validateStatusTransition(task.status, data.status);
+      if (!validation.allowed) {
+        throw new Error(validation.reason || 'Invalid status transition');
       }
     }
 

@@ -6,16 +6,13 @@ import {
   FolderKanban,
   KanbanSquare,
   LayoutDashboard,
-  LogOut,
   Users,
   X,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { signOut, useSession } from 'next-auth/react';
 import type React from 'react';
 import { useState } from 'react';
-import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { cn } from '@/lib/utils';
 
 type ActiveView = 'dashboard' | 'kanban' | 'list' | 'analytics' | 'projects' | 'members';
@@ -41,10 +38,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen = false,
   onMobileClose,
 }) => {
-  const { data: _session } = useSession();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
 
   const handleNavClick = (id: ActiveView, href: string) => {
     if (onViewChange) {
@@ -54,11 +49,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       onMobileClose();
     }
     router.push(href);
-  };
-
-  const handleSignOut = async () => {
-    await signOut({ redirect: false });
-    window.location.href = '/auth/signin';
   };
 
   const sidebarContent = (
@@ -116,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Nav items */}
-      <nav className="flex-1 px-3 pt-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 pt-4 pb-4 space-y-1 overflow-y-auto">
         {NAV_ITEMS.map(({ id, href, label, icon: Icon }) => {
           const isActive =
             activeView === id ||
@@ -148,24 +138,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           );
         })}
       </nav>
-
-      {/* Bottom Section: Logout Button */}
-      <div className="p-3 sm:p-4 border-t border-white/8 shrink-0">
-        <button
-          type="button"
-          onClick={() => setIsLogoutConfirmOpen(true)}
-          title="Logout"
-          className={cn(
-            'w-full flex items-center justify-center gap-2 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer shadow-sm',
-            isCollapsed && !isMobileOpen
-              ? 'p-2.5 bg-slate-800/80 hover:bg-rose-950/50 text-slate-300 hover:text-rose-300 border border-slate-700/60'
-              : 'py-2.5 px-4 bg-slate-800/80 hover:bg-rose-950/50 text-slate-200 hover:text-rose-200 border border-slate-700/60 hover:border-rose-800/50',
-          )}
-        >
-          <LogOut className="w-3.5 h-3.5 shrink-0" />
-          {(!isCollapsed || isMobileOpen) && <span>Logout</span>}
-        </button>
-      </div>
     </div>
   );
 
@@ -193,17 +165,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
       )}
-
-      {/* Logout Confirmation Modal */}
-      <ConfirmModal
-        isOpen={isLogoutConfirmOpen}
-        title="Confirm Logout"
-        description="Are you sure you want to log out of your TaskFlow workspace session?"
-        confirmText="Log Out"
-        cancelText="Cancel"
-        onConfirm={handleSignOut}
-        onClose={() => setIsLogoutConfirmOpen(false)}
-      />
     </>
   );
 };

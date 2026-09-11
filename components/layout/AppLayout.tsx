@@ -9,6 +9,7 @@ import { CreateProjectModal } from '@/components/projects/CreateProjectModal';
 import { ProjectDetailDrawer } from '@/components/projects/ProjectDetailDrawer';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { TaskDetailDrawer } from '@/components/tasks/TaskDetailDrawer';
+import { TaskRestrictionModal } from '@/components/ui/TaskRestrictionModal';
 import { InviteMemberModal } from '@/components/users/InviteMemberModal';
 
 interface AppLayoutProps {
@@ -102,6 +103,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         <InviteMemberModal />
         <TaskDetailDrawer />
         <ProjectDetailDrawer />
+        <TaskRestrictionModal />
       </div>
     </>
   );

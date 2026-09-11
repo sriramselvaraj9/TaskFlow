@@ -43,14 +43,14 @@
       "title": "test API",
       "description": "testing.",
       "projectId": "prj-1788852419371",
-      "status": "IN_PROGRESS",
+      "status": "TODO",
       "priority": "HIGH",
       "assigneeId": "user-member-1",
       "createdById": "user-admin-1",
       "dueDate": "2026-09-16T00:00:00.000Z",
       "tags": [],
       "createdAt": "2026-09-08T07:27:21.579Z",
-      "updatedAt": "2026-09-08T07:33:28.232Z"
+      "updatedAt": "2026-09-10T11:21:03.627Z"
     }
   ],
   "columns": [
@@ -88,6 +88,270 @@
     }
   ],
   "activities": [
+    {
+      "id": "act-1789039263629-z7zr",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:21:03.629Z"
+    },
+    {
+      "id": "act-1789039260614-bsy8",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:21:00.614Z"
+    },
+    {
+      "id": "act-1789039258097-mczg",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:20:58.097Z"
+    },
+    {
+      "id": "act-1789039253484-9o19",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:20:53.484Z"
+    },
+    {
+      "id": "act-1789039247249-z3pw",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:20:47.249Z"
+    },
+    {
+      "id": "act-1789039236054-4b0j",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:20:36.055Z"
+    },
+    {
+      "id": "act-1789039222449-i8fa",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:20:22.449Z"
+    },
+    {
+      "id": "act-1789038857217-fswq",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:14:17.217Z"
+    },
+    {
+      "id": "act-1789038854247-6pt4",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:14:14.247Z"
+    },
+    {
+      "id": "act-1789038850890-7q24",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:14:10.890Z"
+    },
+    {
+      "id": "act-1789038845100-e925",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:14:05.100Z"
+    },
+    {
+      "id": "act-1789038841537-x45y",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:14:01.537Z"
+    },
+    {
+      "id": "act-1789038788391-gx1m",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:13:08.391Z"
+    },
+    {
+      "id": "act-1789038783648-bua6",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:13:03.648Z"
+    },
+    {
+      "id": "act-1789038677796-pmse",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:11:17.796Z"
+    },
+    {
+      "id": "act-1789038670165-2gr8",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:11:10.165Z"
+    },
+    {
+      "id": "act-1789038666615-g88w",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:11:06.615Z"
+    },
+    {
+      "id": "act-1789038664189-tznb",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:11:04.189Z"
+    },
+    {
+      "id": "act-1789038661185-2s1o",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T11:11:01.185Z"
+    },
+    {
+      "id": "act-1789036318421-1tgb",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T10:31:58.421Z"
+    },
+    {
+      "id": "act-1789036316880-kp5t",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T10:31:56.880Z"
+    },
+    {
+      "id": "act-1789036313240-t848",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T10:31:53.240Z"
+    },
+    {
+      "id": "act-1789036309360-f2nj",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T10:31:49.360Z"
+    },
+    {
+      "id": "act-1789036290578-5vry",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-10T10:31:30.578Z"
+    },
     {
       "id": "act-1788852808237-nvo8",
       "action": "TASK_UPDATED",

@@ -144,3 +144,67 @@ export function getUserInitials(name: string): string {
   }
   return name.slice(0, 2).toUpperCase();
 }
+
+/**
+ * Validates step-by-step task status progression:
+ * BACKLOG / TODO -> IN_PROGRESS -> IN_REVIEW -> DONE
+ */
+export function validateStatusTransition(
+  fromStatus: string | null | undefined,
+  toStatus: string | null | undefined,
+): { allowed: boolean; reason?: string } {
+  if (!fromStatus || !toStatus) return { allowed: true };
+
+  const from = fromStatus.toUpperCase();
+  const to = toStatus.toUpperCase();
+
+  if (from === to) return { allowed: true };
+
+  // Step-by-step workflow: TODO -> IN_PROGRESS -> IN_REVIEW -> DONE
+  if (from === 'TODO') {
+    if (to === 'DONE') {
+      return {
+        allowed: false,
+        reason:
+          'Workflow rule restricts skipping steps: cannot move directly from TO DO to DONE. Tasks must move step-by-step: To Do → In Progress → In Review → Done.',
+      };
+    }
+    if (to === 'IN_REVIEW') {
+      return {
+        allowed: false,
+        reason:
+          'Workflow rule restricts skipping steps: cannot move directly from TO DO to IN REVIEW. Tasks must first move to IN PROGRESS.',
+      };
+    }
+  }
+
+  if (from === 'IN_PROGRESS') {
+    if (to === 'DONE') {
+      return {
+        allowed: false,
+        reason:
+          'Workflow rule restricts skipping steps: cannot move directly from IN PROGRESS to DONE. Tasks must first move to IN REVIEW for verification before marking as DONE.',
+      };
+    }
+  }
+
+  if (from === 'BACKLOG') {
+    if (to === 'DONE') {
+      return {
+        allowed: false,
+        reason:
+          'Workflow rule restricts moving directly from BACKLOG to DONE. Tasks must progress step-by-step: Backlog → To Do → In Progress → In Review → Done.',
+      };
+    }
+    if (to === 'IN_REVIEW') {
+      return {
+        allowed: false,
+        reason:
+          'Workflow rule restricts moving directly from BACKLOG to IN REVIEW. Tasks must first move to TO DO or IN PROGRESS.',
+      };
+    }
+  }
+
+  return { allowed: true };
+}
+

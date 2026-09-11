@@ -8,7 +8,7 @@ import { useColumnsQuery } from '@/hooks/useColumns';
 import { useProjectsQuery } from '@/hooks/useProjects';
 import { useDeleteTaskMutation, useUpdateTaskMutation } from '@/hooks/useTasks';
 import { useUsersQuery } from '@/hooks/useUsers';
-import { cn, formatDate, isOverdue } from '@/lib/utils';
+import { cn, formatDate, isOverdue, validateStatusTransition } from '@/lib/utils';
 import { useTaskStore } from '@/store/useTaskStore';
 import { toast } from '@/store/useToastStore';
 import type { Task, TaskStatus } from '@/types';
@@ -20,7 +20,7 @@ interface TaskListViewProps {
 
 export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, isLoading }) => {
   const { data: session } = useSession();
-  const { searchQuery, setSearchQuery, setSelectedTaskId } = useTaskStore();
+  const { searchQuery, setSearchQuery, setSelectedTaskId, openRestrictionModal } = useTaskStore();
   const { data: users = [] } = useUsersQuery();
   const { data: projects = [] } = useProjectsQuery();
   const { data: columns = [] } = useColumnsQuery();
@@ -30,12 +30,63 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, isLoading }) 
 
   const isAdmin = session?.user?.role === 'ADMIN';
 
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>, taskId: string) => {
+  const getStatusName = (st: string | null) => {
+    if (!st) return '';
+    if (st === 'BACKLOG') return 'Backlog';
+    return columns.find((c) => c.id === st)?.title || st.replace('_', ' ');
+  };
+
+  const handleStatusChange = (
+    e: React.ChangeEvent<HTMLSelectElement>,
+    task: Task,
+    projectKey?: string,
+  ) => {
     e.stopPropagation();
-    updateTaskMutation.mutate({
-      id: taskId,
-      updates: { status: e.target.value as TaskStatus },
-    });
+    const newStatus = e.target.value as TaskStatus;
+
+    // Workflow rule: Validate step-by-step transition (TODO -> IN_PROGRESS -> IN_REVIEW -> DONE)
+    const validation = validateStatusTransition(task.status, newStatus);
+    if (!validation.allowed) {
+      e.target.value = task.status; // Revert select
+      openRestrictionModal({
+        taskTitle: task.title,
+        taskId: task.id,
+        projectKey: projectKey || 'TASK',
+        fromStatus: getStatusName(task.status),
+        toStatus: getStatusName(newStatus),
+        remarks: validation.reason,
+      });
+      return;
+    }
+
+    updateTaskMutation.mutate(
+      {
+        id: task.id,
+        updates: { status: newStatus },
+      },
+      {
+        onSuccess: () => {
+          toast.success('Task status updated successfully!');
+        },
+        onError: (err: any) => {
+          if (
+            err.message?.toLowerCase().includes('restrict') ||
+            err.message?.toLowerCase().includes('todo to done')
+          ) {
+            openRestrictionModal({
+              taskTitle: task.title,
+              taskId: task.id,
+              projectKey: projectKey || 'TASK',
+              fromStatus: 'To Do',
+              toStatus: 'Done',
+              remarks: err.message,
+            });
+          } else {
+            toast.error(err.message || 'Failed to update task status');
+          }
+        },
+      },
+    );
   };
 
   const handleOpenDelete = (e: React.MouseEvent, task: Task) => {
@@ -158,7 +209,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, isLoading }) 
                     <select
                       value={task.status}
                       disabled={!canModifyStatus}
-                      onChange={(e) => handleStatusChange(e, task.id)}
+                      onChange={(e) => handleStatusChange(e, task, project?.key)}
                       title={
                         canModifyStatus
                           ? 'Change task status'
