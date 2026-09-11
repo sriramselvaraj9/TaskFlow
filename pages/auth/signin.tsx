@@ -10,8 +10,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/router';
 import { signIn } from 'next-auth/react';
-import type React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { toast } from '@/store/useToastStore';
 
@@ -23,6 +22,16 @@ export default function SignInPage() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (router.query.email && typeof router.query.email === 'string') {
+      setEmail(router.query.email);
+    }
+    if (router.query.activated === 'true') {
+      setSuccessMessage('Account password set successfully! Please sign in with your password.');
+    }
+  }, [router.isReady, router.query]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

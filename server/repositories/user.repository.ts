@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import type { User } from '@/types';
 import { getDatabase, saveDbToFile } from '../data';
@@ -10,8 +11,8 @@ export class UserRepository {
       id,
       name,
       email,
-      role,
-      designation: designation || (role === 'ADMIN' ? 'Lead Administrator' : 'Software Engineer'),
+      role: role || 'MEMBER',
+      designation: designation || undefined,
       createdAt,
     }));
   }
@@ -53,22 +54,20 @@ export class UserRepository {
     }
 
     const rawPassword = data.passwordAttempt || data.password;
-    if (!rawPassword) {
-      throw new Error('Password is required for registration');
-    }
-
-    const defaultDesignation = data.role === 'ADMIN' ? 'Lead Administrator' : 'Software Engineer';
+    const userRole = data.role === 'ADMIN' ? 'ADMIN' : 'MEMBER';
     const newUser: User = {
       id: `user-${Date.now()}`,
       name: data.name.trim(),
       email: cleanEmail,
-      role: data.role || 'MEMBER',
-      designation: data.designation?.trim() || defaultDesignation,
+      role: userRole,
+      designation: data.designation?.trim() || undefined,
       createdAt: new Date().toISOString(),
     };
 
     db.users.push(newUser);
-    db.passwords[newUser.email] = bcrypt.hashSync(rawPassword, 8);
+    if (rawPassword) {
+      db.passwords[newUser.email] = bcrypt.hashSync(rawPassword, 8);
+    }
 
     // Automatically enroll new member in all active workspace projects
     if (Array.isArray(db.projects)) {
@@ -182,6 +181,92 @@ export class UserRepository {
     return true;
   }
 
+  async createInviteToken(email: string): Promise<string> {
+    if (!email) {
+      throw new Error('Email address is required to create an invitation token');
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await this.findByEmail(cleanEmail);
+    if (!user) {
+      throw new Error('No registered account found with this email address.');
+    }
+
+    const db = getDatabase();
+    const inviteToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
+
+    if (!db.inviteTokens) {
+      db.inviteTokens = {};
+    }
+    db.inviteTokens[cleanEmail] = { token: inviteToken, expiresAt };
+    saveDbToFile(db);
+
+    return inviteToken;
+  }
+
+  async verifyInviteToken(
+    email: string,
+    token: string,
+  ): Promise<{ valid: boolean; user?: User; message?: string }> {
+    if (!email || !token) {
+      return { valid: false, message: 'Email and invitation token are required' };
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await this.findByEmail(cleanEmail);
+    if (!user) {
+      return { valid: false, message: 'Account not found for this invitation.' };
+    }
+
+    const db = getDatabase();
+    const tokenRecord = db.inviteTokens?.[cleanEmail];
+    if (!tokenRecord || tokenRecord.token !== token.trim()) {
+      return { valid: false, message: 'Invalid or expired invitation link. Please request a new invite.' };
+    }
+
+    if (new Date(tokenRecord.expiresAt).getTime() < Date.now()) {
+      return { valid: false, message: 'This invitation link has expired. Please contact your administrator.' };
+    }
+
+    return { valid: true, user };
+  }
+
+  async setPasswordWithInviteToken(
+    email: string,
+    token: string,
+    newPasswordAttempt: string,
+  ): Promise<User> {
+    if (!email || !token || !newPasswordAttempt) {
+      throw new Error('Email, invitation token, and new password are required');
+    }
+
+    const verification = await this.verifyInviteToken(email, token);
+    if (!verification.valid || !verification.user) {
+      throw new Error(verification.message || 'Invalid or expired invitation token');
+    }
+
+    if (newPasswordAttempt.length < 6) {
+      throw new Error('Password must be at least 6 characters long');
+    }
+
+    const db = getDatabase();
+    const cleanEmail = email.trim().toLowerCase();
+    db.passwords[cleanEmail] = bcrypt.hashSync(newPasswordAttempt, 8);
+
+    // Remove consumed invite token
+    if (db.inviteTokens) {
+      delete db.inviteTokens[cleanEmail];
+    }
+    saveDbToFile(db);
+
+    await activityService.logActivity(
+      'MEMBER_ASSIGNED',
+      `completed account registration and activated password`,
+      verification.user,
+    );
+
+    return verification.user;
+  }
+
   async delete(id: string): Promise<boolean> {
     const db = getDatabase();
     const userIndex = db.users.findIndex((u) => u.id === id);
@@ -194,6 +279,9 @@ export class UserRepository {
         delete db.passwords[cleanEmail];
         if (db.otpTokens) {
           delete db.otpTokens[cleanEmail];
+        }
+        if (db.inviteTokens) {
+          delete db.inviteTokens[cleanEmail];
         }
       }
     }

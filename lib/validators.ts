@@ -10,11 +10,35 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 export const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters long'),
-  role: z.enum(['ADMIN', 'MEMBER']).default('MEMBER'),
+  password: z.string().min(6, 'Password must be at least 6 characters long').optional(),
+  role: z.enum(['ADMIN', 'MEMBER']).optional().default('MEMBER'),
+  designation: z.string().optional(),
 });
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
+
+export const inviteMemberSchema = z.object({
+  name: z.string().trim().min(2, 'Name must be at least 2 characters').max(50, 'Name cannot exceed 50 characters'),
+  email: z.string().trim().email('Please enter a valid corporate email address'),
+  role: z.enum(['ADMIN', 'MEMBER']).optional().default('MEMBER'),
+  designation: z.string().trim().optional(),
+});
+
+export type InviteMemberFormData = z.infer<typeof inviteMemberSchema>;
+
+export const setPasswordSchema = z
+  .object({
+    email: z.string().trim().email('Please enter a valid email address'),
+    token: z.string().min(1, 'Invitation token is required'),
+    password: z.string().min(6, 'Password must be at least 6 characters long'),
+    confirmPassword: z.string().min(6, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+export type SetPasswordFormData = z.infer<typeof setPasswordSchema>;
 
 export const taskSchemaStep1 = z.object({
   title: z

@@ -64,7 +64,7 @@ export async function getAuthenticatedUser(
           name: (token.name as string) || '',
           email: token.email as string,
           role: (token.role as 'ADMIN' | 'MEMBER') || 'MEMBER',
-          designation: (token.role === 'ADMIN' ? 'Lead Administrator' : 'Software Engineer'),
+          designation: (token.designation as string) || undefined,
           createdAt: new Date().toISOString(),
         };
       }

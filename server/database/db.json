@@ -15,12 +15,27 @@
       "role": "MEMBER",
       "designation": "Software Engineer",
       "createdAt": "2026-09-08T00:00:00.000Z"
+    },
+    {
+      "id": "user-1789125865930",
+      "name": "abuisoifh",
+      "email": "sriramselvaraj799@gmail.com",
+      "role": "MEMBER",
+      "createdAt": "2026-09-11T11:24:25.930Z"
+    },
+    {
+      "id": "user-1789125975664",
+      "name": "sri",
+      "email": "him88149@gmail.com",
+      "role": "MEMBER",
+      "createdAt": "2026-09-11T11:26:15.664Z"
     }
   ],
   "passwords": {
     "sriramccbp@gmail.com": "$2a$08$6MLZwjUPsb.ljnT0PQ02oO9pNhfd.GWctFYTvlldkj/8W19eP4Lyu",
     "sriramcccbp@gmail.com": "$2a$08$6MLZwjUPsb.ljnT0PQ02oO9pNhfd.GWctFYTvlldkj/8W19eP4Lyu",
-    "member@gmail.com": "$2a$08$HFVFArhqzFozzjQiwG3seepzIYNCq.r1pfXdcJV90ZtAr93vgjaGe"
+    "member@gmail.com": "$2a$08$HFVFArhqzFozzjQiwG3seepzIYNCq.r1pfXdcJV90ZtAr93vgjaGe",
+    "him88149@gmail.com": "$2a$08$NHwXH7vq8yZVcRtIvOAvCu0m3UhTngepPVnd0EEKQLv6KSRU/iwL6"
   },
   "projects": [
     {
@@ -31,7 +46,9 @@
       "status": "ACTIVE",
       "ownerId": "user-admin-1",
       "memberIds": [
-        "user-admin-1"
+        "user-admin-1",
+        "user-1789125865930",
+        "user-1789125975664"
       ],
       "createdAt": "2026-09-08T07:26:59.371Z",
       "updatedAt": "2026-09-08T07:26:59.371Z"
@@ -88,6 +105,33 @@
     }
   ],
   "activities": [
+    {
+      "id": "act-1789126050454-j9uc",
+      "action": "MEMBER_ASSIGNED",
+      "details": "completed account registration and activated password",
+      "userId": "user-1789125975664",
+      "userName": "sri",
+      "userRole": "MEMBER",
+      "timestamp": "2026-09-11T11:27:30.454Z"
+    },
+    {
+      "id": "act-1789125975668-iqdi",
+      "action": "MEMBER_ASSIGNED",
+      "details": "registered a new MEMBER account",
+      "userId": "user-1789125975664",
+      "userName": "sri",
+      "userRole": "MEMBER",
+      "timestamp": "2026-09-11T11:26:15.668Z"
+    },
+    {
+      "id": "act-1789125865931-0j8d",
+      "action": "MEMBER_ASSIGNED",
+      "details": "registered a new MEMBER account",
+      "userId": "user-1789125865930",
+      "userName": "abuisoifh",
+      "userRole": "MEMBER",
+      "timestamp": "2026-09-11T11:24:25.931Z"
+    },
     {
       "id": "act-1789039263629-z7zr",
       "action": "TASK_UPDATED",
@@ -418,5 +462,11 @@
       "timestamp": "2026-09-08T07:26:59.387Z"
     }
   ],
-  "otpTokens": {}
+  "otpTokens": {},
+  "inviteTokens": {
+    "sriramselvaraj799@gmail.com": {
+      "token": "949145deb5941c1c73c8e3ef9c6ca5e42d5b067ca3101f46fd6679b82a8dff64",
+      "expiresAt": "2026-09-18T11:24:25.932Z"
+    }
+  }
 }

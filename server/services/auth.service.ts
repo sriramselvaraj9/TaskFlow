@@ -40,6 +40,25 @@ export class AuthService {
   ): Promise<boolean> {
     return userRepository.verifyAndResetPasswordWithOTP(email, otp, newPasswordAttempt);
   }
+
+  async createInviteToken(email: string): Promise<string> {
+    return userRepository.createInviteToken(email);
+  }
+
+  async verifyInviteToken(
+    email: string,
+    token: string,
+  ): Promise<{ valid: boolean; user?: User; message?: string }> {
+    return userRepository.verifyInviteToken(email, token);
+  }
+
+  async setPasswordWithInviteToken(
+    email: string,
+    token: string,
+    newPasswordAttempt: string,
+  ): Promise<User> {
+    return userRepository.setPasswordWithInviteToken(email, token, newPasswordAttempt);
+  }
 }
 
 export const authService = new AuthService();

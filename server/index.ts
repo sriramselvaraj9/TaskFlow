@@ -116,6 +116,25 @@ export async function verifyAndResetPasswordWithOTP(
   return authService.verifyAndResetPasswordWithOTP(email, otp, newPasswordAttempt);
 }
 
+export async function createInviteToken(email: string): Promise<string> {
+  return authService.createInviteToken(email);
+}
+
+export async function verifyInviteToken(
+  email: string,
+  token: string,
+): Promise<{ valid: boolean; user?: User; message?: string }> {
+  return authService.verifyInviteToken(email, token);
+}
+
+export async function setPasswordWithInviteToken(
+  email: string,
+  token: string,
+  newPasswordAttempt: string,
+): Promise<User> {
+  return authService.setPasswordWithInviteToken(email, token, newPasswordAttempt);
+}
+
 export async function deleteUser(id: string, adminUser: User): Promise<boolean> {
   return adminService.deleteUser(id, adminUser);
 }

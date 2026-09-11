@@ -26,7 +26,7 @@ export function useCreateUserMutation() {
       name: string;
       email: string;
       designation?: string;
-      password: string;
+      password?: string;
       role?: 'ADMIN' | 'MEMBER';
     }) => {
       const res = await fetch('/api/users/create', {
@@ -34,11 +34,19 @@ export function useCreateUserMutation() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      const responseData = await res.json();
-      if (!res.ok) {
-        throw new Error(responseData.message || 'Failed to provision team member');
+      const text = await res.text();
+      let responseData: any = {};
+      try {
+        responseData = text ? JSON.parse(text) : {};
+      } catch {
+        if (!res.ok) {
+          throw new Error(`Server returned error ${res.status}: ${res.statusText || 'Unable to process request'}`);
+        }
       }
-      return responseData.user as User;
+      if (!res.ok) {
+        throw new Error(responseData.message || `Failed to provision team member (${res.status})`);
+      }
+      return responseData as { user: User; inviteUrl?: string; emailSent?: boolean; message?: string };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });

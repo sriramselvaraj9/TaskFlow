@@ -8,6 +8,7 @@ export interface DatabaseSchema {
   columns: BoardColumn[];
   activities: ActivityLog[];
   otpTokens?: Record<string, { code: string; expiresAt: string }>;
+  inviteTokens?: Record<string, { token: string; expiresAt: string }>;
 }
 
 export function getDefaultColumns(): BoardColumn[] {
@@ -79,6 +80,7 @@ export function getInitialSeedData(): DatabaseSchema {
   const columns: BoardColumn[] = getDefaultColumns();
   const activities: ActivityLog[] = [];
   const otpTokens: Record<string, { code: string; expiresAt: string }> = {};
+  const inviteTokens: Record<string, { token: string; expiresAt: string }> = {};
 
   return {
     users,
@@ -88,5 +90,6 @@ export function getInitialSeedData(): DatabaseSchema {
     columns,
     activities,
     otpTokens,
+    inviteTokens,
   };
 }

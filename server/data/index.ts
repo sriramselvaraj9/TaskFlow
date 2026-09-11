@@ -19,6 +19,7 @@ function tryParseDb(filePath: string): DatabaseSchema | null {
       const parsed = JSON.parse(fileData);
       if (parsed && Array.isArray(parsed.users) && parsed.passwords) {
         if (!parsed.otpTokens) parsed.otpTokens = {};
+        if (!parsed.inviteTokens) parsed.inviteTokens = {};
         if (!Array.isArray(parsed.projects)) parsed.projects = [];
         if (!Array.isArray(parsed.tasks)) parsed.tasks = [];
         if (!Array.isArray(parsed.columns)) parsed.columns = getDefaultColumns();

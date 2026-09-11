@@ -167,8 +167,7 @@ export const TeamMembersView: React.FC = () => {
                 filteredUsers.map((user) => {
                   const isCurrentUser = session?.user?.id === user.id;
                   const designationText =
-                    user.designation ||
-                    (user.role === 'ADMIN' ? 'Lead Administrator' : 'Software Engineer');
+                    user.designation || (user.role === 'ADMIN' ? 'Lead Administrator' : '—');
 
                   return (
                     <tr key={user.id} className="hover:bg-slate-50/80 transition-colors group">
