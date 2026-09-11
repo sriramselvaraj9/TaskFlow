@@ -28,11 +28,20 @@ export function useCreateUserMutation() {
       designation?: string;
       password?: string;
       role?: 'ADMIN' | 'MEMBER';
+      frontendUrl?: string;
     }) => {
+      const payload = {
+        ...data,
+        frontendUrl:
+          data.frontendUrl ||
+          (typeof window !== 'undefined' && window.location?.origin
+            ? window.location.origin
+            : undefined),
+      };
       const res = await fetch('/api/users/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       const text = await res.text();
       let responseData: any = {};

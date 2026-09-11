@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .json({ message: 'Forbidden: Only Admins can provision new team members.' });
     }
 
-    const { name, email, role, designation } = req.body;
+    const { name, email, role, designation, frontendUrl } = req.body;
 
     if (!name || !email) {
       return res
@@ -51,22 +51,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Generate 7-day secure invite token
     const inviteToken = await createInviteToken(cleanEmail);
 
-    // Build absolute invitation link pointing to the frontend
-    let baseUrl = process.env.NEXTAUTH_URL?.trim();
+    // Build absolute invitation link pointing to the frontend UI
+    let baseUrl: string | undefined = frontendUrl?.trim();
+
     if (!baseUrl) {
-      if (req.headers.origin) {
-        baseUrl = req.headers.origin;
-      } else if (req.headers.host) {
-        const rawProto = req.headers['x-forwarded-proto'];
-        const protoStr = Array.isArray(rawProto) ? rawProto[0] : rawProto;
-        const isLocal =
-          req.headers.host.includes('localhost') || req.headers.host.includes('127.0.0.1');
-        const protocol = protoStr || (isLocal ? 'http' : 'https');
-        baseUrl = `${protocol}://${req.headers.host}`;
-      } else {
-        baseUrl = 'http://localhost:3000';
-      }
+      baseUrl = (
+        process.env.FRONTEND_URL ||
+        process.env.NEXT_PUBLIC_APP_URL ||
+        process.env.APP_URL ||
+        process.env.NEXTAUTH_URL
+      )?.trim();
     }
+
+    // Inspect incoming referer header (e.g. from browser on https://taskflow-sri.vercel.app/members)
+    if (!baseUrl && req.headers.referer) {
+      try {
+        const refUrl = new URL(req.headers.referer);
+        baseUrl = `${refUrl.protocol}//${refUrl.host}`;
+      } catch {}
+    }
+
+    // Inspect incoming origin header
+    if (!baseUrl && req.headers.origin) {
+      baseUrl = req.headers.origin;
+    }
+
+    // Fallback to host header
+    if (!baseUrl && req.headers.host) {
+      const rawProto = req.headers['x-forwarded-proto'];
+      const protoStr = Array.isArray(rawProto) ? rawProto[0] : rawProto;
+      const isLocal =
+        req.headers.host.includes('localhost') || req.headers.host.includes('127.0.0.1');
+      const protocol = protoStr || (isLocal ? 'http' : 'https');
+      baseUrl = `${protocol}://${req.headers.host}`;
+    }
+
+    if (!baseUrl) {
+      baseUrl = 'http://localhost:3000';
+    }
+
     // Remove any trailing slashes
     baseUrl = baseUrl.replace(/\/+$/, '');
 
