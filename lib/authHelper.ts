@@ -75,3 +75,56 @@ export async function getAuthenticatedUser(
 
   return null;
 }
+
+/**
+ * Resolves the accurate public base URL for links (invitations, password resets),
+ * dynamically prioritizing reverse proxies, request headers, client origins,
+ * and environment configurations.
+ */
+export function resolveBaseUrl(req: NextApiRequest, clientUrl?: string): string {
+  // 1. Explicit client origin passed from window.location.origin
+  if (clientUrl && typeof clientUrl === 'string' && clientUrl.trim()) {
+    const trimmed = clientUrl.trim().replace(/\/+$/, '');
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+  }
+
+  // 2. Incoming Origin header
+  if (req.headers.origin && typeof req.headers.origin === 'string') {
+    return req.headers.origin.replace(/\/+$/, '');
+  }
+
+  // 3. Incoming Referer header
+  if (req.headers.referer && typeof req.headers.referer === 'string') {
+    try {
+      const refUrl = new URL(req.headers.referer);
+      return `${refUrl.protocol}//${refUrl.host}`;
+    } catch {}
+  }
+
+  // 4. Host header + forwarded protocol (Handles Render / Vercel / Docker / Cloudflare / Nginx)
+  const rawHost = (req.headers['x-forwarded-host'] || req.headers.host) as string | undefined;
+  const host = Array.isArray(rawHost) ? rawHost[0] : rawHost;
+  if (host) {
+    const rawProto = req.headers['x-forwarded-proto'];
+    const protoStr = Array.isArray(rawProto) ? rawProto[0] : rawProto;
+    const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
+    const protocol = protoStr || (isLocal ? 'http' : 'https');
+    return `${protocol}://${host}`.replace(/\/+$/, '');
+  }
+
+  // 5. Configured environment variables (FRONTEND_URL, NEXT_PUBLIC_APP_URL, APP_URL, NEXTAUTH_URL)
+  const envUrl = (
+    process.env.FRONTEND_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.APP_URL ||
+    process.env.NEXTAUTH_URL
+  )?.trim();
+
+  if (envUrl) {
+    return envUrl.replace(/\/+$/, '');
+  }
+
+  return 'http://localhost:3000';
+}

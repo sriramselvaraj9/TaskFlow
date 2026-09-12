@@ -15,68 +15,58 @@ export interface SendInviteEmailParams {
   designation?: string;
 }
 
-interface TransporterConfig {
-  transporter: nodemailer.Transporter;
-  from: string;
+export interface SendEmailResult {
+  sent: boolean;
+  inviteUrl: string;
+  error?: string;
 }
 
-function getEmailTransporter(): TransporterConfig | null {
-  // 1. Check Brevo SMTP configuration
-  const brevoKey = process.env.BREVO_SMTP_KEY || process.env.BREVO_API_KEY;
-  const brevoUser = process.env.BREVO_USER || process.env.BREVO_SMTP_USER || process.env.SMTP_USER;
-  const fromAddress =
-    process.env.BREVO_FROM ||
-    process.env.SMTP_FROM ||
-    process.env.EMAIL_FROM ||
-    `"TaskFlow Workspace" <${brevoUser || process.env.GMAIL_USER || 'noreply@taskflow.dev'}>`;
+interface ParsedSender {
+  name: string;
+  email: string;
+  formatted: string;
+}
 
-  if (brevoKey && brevoUser) {
-    const transporter = nodemailer.createTransport({
-      host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
-      port: Number(process.env.BREVO_SMTP_PORT) || 587,
-      secure: false, // true for 465, false for 587
-      auth: {
-        user: brevoUser,
-        pass: brevoKey,
-      },
-    });
-    return { transporter, from: fromAddress };
+/**
+ * Robustly parses name and clean email from various sender environment formats:
+ * - "TaskFlow Admin" <sriramccbp@gmail.com>
+ * - TaskFlow Admin <sriramccbp@gmail.com>
+ * - sriramccbp@gmail.com
+ */
+function parseSender(
+  rawFrom?: string,
+  fallbackEmail?: string,
+  defaultName = 'TaskFlow Admin',
+  defaultEmail = 'noreply@taskflow.dev',
+): ParsedSender {
+  const candidate = (rawFrom || '').trim();
+  let name = defaultName;
+  let email = (fallbackEmail || '').trim() || defaultEmail;
+
+  if (candidate) {
+    const angleMatch = candidate.match(/^(?:"?([^"]*)"?\s*)?<([^>]+)>$/);
+    if (angleMatch) {
+      if (angleMatch[1]?.trim()) {
+        name = angleMatch[1].trim();
+      }
+      if (angleMatch[2]?.trim()) {
+        email = angleMatch[2].trim().toLowerCase();
+      }
+    } else if (candidate.includes('@') && !candidate.includes(' ')) {
+      email = candidate.trim().toLowerCase();
+    } else {
+      name = candidate;
+    }
   }
 
-  // 2. Check Custom SMTP configuration
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  if (smtpHost && smtpUser && smtpPass) {
-    const port = Number(process.env.SMTP_PORT) || 587;
-    const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port,
-      secure: isSecure,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-    });
-    return { transporter, from: fromAddress };
-  }
+  // Sanitize email: remove any brackets, quotes, or spaces
+  email = email.replace(/[<>"'\s]/g, '').toLowerCase();
 
-  // 3. Check Gmail SMTP configuration
-  const gmailUser = process.env.GMAIL_USER;
-  const gmailPass = process.env.GMAIL_APP_PASS;
-  if (gmailUser && gmailPass) {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: gmailUser,
-        pass: gmailPass,
-      },
-    });
-    return { transporter, from: `"TaskFlow Security" <${gmailUser}>` };
-  }
-
-  return null;
+  return {
+    name,
+    email,
+    formatted: `"${name}" <${email}>`,
+  };
 }
 
 interface BrevoApiConfig {
@@ -90,14 +80,22 @@ function getBrevoApiConfig(): BrevoApiConfig | null {
     process.env.BREVO_API_KEY ||
     (process.env.BREVO_SMTP_KEY?.startsWith('xkeysib-') ? process.env.BREVO_SMTP_KEY : undefined);
 
-  if (!apiKey || !apiKey.startsWith('xkeysib-')) {
+  if (!apiKey || (!apiKey.startsWith('xkeysib-') && apiKey.length < 20)) {
     return null;
   }
 
-  const fromEmail = process.env.BREVO_USER || 'sriramccbp@gmail.com';
-  const fromName = 'TaskFlow Admin';
+  const sender = parseSender(
+    process.env.BREVO_FROM || process.env.EMAIL_FROM || process.env.SMTP_FROM,
+    process.env.BREVO_USER || process.env.BREVO_SMTP_USER || process.env.SMTP_USER,
+    'TaskFlow Admin',
+    'sriramccbp@gmail.com',
+  );
 
-  return { apiKey, fromEmail, fromName };
+  return {
+    apiKey: apiKey.trim(),
+    fromEmail: sender.email,
+    fromName: sender.name,
+  };
 }
 
 async function sendViaBrevoApi({
@@ -118,8 +116,11 @@ async function sendViaBrevoApi({
   subject: string;
   htmlContent: string;
   textContent: string;
-}): Promise<boolean> {
+}): Promise<{ sent: boolean; error?: string }> {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout
+
     const res = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
@@ -129,33 +130,127 @@ async function sendViaBrevoApi({
       },
       body: JSON.stringify({
         sender: { name: fromName, email: fromEmail },
-        to: [{ email: toEmail, name: toName }],
+        to: [{ email: toEmail, name: toName || toEmail.split('@')[0] }],
         subject,
         htmlContent,
         textContent,
       }),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       const errBody = await res.json().catch(() => ({}));
-      console.warn('[TaskFlow Email] Brevo API returned error:', res.status, errBody);
-      return false;
+      const errorMsg =
+        errBody.message ||
+        `Brevo API returned HTTP ${res.status} (${res.statusText || 'Error'})`;
+      console.warn('[TaskFlow Email] Brevo REST API returned error:', res.status, errBody);
+      return { sent: false, error: errorMsg };
     }
-    return true;
+
+    return { sent: true };
   } catch (err: any) {
-    console.warn('[TaskFlow Email] Brevo API request failed:', err?.message || err);
-    return false;
+    const errorMsg = err?.name === 'AbortError' ? 'Brevo API request timed out' : err?.message || 'Network error';
+    console.warn('[TaskFlow Email] Brevo API request failed:', errorMsg);
+    return { sent: false, error: errorMsg };
   }
 }
 
+interface TransporterConfig {
+  transporter: nodemailer.Transporter;
+  from: string;
+}
+
+function getEmailTransporter(): TransporterConfig | null {
+  const defaultSender = parseSender(
+    process.env.BREVO_FROM || process.env.SMTP_FROM || process.env.EMAIL_FROM,
+    process.env.BREVO_USER || process.env.SMTP_USER || process.env.GMAIL_USER,
+    'TaskFlow Workspace',
+    'noreply@taskflow.dev',
+  );
+
+  // 1. Check Brevo SMTP configuration
+  const brevoKey = process.env.BREVO_SMTP_KEY || process.env.BREVO_API_KEY;
+  const brevoUser = process.env.BREVO_USER || process.env.BREVO_SMTP_USER || process.env.SMTP_USER;
+
+  if (brevoKey && brevoUser) {
+    const transporter = nodemailer.createTransport({
+      host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
+      port: Number(process.env.BREVO_SMTP_PORT) || 587,
+      secure: process.env.BREVO_SMTP_SECURE === 'true' || Number(process.env.BREVO_SMTP_PORT) === 465,
+      auth: {
+        user: brevoUser.trim(),
+        pass: brevoKey.trim(),
+      },
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 10000,
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+    return { transporter, from: defaultSender.formatted };
+  }
+
+  // 2. Check Custom SMTP configuration
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  if (smtpHost && smtpUser && smtpPass) {
+    const port = Number(process.env.SMTP_PORT) || 587;
+    const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port,
+      secure: isSecure,
+      auth: {
+        user: smtpUser.trim(),
+        pass: smtpPass.trim(),
+      },
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 10000,
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+    return { transporter, from: defaultSender.formatted };
+  }
+
+  // 3. Check Gmail SMTP configuration
+  const gmailUser = process.env.GMAIL_USER;
+  const gmailPass = process.env.GMAIL_APP_PASS;
+  if (gmailUser && gmailPass) {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: gmailUser.trim(),
+        pass: gmailPass.trim(),
+      },
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 10000,
+    });
+    return { transporter, from: `"TaskFlow Security" <${gmailUser.trim()}>` };
+  }
+
+  return null;
+}
+
 export const emailService = {
+  /**
+   * Sends the workspace invitation email to newly provisioned members.
+   * Prioritizes Brevo REST API v3 (HTTPS 443) which works unconditionally on all cloud platforms,
+   * then falls back to SMTP transporter, and cleanly logs actionable details if credentials are not set.
+   */
   async sendInviteEmail({
     to,
     inviteUrl,
     userName = 'Team Member',
     inviterName = 'TaskFlow Administrator',
     designation,
-  }: SendInviteEmailParams): Promise<{ sent: boolean; inviteUrl: string }> {
+  }: SendInviteEmailParams): Promise<SendEmailResult> {
     const roleInfo = designation ? ` as <strong>${designation}</strong>` : '';
     const subject = `You've been invited to join TaskFlow Workspace`;
     const textContent = `Hello ${userName},\n\n${inviterName} has invited you to join the TaskFlow workspace${designation ? ` as ${designation}` : ''}.\n\nClick the link below to set your password and access your workspace:\n${inviteUrl}\n\nThis invitation link is valid for 7 days.\n\nBest regards,\nTaskFlow Team`;
@@ -241,10 +336,10 @@ export const emailService = {
         </html>
       `;
 
-    // 1. First priority: Direct Brevo REST API v3 (if xkeysib- is provided)
+    // 1. First priority: Direct Brevo REST API v3 (over HTTPS port 443, never blocked by cloud firewalls)
     const brevoApi = getBrevoApiConfig();
     if (brevoApi) {
-      const success = await sendViaBrevoApi({
+      const result = await sendViaBrevoApi({
         apiKey: brevoApi.apiKey,
         fromEmail: brevoApi.fromEmail,
         fromName: brevoApi.fromName,
@@ -254,25 +349,28 @@ export const emailService = {
         htmlContent,
         textContent,
       });
-      if (success) {
+      if (result.sent) {
         return { sent: true, inviteUrl };
       }
     }
 
-    // 2. Second priority: SMTP transporter
+    // 2. Second priority: SMTP transporter (Nodemailer)
     const emailConfig = getEmailTransporter();
 
-    // If email credentials are not configured, log clearly in console
     if (!emailConfig) {
       console.warn(
         `\n=======================================================\n` +
-          `[TaskFlow Email] Brevo/SMTP credentials not configured in .env.local.\n` +
+          `[TaskFlow Email] Brevo or SMTP credentials not configured in environment.\n` +
           `Recipient: ${to} (${userName})\n` +
           `Invited by: ${inviterName}\n` +
           `Set Password Link:\n${inviteUrl}\n` +
           `=======================================================\n`,
       );
-      return { sent: false, inviteUrl };
+      return {
+        sent: false,
+        inviteUrl,
+        error: 'Email credentials not configured in server environment variables.',
+      };
     }
 
     const { transporter, from } = emailConfig;
@@ -288,37 +386,23 @@ export const emailService = {
 
       return { sent: true, inviteUrl };
     } catch (sendErr: any) {
+      const errorMsg = sendErr?.message || 'SMTP connection failed';
       console.warn(
         `\n[TaskFlow Email] SMTP sending error (falling back to generated link):\n` +
-          `${sendErr?.message || sendErr}\n` +
+          `${errorMsg}\n` +
           `Set Password Link:\n${inviteUrl}\n`,
       );
-      return { sent: false, inviteUrl };
+      return { sent: false, inviteUrl, error: errorMsg };
     }
   },
 
-  async sendOtpEmail({ to, otpCode, userName = 'Team Member' }: SendOtpEmailParams): Promise<void> {
-    const emailConfig = getEmailTransporter();
-
-    if (!emailConfig) {
-      console.warn(
-        `\n=======================================================\n` +
-          `[TaskFlow Email] SMTP credentials not configured in .env.local.\n` +
-          `Recipient: ${to}\n` +
-          `Verification Code: ${otpCode}\n` +
-          `=======================================================\n`,
-      );
-      return;
-    }
-
-    const { transporter, from } = emailConfig;
-
-    await transporter.sendMail({
-      from,
-      to,
-      subject: `Your Taskflow Verification Code: ${otpCode}`,
-      text: `Hello ${userName},\n\nYour Taskflow password reset OTP code is: ${otpCode}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, please ignore this email.`,
-      html: `
+  /**
+   * Sends the OTP verification code email for password resets.
+   */
+  async sendOtpEmail({ to, otpCode, userName = 'Team Member' }: SendOtpEmailParams): Promise<{ sent: boolean; error?: string }> {
+    const subject = `Your Taskflow Verification Code: ${otpCode}`;
+    const textContent = `Hello ${userName},\n\nYour Taskflow password reset OTP code is: ${otpCode}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, please ignore this email.`;
+    const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
             <div style="background-color: #4f46e5; border-radius: 6px; width: 24px; height: 24px; display: inline-block; text-align: center; line-height: 24px; color: #ffffff; font-weight: bold; font-size: 14px;">✓</div>
@@ -331,8 +415,52 @@ export const emailService = {
           </div>
           <p style="color: #64748b; font-size: 12px; margin: 16px 0 0;">This code is valid for <strong>10 minutes</strong>. If you did not make this request, please disregard this email.</p>
         </div>
-      `,
-    });
+      `;
+
+    // 1. Try Brevo REST API v3 first
+    const brevoApi = getBrevoApiConfig();
+    if (brevoApi) {
+      const result = await sendViaBrevoApi({
+        apiKey: brevoApi.apiKey,
+        fromEmail: brevoApi.fromEmail,
+        fromName: brevoApi.fromName,
+        toEmail: to,
+        toName: userName,
+        subject,
+        htmlContent,
+        textContent,
+      });
+      if (result.sent) {
+        return { sent: true };
+      }
+    }
+
+    // 2. Fallback to SMTP
+    const emailConfig = getEmailTransporter();
+    if (!emailConfig) {
+      console.warn(
+        `\n=======================================================\n` +
+          `[TaskFlow Email] SMTP credentials not configured in environment.\n` +
+          `Recipient: ${to}\n` +
+          `Verification Code: ${otpCode}\n` +
+          `=======================================================\n`,
+      );
+      return { sent: false, error: 'Email credentials not configured in server environment.' };
+    }
+
+    const { transporter, from } = emailConfig;
+
+    try {
+      await transporter.sendMail({
+        from,
+        to,
+        subject,
+        text: textContent,
+        html: htmlContent,
+      });
+      return { sent: true };
+    } catch (err: any) {
+      return { sent: false, error: err?.message || 'Failed to send OTP email' };
+    }
   },
 };
-

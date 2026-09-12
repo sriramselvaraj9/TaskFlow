@@ -12,3 +12,9 @@ services:
         generateValue: true
       - key: NEXTAUTH_URL
         sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_USER
+        sync: false
+      - key: BREVO_FROM
+        sync: false

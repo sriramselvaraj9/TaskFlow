@@ -9,6 +9,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    const hasBrevoKey = Boolean(
+      process.env.BREVO_API_KEY ||
+      (process.env.BREVO_SMTP_KEY?.startsWith('xkeysib-') ? process.env.BREVO_SMTP_KEY : undefined)
+    );
+    const hasSmtp = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+    const hasGmail = Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASS);
+
+    let activeEmailProvider = 'Not Configured (Fallback logging enabled)';
+    if (hasBrevoKey) {
+      activeEmailProvider = 'Brevo REST API v3 (HTTPS Port 443)';
+    } else if (hasSmtp) {
+      activeEmailProvider = 'Custom SMTP';
+    } else if (hasGmail) {
+      activeEmailProvider = 'Gmail SMTP';
+    }
+
     const healthData = {
       appName: 'TaskFlow',
       apiHealth: 'operational',
@@ -16,6 +32,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       version: '0.1.1',
       timestamp: new Date().toISOString(),
       uptimeSeconds: Math.floor(process.uptime()),
+      environment: {
+        nodeEnv: process.env.NODE_ENV || 'development',
+        nextAuthUrlConfigured: Boolean(process.env.NEXTAUTH_URL),
+        nextAuthSecretConfigured: Boolean(process.env.NEXTAUTH_SECRET),
+        emailServiceReady: hasBrevoKey || hasSmtp || hasGmail,
+        emailProvider: activeEmailProvider,
+        senderVerifiedEmailConfigured: Boolean(
+          process.env.BREVO_USER ||
+          process.env.BREVO_FROM ||
+          process.env.SMTP_FROM ||
+          process.env.GMAIL_USER
+        ),
+      },
     };
 
     return res.status(200).json(healthData);

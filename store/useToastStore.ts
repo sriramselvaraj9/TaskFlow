@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-// Global state management (Zustand).Manages popup toast notifications (success messages, warnings, error banners).
-export type ToastType = 'success' | 'error' | 'info';
+
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 export interface ToastItem {
   id: string;
@@ -39,4 +39,5 @@ export const toast = {
   success: (message: string) => useToastStore.getState().addToast(message, 'success'),
   error: (message: string) => useToastStore.getState().addToast(message, 'error'),
   info: (message: string) => useToastStore.getState().addToast(message, 'info'),
+  warning: (message: string) => useToastStore.getState().addToast(message, 'warning'),
 };

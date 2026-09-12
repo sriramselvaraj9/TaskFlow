@@ -93,7 +93,7 @@ export const TeamMembersView: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={() => setInviteMemberOpen(true)}
-              className="whitespace-nowrap shadow-sm"
+              className="whitespace-nowrap shadow-sm cursor-pointer"
             >
               <Plus className="w-4 h-4 mr-1.5" />
               Add Member
@@ -167,7 +167,7 @@ export const TeamMembersView: React.FC = () => {
                 filteredUsers.map((user) => {
                   const isCurrentUser = session?.user?.id === user.id;
                   const designationText =
-                    user.designation || (user.role === 'ADMIN' ? 'Lead Administrator' : '—');
+                    user.designation || (user.role === 'ADMIN' ? 'Lead Administrator' : '');
 
                   return (
                     <tr key={user.id} className="hover:bg-slate-50/80 transition-colors group">
@@ -211,13 +211,15 @@ export const TeamMembersView: React.FC = () => {
 
                       {/* Designation */}
                       <td className="py-4 px-6">
-                        <div
-                          className="flex items-center gap-1.5 text-slate-800 font-semibold min-w-0 max-w-[180px] sm:max-w-[240px] md:max-w-[300px]"
-                          title={designationText}
-                        >
-                          <Briefcase className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                          <span className="truncate">{designationText}</span>
-                        </div>
+                        {designationText ? (
+                          <div
+                            className="flex items-center gap-1.5 text-slate-800 font-semibold min-w-0 max-w-[180px] sm:max-w-[240px] md:max-w-[300px]"
+                            title={designationText}
+                          >
+                            <Briefcase className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                            <span className="truncate">{designationText}</span>
+                          </div>
+                        ) : null}
                       </td>
 
                       {/* Joining Date */}
@@ -233,21 +235,23 @@ export const TeamMembersView: React.FC = () => {
                       {/* Actions (Admin Only) */}
                       {isAdmin && (
                         <td className="py-4 px-6 whitespace-nowrap text-right">
-                          {isCurrentUser ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200">
-                              Current User
-                            </span>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => setUserToDelete(user)}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50/60 hover:bg-rose-100/80 border border-rose-200/60 rounded-lg transition-all shadow-2xs hover:shadow-xs cursor-pointer"
-                              title={`Delete ${user.name}`}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                              <span>Delete</span>
-                            </button>
-                          )}
+                          <div className="flex items-center justify-end gap-1.5">
+                            {isCurrentUser ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200">
+                                You
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setUserToDelete(user)}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50/60 hover:bg-rose-100/80 border border-rose-200/60 rounded-lg transition-all shadow-2xs hover:shadow-xs cursor-pointer"
+                                title={`Delete ${user.name}`}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">Delete</span>
+                              </button>
+                            )}
+                          </div>
                         </td>
                       )}
                     </tr>

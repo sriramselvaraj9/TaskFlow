@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle2, Info, X } from 'lucide-react';
 import type React from 'react';
 import { cn } from '@/lib/utils';
 import { useToastStore } from '@/store/useToastStore';
@@ -18,12 +18,14 @@ export const ToastContainer: React.FC = () => {
             t.type === 'success' && 'bg-slate-900 border-slate-700 text-white',
             t.type === 'error' && 'bg-rose-900 border-rose-700 text-white',
             t.type === 'info' && 'bg-slate-900 border-slate-700 text-white',
+            t.type === 'warning' && 'bg-amber-900 border-amber-700 text-white',
           )}
         >
           <div className="flex items-center gap-2.5">
             {t.type === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
             {t.type === 'error' && <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />}
             {t.type === 'info' && <Info className="w-4 h-4 text-indigo-400 shrink-0" />}
+            {t.type === 'warning' && <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />}
             <span className="text-xs font-semibold tracking-wide">{t.message}</span>
           </div>
 

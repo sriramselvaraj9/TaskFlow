@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { applyCors, getAuthenticatedUser } from '@/lib/authHelper';
+import { applyCors, getAuthenticatedUser, resolveBaseUrl } from '@/lib/authHelper';
 import { createInviteToken, createUser, emailService, getUserByEmail } from '@/lib/db';
+import type { SendEmailResult } from '@/server/services/email.service';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (applyCors(req, res)) return;
@@ -51,52 +52,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Generate 7-day secure invite token
     const inviteToken = await createInviteToken(cleanEmail);
 
-    // Build absolute invitation link pointing to the frontend UI
-    let baseUrl: string | undefined = frontendUrl?.trim();
-
-    if (!baseUrl) {
-      baseUrl = (
-        process.env.FRONTEND_URL ||
-        process.env.NEXT_PUBLIC_APP_URL ||
-        process.env.APP_URL ||
-        process.env.NEXTAUTH_URL
-      )?.trim();
-    }
-
-    // Inspect incoming referer header (e.g. from browser on https://taskflow-sri.vercel.app/members)
-    if (!baseUrl && req.headers.referer) {
-      try {
-        const refUrl = new URL(req.headers.referer);
-        baseUrl = `${refUrl.protocol}//${refUrl.host}`;
-      } catch {}
-    }
-
-    // Inspect incoming origin header
-    if (!baseUrl && req.headers.origin) {
-      baseUrl = req.headers.origin;
-    }
-
-    // Fallback to host header
-    if (!baseUrl && req.headers.host) {
-      const rawProto = req.headers['x-forwarded-proto'];
-      const protoStr = Array.isArray(rawProto) ? rawProto[0] : rawProto;
-      const isLocal =
-        req.headers.host.includes('localhost') || req.headers.host.includes('127.0.0.1');
-      const protocol = protoStr || (isLocal ? 'http' : 'https');
-      baseUrl = `${protocol}://${req.headers.host}`;
-    }
-
-    if (!baseUrl) {
-      baseUrl = 'http://localhost:3000';
-    }
-
-    // Remove any trailing slashes
-    baseUrl = baseUrl.replace(/\/+$/, '');
-
+    // Build absolute invitation link pointing to the public frontend UI
+    const baseUrl = resolveBaseUrl(req, frontendUrl);
     const inviteUrl = `${baseUrl}/auth/set-password?token=${inviteToken}&email=${encodeURIComponent(cleanEmail)}`;
 
-    // Send invitation email via Brevo / SMTP (safe error handling)
-    let emailResult = { sent: false, inviteUrl };
+    // Send invitation email via Brevo REST API / SMTP (safe error handling)
+    let emailResult: SendEmailResult = { sent: false, inviteUrl };
     try {
       emailResult = await emailService.sendInviteEmail({
         to: cleanEmail,
@@ -107,12 +68,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     } catch (emailErr: any) {
       console.warn('[TaskFlow Email] Non-fatal error sending invite email:', emailErr?.message || emailErr);
+      emailResult = {
+        sent: false,
+        inviteUrl,
+        error: emailErr?.message || 'Failed to dispatch email',
+      };
     }
 
     return res.status(201).json({
       message: emailResult.sent
         ? `Invitation email sent to ${cleanEmail}`
-        : `Member added. Invitation link generated.`,
+        : `Member added. Email could not be sent automatically.`,
       user: {
         id: newUser.id,
         name: newUser.name,
@@ -122,9 +88,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       inviteUrl,
       emailSent: emailResult.sent,
+      emailError: emailResult.error,
     });
   } catch (error: any) {
     return res.status(500).json({ message: error.message || 'Failed to provision user' });
   }
 }
-

@@ -1,6 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { User } from '@/types';
 
+export interface CreateUserResponse {
+  user: User;
+  inviteUrl?: string;
+  emailSent?: boolean;
+  emailError?: string;
+  message?: string;
+}
+
+export interface ResendInviteResponse {
+  success: boolean;
+  user: User;
+  inviteUrl: string;
+  emailSent: boolean;
+  emailError?: string;
+  message?: string;
+}
+
 async function fetchUsers(): Promise<User[]> {
   const res = await fetch('/api/users');
   if (!res.ok) {
@@ -55,7 +72,7 @@ export function useCreateUserMutation() {
       if (!res.ok) {
         throw new Error(responseData.message || `Failed to provision team member (${res.status})`);
       }
-      return responseData as { user: User; inviteUrl?: string; emailSent?: boolean; message?: string };
+      return responseData as CreateUserResponse;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -63,6 +80,36 @@ export function useCreateUserMutation() {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['activities'] });
+    },
+  });
+}
+
+export function useResendInviteMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { userId?: string; email?: string; frontendUrl?: string }) => {
+      const payload = {
+        ...data,
+        frontendUrl:
+          data.frontendUrl ||
+          (typeof window !== 'undefined' && window.location?.origin
+            ? window.location.origin
+            : undefined),
+      };
+      const res = await fetch('/api/users/resend-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const responseData = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(responseData.message || 'Failed to generate invitation');
+      }
+      return responseData as ResendInviteResponse;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 }
@@ -90,4 +137,3 @@ export function useDeleteUserMutation() {
     },
   });
 }
-
