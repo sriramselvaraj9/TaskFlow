@@ -214,9 +214,9 @@ export const TaskBoardHeader: React.FC<TaskBoardHeaderProps> = ({
   ];
 
   return (
-    <div className="flex flex-col gap-3.5 mb-5 sm:mb-6">
+    <div className="flex flex-col gap-2.5 sm:gap-3.5 mb-3.5 sm:mb-5">
       {/* Top row: Title + Search + View toggle + New Task */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3">
         <div className="flex items-center justify-between sm:justify-start gap-3">
           <div className="flex items-center gap-2.5">
             <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">

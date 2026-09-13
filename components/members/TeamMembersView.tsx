@@ -56,33 +56,33 @@ export const TeamMembersView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
       {/* Top Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-card">
         <div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
-              <Users className="w-5 h-5" />
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Team Members</h1>
-              <p className="text-xs text-slate-500 font-medium">
+              <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">Team Members</h1>
+              <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
                 Workspace directory of all team members and their corporate designations.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="flex flex-row items-center gap-2 sm:gap-3">
           {/* Search Box */}
-          <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <div className="relative flex-1 sm:w-64">
+            <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search members..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 shadow-xs font-medium"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 sm:pl-9 pr-3.5 py-1.5 sm:py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 shadow-2xs font-medium"
             />
           </div>
 
@@ -93,10 +93,11 @@ export const TeamMembersView: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={() => setInviteMemberOpen(true)}
-              className="whitespace-nowrap shadow-sm cursor-pointer"
+              className="whitespace-nowrap shadow-sm cursor-pointer shrink-0"
             >
-              <Plus className="w-4 h-4 mr-1.5" />
-              Add Member
+              <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-1.5" />
+              <span className="hidden xs:inline">Add Member</span>
+              <span className="xs:hidden">Add</span>
             </Button>
           )}
         </div>

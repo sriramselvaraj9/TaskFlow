@@ -45,11 +45,11 @@ export const ProjectsView: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-6xl animate-pulse">
-        <div className="h-12 w-60 bg-surface-base rounded-2xl" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-56 bg-surface-base rounded-2xl border border-white/8" />
+      <div className="space-y-4 sm:space-y-6 max-w-6xl animate-pulse">
+        <div className="h-10 w-48 sm:w-60 bg-slate-200 rounded-xl" />
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-40 sm:h-52 bg-white rounded-2xl border border-slate-200" />
           ))}
         </div>
       </div>
@@ -57,12 +57,12 @@ export const ProjectsView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-4 sm:space-y-6 max-w-6xl">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Projects</h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">Projects</h1>
+          <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">
             {cleanQuery ? (
               <span>
                 Found <span className="font-bold text-slate-900">{projects.length}</span> matching
@@ -75,16 +75,16 @@ export const ProjectsView: React.FC = () => {
             )}
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        <div className="flex flex-row items-center gap-2 sm:gap-2.5">
           {/* Search Input */}
-          <div className="relative w-full sm:w-64">
+          <div className="relative flex-1 sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search projects..."
-              className="w-full bg-white border border-slate-200 hover:border-slate-300 rounded-xl pl-9 pr-8 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-colors shadow-sm font-medium"
+              className="w-full bg-white border border-slate-200 hover:border-slate-300 rounded-xl pl-9 pr-8 py-1.5 sm:py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-colors shadow-2xs font-medium"
             />
             {searchQuery && (
               <button
@@ -100,20 +100,21 @@ export const ProjectsView: React.FC = () => {
           {isAdmin && (
             <button
               onClick={() => setCreateProjectOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold rounded-xl transition-all shadow-sm active:scale-[0.98] cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold rounded-xl transition-all shadow-sm active:scale-[0.98] cursor-pointer shrink-0"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>New Project</span>
+              <span className="hidden xs:inline">New Project</span>
+              <span className="xs:hidden">New</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Project Grid / Empty State */}
+      {/* Project Grid / Empty State: 2 Columns in a Row on Mobile/Tablets, 3 on Desktop */}
       {allProjects.length === 0 ? (
-        <div className="py-20 text-center border border-dashed border-slate-300 rounded-2xl bg-white shadow-xs">
-          <FolderKanban className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-          <p className="text-slate-800 font-bold text-base">No projects found</p>
+        <div className="py-16 sm:py-20 text-center border border-dashed border-slate-300 rounded-2xl bg-white shadow-xs">
+          <FolderKanban className="w-9 h-9 sm:w-10 sm:h-10 text-slate-400 mx-auto mb-2.5 sm:mb-3" />
+          <p className="text-slate-800 font-bold text-sm sm:text-base">No projects found</p>
           <p className="text-slate-400 text-xs mt-1">
             {isAdmin
               ? 'Create your first project workspace to get started.'
@@ -121,9 +122,9 @@ export const ProjectsView: React.FC = () => {
           </p>
         </div>
       ) : projects.length === 0 ? (
-        <div className="py-20 text-center border border-dashed border-slate-300 rounded-2xl bg-white shadow-xs">
-          <Search className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-          <p className="text-slate-800 font-bold text-base">
+        <div className="py-16 sm:py-20 text-center border border-dashed border-slate-300 rounded-2xl bg-white shadow-xs">
+          <Search className="w-9 h-9 sm:w-10 sm:h-10 text-slate-400 mx-auto mb-2.5 sm:mb-3" />
+          <p className="text-slate-800 font-bold text-sm sm:text-base">
             No projects found matching &ldquo;{searchQuery}&rdquo;
           </p>
           <p className="text-slate-400 text-xs mt-1">
@@ -131,55 +132,57 @@ export const ProjectsView: React.FC = () => {
           </p>
           <button
             onClick={() => setSearchQuery('')}
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+            className="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5 text-slate-600" />
             <span>Clear Search</span>
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {projects.map((project, _idx) => {
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
+          {projects.map((project) => {
             const members = users.filter((u) => project.memberIds.includes(u.id));
 
             return (
               <div
                 key={project.id}
                 onClick={() => setSelectedProjectIdForDetail(project.id)}
-                className="group relative bg-white border border-slate-200 rounded-2xl p-5 transition-all duration-150 cursor-pointer hover:border-indigo-300 hover:shadow-md shadow-card active:scale-[0.99]"
+                className="group relative bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-5 transition-all duration-150 cursor-pointer hover:border-indigo-300 hover:shadow-md shadow-card active:scale-[0.99] flex flex-col justify-between"
               >
-                {/* Project Key + Name */}
-                <div className="flex items-start gap-3 mb-3">
-                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 mt-1.5 flex-shrink-0" />
-                  <div className="min-w-0 pr-12">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-                        {project.key}
-                      </span>
+                <div>
+                  {/* Project Key + Name */}
+                  <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-indigo-500 mt-1 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 mb-0.5 sm:mb-1">
+                        <span className="text-[9px] sm:text-[10px] font-mono font-bold px-1.5 sm:px-2 py-0.2 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                          {project.key}
+                        </span>
+                      </div>
+                      <h3 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                        {project.name}
+                      </h3>
                     </div>
-                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
-                      {project.name}
-                    </h3>
                   </div>
+
+                  {/* Description */}
+                  <p className="text-[11px] sm:text-xs text-slate-500 line-clamp-2 mb-3 sm:mb-4 leading-relaxed pl-4 sm:pl-5 font-normal">
+                    {project.description || 'No description provided.'}
+                  </p>
                 </div>
 
-                {/* Description */}
-                <p className="text-xs text-slate-500 line-clamp-2 mb-5 leading-relaxed pl-5 font-normal">
-                  {project.description}
-                </p>
-
                 {/* Bottom: Members + Date */}
-                <div className="flex items-center justify-between pt-3 border-t border-slate-100 pl-5">
+                <div className="flex flex-wrap items-center justify-between pt-2.5 sm:pt-3 border-t border-slate-100 pl-4 sm:pl-5 gap-1.5">
                   {/* Members */}
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-                    <Users className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{members.length} Members</span>
+                  <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs text-slate-500 font-medium">
+                    <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 shrink-0" />
+                    <span>{members.length} {members.length === 1 ? 'Member' : 'Members'}</span>
                   </div>
 
                   {/* Created date */}
-                  <div className="flex items-center gap-1 text-[11px] text-slate-400 font-medium">
-                    <Calendar className="w-3 h-3 text-slate-400" />
-                    <span>{formatDate(project.createdAt)}</span>
+                  <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-400 font-medium">
+                    <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                    <span className="truncate">{formatDate(project.createdAt)}</span>
                   </div>
                 </div>
               </div>

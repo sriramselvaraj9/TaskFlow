@@ -7,19 +7,11 @@
       "role": "ADMIN",
       "designation": "Lead Administrator",
       "createdAt": "2026-09-08T00:00:00.000Z"
-    },
-    {
-      "id": "user-1789191131578",
-      "name": "sriramselvaraji",
-      "email": "sriramselvaraj799@gmail.com",
-      "role": "MEMBER",
-      "createdAt": "2026-09-12T05:32:11.578Z"
     }
   ],
   "passwords": {
     "sriramccbp@gmail.com": "$2a$08$6MLZwjUPsb.ljnT0PQ02oO9pNhfd.GWctFYTvlldkj/8W19eP4Lyu",
-    "sriramcccbp@gmail.com": "$2a$08$6MLZwjUPsb.ljnT0PQ02oO9pNhfd.GWctFYTvlldkj/8W19eP4Lyu",
-    "sriramselvaraj799@gmail.com": "$2a$08$I.vGav2vV2DPD/awZu1dc.R8gXVEeXQbla04hnw8MHg9vcq0EFqfS"
+    "sriramcccbp@gmail.com": "$2a$08$6MLZwjUPsb.ljnT0PQ02oO9pNhfd.GWctFYTvlldkj/8W19eP4Lyu"
   },
   "projects": [
     {
@@ -30,26 +22,41 @@
       "status": "ACTIVE",
       "ownerId": "user-admin-1",
       "memberIds": [
-        "user-admin-1",
-        "user-1789191131578"
+        "user-admin-1"
       ],
       "createdAt": "2026-09-08T07:26:59.371Z",
-      "updatedAt": "2026-09-08T07:26:59.371Z"
+      "updatedAt": "2026-09-13T07:53:01.068Z"
     }
   ],
   "tasks": [
     {
-      "id": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
-      "title": "test API",
-      "description": "testing.",
+      "id": "task-b5ea5bb5-cfcf-489a-9e03-d6684cd672f5",
+      "title": "sdjfjsdfj",
+      "description": "nsdfmsd",
       "projectId": "prj-1788852419371",
       "status": "TODO",
+      "priority": "MEDIUM",
+      "assigneeId": "user-admin-1",
+      "createdById": "user-admin-1",
+      "startDate": "2026-09-13",
+      "dueDate": "2026-09-20",
+      "tags": [],
+      "createdAt": "2026-09-13T07:53:33.431Z",
+      "updatedAt": "2026-09-13T07:53:33.431Z"
+    },
+    {
+      "id": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "title": "test API",
+      "description": "testing..",
+      "projectId": "prj-1788852419371",
+      "status": "IN_PROGRESS",
       "priority": "HIGH",
       "createdById": "user-admin-1",
       "dueDate": "2026-09-16T00:00:00.000Z",
       "tags": [],
       "createdAt": "2026-09-08T07:27:21.579Z",
-      "updatedAt": "2026-09-12T05:37:47.084Z"
+      "updatedAt": "2026-09-13T07:53:38.070Z",
+      "assigneeId": ""
     }
   ],
   "columns": [
@@ -87,6 +94,115 @@
     }
   ],
   "activities": [
+    {
+      "id": "act-1789286018072-w1de",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-13T07:53:38.072Z"
+    },
+    {
+      "id": "act-1789286013433-fv8y",
+      "action": "TASK_CREATED",
+      "details": "created task \"sdjfjsdfj\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-b5ea5bb5-cfcf-489a-9e03-d6684cd672f5",
+      "timestamp": "2026-09-13T07:53:33.433Z"
+    },
+    {
+      "id": "act-1789285981070-0xgo",
+      "action": "TASK_UPDATED",
+      "details": "updated settings for project \"API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "timestamp": "2026-09-13T07:53:01.070Z"
+    },
+    {
+      "id": "act-1789285974343-vbyz",
+      "action": "TASK_UPDATED",
+      "details": "updated settings for project \"API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "timestamp": "2026-09-13T07:52:54.343Z"
+    },
+    {
+      "id": "act-1789285934782-ssfz",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-13T07:52:14.782Z"
+    },
+    {
+      "id": "act-1789285757011-jabi",
+      "action": "TASK_UPDATED",
+      "details": "updated details for task \"test API\"",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "projectId": "prj-1788852419371",
+      "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
+      "timestamp": "2026-09-13T07:49:17.011Z"
+    },
+    {
+      "id": "act-1789193144331-qwm0",
+      "action": "MEMBER_ASSIGNED",
+      "details": "removed member \"sriramselvaraji\" (sriramselvaraj799@gmail.com)",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "timestamp": "2026-09-12T06:05:44.331Z"
+    },
+    {
+      "id": "act-1789193141793-afes",
+      "action": "MEMBER_ASSIGNED",
+      "details": "removed member \"jsdhfjhsdfj\" (adhithyan132005@gmail.com)",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "timestamp": "2026-09-12T06:05:41.793Z"
+    },
+    {
+      "id": "act-1789193139562-4ynx",
+      "action": "MEMBER_ASSIGNED",
+      "details": "removed member \"adithiya\" (adhithyam132005@gmail.com)",
+      "userId": "user-admin-1",
+      "userName": "Sriram S",
+      "userRole": "ADMIN",
+      "timestamp": "2026-09-12T06:05:39.562Z"
+    },
+    {
+      "id": "act-1789193060414-1ivt",
+      "action": "MEMBER_ASSIGNED",
+      "details": "registered a new MEMBER account",
+      "userId": "user-1789193060411",
+      "userName": "jsdhfjhsdfj",
+      "userRole": "MEMBER",
+      "timestamp": "2026-09-12T06:04:20.414Z"
+    },
+    {
+      "id": "act-1789192982595-2q6d",
+      "action": "MEMBER_ASSIGNED",
+      "details": "registered a new MEMBER account",
+      "userId": "user-1789192982592",
+      "userName": "adithiya",
+      "userRole": "MEMBER",
+      "timestamp": "2026-09-12T06:03:02.595Z"
+    },
     {
       "id": "act-1789191467087-y160",
       "action": "TASK_UPDATED",
@@ -499,16 +615,6 @@
       "projectId": "prj-1788852419371",
       "taskId": "task-7f4e6001-d357-43c1-b0a6-1847dd5c03fa",
       "timestamp": "2026-09-08T07:27:21.583Z"
-    },
-    {
-      "id": "act-1788852419387-ihe9",
-      "action": "PROJECT_CREATED",
-      "details": "created project \"API\" (API)",
-      "userId": "user-admin-1",
-      "userName": "Sriram S",
-      "userRole": "ADMIN",
-      "projectId": "prj-1788852419371",
-      "timestamp": "2026-09-08T07:26:59.387Z"
     }
   ],
   "otpTokens": {},

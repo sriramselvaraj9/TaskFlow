@@ -91,8 +91,11 @@ export class TaskService {
     return success;
   }
 
-  async getDashboardStats(userId?: string): Promise<DashboardStats> {
-    const tasks = await taskRepository.findAll();
+  async getDashboardStats(userId?: string, projectId?: string): Promise<DashboardStats> {
+    let tasks = await taskRepository.findAll();
+    if (projectId && projectId !== 'ALL') {
+      tasks = tasks.filter((t) => t.projectId === projectId);
+    }
     const projects = await projectService.getProjects();
 
     const assignedToMe = userId
@@ -137,7 +140,7 @@ export class TaskService {
       overdueTasks: overdueTasks.length,
       overdueCount: overdueTasks.length,
       assignedToMe,
-      activeProjects: projects.length,
+      activeProjects: projectId && projectId !== 'ALL' ? 1 : projects.length,
       completionRate,
       tasksByStatus: statusCounts,
       tasksByPriority: priorityCounts,

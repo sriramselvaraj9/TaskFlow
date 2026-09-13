@@ -221,6 +221,9 @@ export async function getActivities(limit = 20): Promise<ActivityLog[]> {
   return activityService.getActivities(limit);
 }
 
-export async function getDashboardStats(userId?: string | null): Promise<DashboardStats> {
-  return taskService.getDashboardStats(userId || undefined);
+export async function getDashboardStats(
+  userId?: string | null,
+  projectId?: string | null,
+): Promise<DashboardStats> {
+  return taskService.getDashboardStats(userId || undefined, projectId || undefined);
 }

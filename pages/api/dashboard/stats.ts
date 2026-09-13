@@ -14,7 +14,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'GET') {
     try {
       const { projectId } = req.query;
-      const stats = await getDashboardStats(typeof projectId === 'string' ? projectId : undefined);
+      const stats = await getDashboardStats(
+        currentUser.id,
+        typeof projectId === 'string' && projectId !== 'ALL' ? projectId : undefined,
+      );
       return res.status(200).json(stats);
     } catch (error: any) {
       return res.status(500).json({ message: error.message || 'Failed to fetch dashboard stats' });

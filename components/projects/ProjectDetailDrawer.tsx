@@ -101,6 +101,7 @@ export const ProjectDetailDrawer: React.FC = () => {
       {
         onSuccess: () => {
           toast.success('Project details updated successfully!');
+          setSelectedProjectIdForDetail(null);
         },
         onError: (err: any) => {
           toast.error(err.message || 'Failed to update project');

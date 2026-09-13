@@ -121,19 +121,9 @@ export const TaskDetailDrawer: React.FC = () => {
         updates,
       },
       {
-        onSuccess: (updatedTask) => {
-          setSavedSuccess(true);
+        onSuccess: () => {
           toast.success('Task updated successfully!');
-          if (updatedTask) {
-            setTitle(updatedTask.title);
-            setDescription(updatedTask.description);
-            setStatus(updatedTask.status);
-            setPriority(updatedTask.priority);
-            setAssigneeId(updatedTask.assigneeId || '');
-            setStartDate(updatedTask.startDate ? updatedTask.startDate.split('T')[0] : '');
-            setDueDate(updatedTask.dueDate ? updatedTask.dueDate.split('T')[0] : '');
-          }
-          setTimeout(() => setSavedSuccess(false), 2500);
+          setSelectedTaskId(null);
         },
         onError: (err: any) => {
           if (
