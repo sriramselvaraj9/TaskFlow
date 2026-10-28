@@ -33,8 +33,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
         logger.info("Database connection successfully established on startup")
+
+        # Automatically seed admin accounts and default columns if missing
+        from app.seed.seed_data import run_seed
+        from app.core.database import AsyncSessionLocal
+        async with AsyncSessionLocal() as session:
+            await run_seed(session)
+        logger.info("Database seed check successfully completed on startup")
     except Exception as exc:
-        logger.warning("Database connection check failed on startup: %s", exc)
+        logger.warning("Database startup/seed check failed: %s", exc)
 
     yield
 
