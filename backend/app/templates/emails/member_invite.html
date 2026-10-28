@@ -1,0 +1,28 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}You're invited to TaskFlow{% endblock %}
+
+{% block content %}
+  <div class="badge">Team Invitation</div>
+  <div class="greeting">Hi {{ name or 'there' }},</div>
+  <div class="message">
+    <strong>{{ inviter_name }}</strong> has invited you to join the team workspace on <strong>TaskFlow</strong>{% if designation %} as <strong>{{ designation }}</strong>{% endif %}.
+    Click the button below to set up your profile and password to get started.
+  </div>
+
+  <div class="btn-container">
+    <a href="{{ invite_url }}" target="_blank" class="btn">
+      Accept Invitation &amp; Set Password &rarr;
+    </a>
+  </div>
+
+  <div class="direct-link-box">
+    <strong style="color: #0f172a; font-size: 13px;">Direct Web Link:</strong><br />
+    <span style="color: #64748b; font-size: 12px;">Open in any browser to activate:</span><br />
+    <a href="{{ invite_url }}" style="color: #2563eb; text-decoration: underline; font-weight: 500;">{{ invite_url }}</a>
+  </div>
+{% endblock %}
+
+{% block footer_note %}
+  <div>If you did not expect this invitation, please ignore this email.</div>
+{% endblock %}

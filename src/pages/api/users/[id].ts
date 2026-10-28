@@ -1,0 +1,52 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { applyCors, getAuthenticatedUser, isAdmin } from '@/lib/authHelper';
+import { deleteUser, getUserById } from '@/lib/db';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (applyCors(req, res)) return;
+
+  const currentUser = await getAuthenticatedUser(req, res);
+
+  if (!currentUser) {
+    return res.status(401).json({ message: 'Unauthorized. Please log in.' });
+  }
+
+  const { id } = req.query;
+  if (!id || typeof id !== 'string') {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  if (req.method === 'GET') {
+    const targetUser = await getUserById(id, currentUser);
+    if (!targetUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const { id: uId, name, email, role, designation, createdAt } = targetUser;
+    return res.status(200).json({ id: uId, name, email, role, designation, createdAt });
+  }
+
+  if (req.method === 'DELETE') {
+    if (!isAdmin(currentUser)) {
+      return res.status(403).json({ message: 'Forbidden: Only administrators can delete team members' });
+    }
+
+    currentUser.role = 'ADMIN';
+
+    if (currentUser.id === id) {
+      return res.status(400).json({ message: 'You cannot delete your own account' });
+    }
+
+    try {
+      const deleted = await deleteUser(id, currentUser);
+      if (!deleted) {
+        return res.status(404).json({ message: 'User not found or already deleted' });
+      }
+      return res.status(200).json({ message: 'Team member deleted successfully' });
+    } catch (error: any) {
+      const statusCode = error.message?.includes('Unauthorized') ? 403 : 400;
+      return res.status(statusCode).json({ message: error.message || 'Failed to delete member' });
+    }
+  }
+
+  return res.status(405).json({ message: 'Method Not Allowed' });
+}

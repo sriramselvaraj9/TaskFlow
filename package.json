@@ -8,8 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "docker:build": "docker build -t taskflow .",
-    "docker:run": "docker run -p 3000:3000 -v %cd%/server/database:/app/server/database taskflow",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
     "docker:compose": "docker compose up -d",
     "biome:check": "biome check .",
     "biome:format": "biome format --write ."

@@ -5,6 +5,20 @@
 
 # Testing
 /coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
 
 # Next.js
 /.next/

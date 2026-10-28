@@ -1,0 +1,176 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import type { CreateTaskFormData } from '@/lib/validators';
+import type { Task, TaskPriority, TaskStatus } from '@/types';
+
+interface TaskFilterParams {
+  projectId?: string | null;
+  status?: TaskStatus | 'ALL';
+  priority?: TaskPriority | 'ALL';
+  assigneeId?: string | 'ALL';
+  search?: string;
+}
+
+// Fetch tasks directly from the server API
+async function fetchTasks(params: TaskFilterParams): Promise<Task[]> {
+  const query = new URLSearchParams();
+  if (params.projectId && params.projectId !== 'ALL') query.set('projectId', params.projectId);
+  if (params.status && params.status !== 'ALL') query.set('status', params.status);
+  if (params.priority && params.priority !== 'ALL') query.set('priority', params.priority);
+  if (params.assigneeId && params.assigneeId !== 'ALL') query.set('assigneeId', params.assigneeId);
+  if (params.search) query.set('search', params.search);
+
+  const res = await fetch(`/api/tasks?${query.toString()}`);
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || 'Failed to fetch tasks');
+  }
+  return res.json();
+}
+
+async function fetchTask(id: string): Promise<Task> {
+  const res = await fetch(`/api/tasks/${id}`);
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || 'Task not found');
+  }
+  return res.json();
+}
+
+async function createTask(data: CreateTaskFormData, token?: string): Promise<Task> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch('/api/tasks', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || 'Failed to create task');
+  }
+  return res.json();
+}
+
+async function updateTask(
+  { id, updates }: { id: string; updates: Partial<Task> },
+  token?: string
+): Promise<Task> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(`/api/tasks/${id}`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(updates),
+  });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || 'Failed to update task');
+  }
+  return res.json();
+}
+
+async function deleteTask(id: string, token?: string): Promise<void> {
+  const headers: Record<string, string> = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE', headers });
+  if (!res.ok && res.status !== 404) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || 'Failed to delete task');
+  }
+}
+
+export function useTasksQuery(params: TaskFilterParams = {}) {
+  return useQuery({
+    queryKey: ['tasks', params],
+    queryFn: () => fetchTasks(params),
+    staleTime: 1000 * 5, // 5 seconds fresh data
+  });
+}
+
+export function useTaskQuery(id?: string | null) {
+  return useQuery({
+    queryKey: ['task', id],
+    queryFn: () => (id ? fetchTask(id) : Promise.reject(new Error('No task ID provided'))),
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateTaskMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+
+  return useMutation({
+    mutationFn: (data: CreateTaskFormData) => createTask(data, (session as any)?.accessToken),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['task'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['activities'] });
+    },
+  });
+}
+
+export function useUpdateTaskMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+
+  return useMutation({
+    mutationFn: (vars: { id: string; updates: Partial<Task> }) =>
+      updateTask(vars, (session as any)?.accessToken),
+    onMutate: async ({ id, updates }) => {
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+      await queryClient.cancelQueries({ queryKey: ['task', id] });
+
+      const previousTasks = queryClient.getQueriesData<Task[]>({ queryKey: ['tasks'] });
+
+      queryClient.setQueriesData<Task[]>({ queryKey: ['tasks'] }, (oldTasks) => {
+        if (!oldTasks) return [];
+        return oldTasks.map((task) => (task.id === id ? { ...task, ...updates } : task));
+      });
+
+      queryClient.setQueryData<Task>(['task', id], (oldTask) => {
+        if (!oldTask) return oldTask;
+        return { ...oldTask, ...updates };
+      });
+
+      return { previousTasks };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousTasks) {
+        context.previousTasks.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+    },
+    onSuccess: (data, variables) => {
+      queryClient.setQueriesData<Task[]>({ queryKey: ['tasks'] }, (oldTasks) => {
+        if (!Array.isArray(oldTasks)) return oldTasks;
+        return oldTasks.map((task) => (task.id === variables.id ? { ...task, ...data } : task));
+      });
+      queryClient.setQueryData(['task', variables.id], data);
+    },
+    onSettled: (_data, _error, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['task', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['activities'] });
+    },
+  });
+}
+
+export function useDeleteTaskMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteTask(id, (session as any)?.accessToken),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['task'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['activities'] });
+    },
+  });
+}
+

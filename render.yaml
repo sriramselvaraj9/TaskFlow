@@ -1,16 +1,65 @@
+databases:
+  - name: taskflow-db
+    databaseName: taskflow
+    user: taskflow
+    plan: free
+    region: oregon
+
 services:
+  # ---------------------------------------------
+  # 1. FastAPI Python Backend Service
+  # ---------------------------------------------
   - type: web
-    name: taskflow
+    name: taskflow-backend
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taskflow-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_USER
+        sync: false
+      - key: BREVO_FROM
+        sync: false
+
+  # ---------------------------------------------
+  # 2. Next.js Frontend Web Application
+  # ---------------------------------------------
+  - type: web
+    name: taskflow-frontend
     env: docker
     plan: free
     region: oregon
     dockerfilePath: ./Dockerfile
+    dockerContext: .
     envVars:
       - key: NODE_ENV
         value: production
       - key: NEXTAUTH_SECRET
         generateValue: true
       - key: NEXTAUTH_URL
+        sync: false
+      - key: BACKEND_URL
+        fromService:
+          type: web
+          name: taskflow-backend
+          property: host
+      - key: NEXT_PUBLIC_API_URL
         sync: false
       - key: BREVO_API_KEY
         sync: false
