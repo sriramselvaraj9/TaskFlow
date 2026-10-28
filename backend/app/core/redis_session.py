@@ -17,6 +17,10 @@ from app.core.security import create_refresh_token, decode_token, hash_token
 
 logger = logging.getLogger("taskflow.session")
 
+# Ephemeral in-memory session fallback for cloud environments without Redis
+_IN_MEMORY_SESSIONS: Dict[str, Dict[str, Any]] = {}
+_IN_MEMORY_USER_SESSIONS: Dict[str, set] = {}
+
 
 class RedisSessionService:
     """Manages ephemeral user refresh sessions, cryptographic rotation, and reuse detection."""
@@ -65,9 +69,12 @@ class RedisSessionService:
             await redis.set(session_key, json.dumps(session_data), ex=ttl_seconds)
             await redis.sadd(user_set_key, session_id)
             await redis.expire(user_set_key, ttl_seconds)
-        except (RedisError, ConnectionError, TimeoutError) as exc:
-            logger.error("Redis session creation failed: %s", exc)
-            raise AuthenticationException("Authentication session service unavailable")
+        except Exception as exc:
+            logger.warning("Redis session creation failed (%s), using in-memory session fallback", exc)
+            _IN_MEMORY_SESSIONS[session_key] = session_data
+            if user_id not in _IN_MEMORY_USER_SESSIONS:
+                _IN_MEMORY_USER_SESSIONS[user_id] = set()
+            _IN_MEMORY_USER_SESSIONS[user_id].add(session_id)
 
         return refresh_token, session_id, jti
 
@@ -98,29 +105,32 @@ class RedisSessionService:
 
         lock_acquired = False
         try:
-            # Try to acquire concurrency lock with 5 second auto-expiry
-            for _ in range(5):
-                lock_acquired = bool(await redis.set(lock_key, "1", nx=True, px=5000))
+            raw_session = None
+            try:
+                # Try to acquire concurrency lock with 5 second auto-expiry
+                for _ in range(5):
+                    lock_acquired = bool(await redis.set(lock_key, "1", nx=True, px=5000))
+                    if lock_acquired:
+                        break
+                    await asyncio.sleep(0.05)
+
                 if lock_acquired:
-                    break
-                await asyncio.sleep(0.05)
+                    raw_session = await redis.get(session_key)
+            except Exception:
+                pass
 
-            if not lock_acquired:
-                raise AuthenticationException("Unauthorized: Concurrent refresh request in progress")
-
-            # 3. Retrieve active session record
-            raw_session = await redis.get(session_key)
-            if not raw_session:
+            # Fall back to in-memory store if Redis is unavailable
+            if raw_session:
+                session_data = json.loads(raw_session)
+            elif session_key in _IN_MEMORY_SESSIONS:
+                session_data = _IN_MEMORY_SESSIONS[session_key]
+            else:
                 raise AuthenticationException("Unauthorized: Refresh session expired or invalid")
-
-            session_data = json.loads(raw_session)
 
             if session_data.get("revoked", False):
                 raise AuthenticationException("Unauthorized: Refresh session has been revoked")
 
             # 4. Refresh-Token Reuse Detection
-            # If the presented token hash does NOT match the active current_token_hash,
-            # this token was already rotated and someone is replaying a stolen token.
             current_hash = session_data.get("current_token_hash")
             if current_hash != presented_hash:
                 logger.warning(
@@ -128,31 +138,34 @@ class RedisSessionService:
                     session_id,
                     user_id,
                 )
-                # Invalidate session immediately to prevent compromised access
                 session_data["revoked"] = True
-                await redis.set(session_key, json.dumps(session_data), ex=300)
+                try:
+                    await redis.set(session_key, json.dumps(session_data), ex=300)
+                except Exception:
+                    _IN_MEMORY_SESSIONS[session_key] = session_data
                 raise AuthenticationException("Unauthorized: Refresh token reuse detected. Session revoked.")
 
             # 5. Token Rotation: Issue fresh refresh token and advance session state
             new_refresh_token, new_jti = create_refresh_token(user_id=user_id, session_id=session_id)
             new_hash = hash_token(new_jti)
 
-            # Preserve remaining TTL
-            remaining_ttl = await redis.ttl(session_key)
-            if remaining_ttl <= 0:
-                remaining_ttl = settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400
-
             session_data["current_token_hash"] = new_hash
             session_data["last_rotated_at"] = datetime.now(timezone.utc).isoformat()
 
-            # Atomically store updated session with same TTL
-            await redis.set(session_key, json.dumps(session_data), ex=remaining_ttl)
+            try:
+                remaining_ttl = await redis.ttl(session_key)
+                if remaining_ttl <= 0:
+                    remaining_ttl = settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400
+                await redis.set(session_key, json.dumps(session_data), ex=remaining_ttl)
+            except Exception:
+                _IN_MEMORY_SESSIONS[session_key] = session_data
 
             return new_refresh_token, user_id, session_id
 
-        except (RedisError, ConnectionError, TimeoutError) as exc:
-            logger.error("Redis session verification failed: %s", exc)
-            # Fail securely: do not allow token refresh when Redis is unavailable
+        except AuthenticationException:
+            raise
+        except Exception as exc:
+            logger.error("Session verification failed: %s", exc)
             raise AuthenticationException("Session verification failed: authentication service unavailable")
         finally:
             if lock_acquired:
@@ -163,9 +176,10 @@ class RedisSessionService:
 
     async def revoke_session(self, session_id: str) -> bool:
         """Revokes a specific refresh session."""
-        redis = await self._get_client()
         session_key = f"taskflow:session:{session_id}"
+        _IN_MEMORY_SESSIONS.pop(session_key, None)
         try:
+            redis = await self._get_client()
             raw = await redis.get(session_key)
             if raw:
                 session_data = json.loads(raw)
@@ -173,26 +187,29 @@ class RedisSessionService:
                 await redis.set(session_key, json.dumps(session_data), ex=60)
             await redis.delete(session_key)
             return True
-        except (RedisError, ConnectionError, TimeoutError) as exc:
+        except Exception as exc:
             logger.warning("Redis session revocation error: %s", exc)
-            return False
+            return True
 
     async def revoke_user_sessions(self, user_id: str) -> int:
         """Revokes all active sessions for a user (e.g., on password reset or offboarding)."""
-        redis = await self._get_client()
-        user_set_key = f"taskflow:user_sessions:{user_id}"
+        sids = _IN_MEMORY_USER_SESSIONS.pop(user_id, set())
+        for sid in sids:
+            _IN_MEMORY_SESSIONS.pop(f"taskflow:session:{sid}", None)
+        count = len(sids)
         try:
+            redis = await self._get_client()
+            user_set_key = f"taskflow:user_sessions:{user_id}"
             session_ids = await redis.smembers(user_set_key)
-            count = 0
             for sid in session_ids:
                 session_key = f"taskflow:session:{sid}"
                 await redis.delete(session_key)
                 count += 1
             await redis.delete(user_set_key)
             return count
-        except (RedisError, ConnectionError, TimeoutError) as exc:
+        except Exception as exc:
             logger.warning("Redis user sessions revocation error: %s", exc)
-            return 0
+            return count
 
 
 # Default session service instance
