@@ -56,7 +56,9 @@ export const taskSchemaStep1 = z.object({
 });
 
 export const taskSchemaStep2Base = z.object({
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).default('MEDIUM'),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH'], {
+    errorMap: () => ({ message: 'Please select a priority level' }),
+  }),
   assigneeId: z.string().optional().default(''),
   startDate: z.string().optional().default(''),
   dueDate: z.string().min(1, 'Please select a due date'),

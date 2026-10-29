@@ -27,7 +27,6 @@ export function applyCors(req: NextApiRequest, res: NextApiResponse): boolean {
 
 export const ADMIN_EMAILS = new Set([
   'sriramccbp@gmail.com',
-  'admin@gmail.com',
 ]);
 
 export function isAdmin(user?: Partial<User> | { email?: string; role?: string; id?: string } | null): boolean {
@@ -36,7 +35,7 @@ export function isAdmin(user?: Partial<User> | { email?: string; role?: string; 
   if (role === 'ADMIN') return true;
   const email = (user.email || '').trim().toLowerCase();
   if (ADMIN_EMAILS.has(email)) return true;
-  if (user.id === 'user-admin-1' || user.id === 'user-admin-2') return true;
+  if (user.id === 'user-admin-1') return true;
   return false;
 }
 

@@ -21,13 +21,11 @@ async def test_deterministic_seed_execution(db_session: AsyncSession):
     col_ids = {c.id for c in cols}
     assert {"TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"}.issubset(col_ids)
 
-    # Verify seed users were created
+    # Verify seed users were created (only super admin)
     users_result = await db_session.execute(select(User))
     users = users_result.scalars().all()
-    assert len(users) == 3
+    assert len(users) == 1
     user_emails = {u.email for u in users}
-    assert "admin@gmail.com" in user_emails
-    assert "member@gmail.com" in user_emails
     assert "sriramccbp@gmail.com" in user_emails
 
 
@@ -44,4 +42,4 @@ async def test_seed_idempotency(db_session: AsyncSession):
     assert len(cols_result.scalars().all()) == 4
 
     users_result = await db_session.execute(select(User))
-    assert len(users_result.scalars().all()) == 3
+    assert len(users_result.scalars().all()) == 1

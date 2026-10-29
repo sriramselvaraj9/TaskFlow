@@ -109,30 +109,6 @@ export const CreateProjectModal: React.FC = () => {
             {errors.name && <p className="text-xs text-rose-600 mt-1">{errors.name.message}</p>}
           </div>
 
-          {/* Project Key */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                Project Key
-              </label>
-              <span className="text-[10px] text-slate-400">e.g. API, WEB</span>
-            </div>
-            <input
-              type="text"
-              maxLength={5}
-              placeholder="e.g. API"
-              {...register('key')}
-              onChange={(e) => {
-                setIsKeyManuallyEdited(true);
-                setValue('key', e.target.value.toUpperCase());
-              }}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 uppercase font-mono placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 font-bold shadow-xs tracking-wider"
-            />
-            <p className="text-[10px] text-slate-400 mt-1">
-              Short badge prefix on tasks (e.g. <span className="font-mono font-bold">[API]</span>).
-            </p>
-          </div>
-
           {/* Description */}
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">

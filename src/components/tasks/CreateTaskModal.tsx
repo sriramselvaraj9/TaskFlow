@@ -52,10 +52,10 @@ export const CreateTaskModal: React.FC = () => {
         selectedProjectId && selectedProjectId !== 'ALL'
           ? selectedProjectId
           : projects[0]?.id || '',
-      priority: 'MEDIUM',
+      priority: '' as any,
       assigneeId: '',
-      startDate: new Date().toISOString().split('T')[0],
-      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      startDate: '',
+      dueDate: '',
       status: 'TODO',
     },
   });
@@ -63,6 +63,7 @@ export const CreateTaskModal: React.FC = () => {
   const currentProjectId = watch('projectId');
   const currentTitle = watch('title') || '';
   const currentDescription = watch('description') || '';
+  const currentPriority = watch('priority');
   const currentDueDate = watch('dueDate') || '';
 
   const isStep1Valid =
@@ -70,7 +71,7 @@ export const CreateTaskModal: React.FC = () => {
     currentDescription.trim().length >= 3 &&
     Boolean(currentProjectId);
 
-  const isStep2Valid = Boolean(currentDueDate);
+  const isStep2Valid = Boolean(currentDueDate) && Boolean(currentPriority);
   const isAllValid = isStep1Valid && isStep2Valid;
 
   // Reset errors and touched state when modal opens
@@ -128,7 +129,7 @@ export const CreateTaskModal: React.FC = () => {
 
   const validateStep2 = () => {
     setStep2Attempted(true);
-    const priority = getValues('priority') || 'MEDIUM';
+    const priority = getValues('priority');
     const assigneeId = getValues('assigneeId') || '';
     const startDate = getValues('startDate') || '';
     const dueDate = getValues('dueDate') || '';
@@ -188,10 +189,10 @@ export const CreateTaskModal: React.FC = () => {
             title: '',
             description: '',
             projectId: selectedProjectId || (projects[0]?.id ?? ''),
-            priority: 'MEDIUM',
+            priority: '' as any,
             assigneeId: '',
-            startDate: new Date().toISOString().split('T')[0],
-            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            startDate: '',
+            dueDate: '',
             status: 'TODO',
           });
           setStep(1);
@@ -384,7 +385,10 @@ export const CreateTaskModal: React.FC = () => {
                     <button
                       key={p}
                       type="button"
-                      onClick={() => setValue('priority', p)}
+                      onClick={() => {
+                        setValue('priority', p, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                        clearErrors('priority');
+                      }}
                       className={cn(
                         'p-2.5 rounded-xl border text-xs font-semibold uppercase tracking-wider transition-all text-center cursor-pointer',
                         currentPriority === p

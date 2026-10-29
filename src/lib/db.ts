@@ -152,23 +152,6 @@ export async function createColumn(
   return res.json();
 }
 
-export async function reorderColumns(
-  columnIds: string[],
-  user: User
-): Promise<BoardColumn[]> {
-  const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/columns/reorder`, {
-    method: 'POST',
-    headers: buildHeaders(user),
-    body: JSON.stringify({ columnIds }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || err.detail || 'Failed to reorder columns');
-  }
-  return res.json();
-}
-
 export async function deleteColumn(
   id: string,
   user: User
@@ -193,7 +176,6 @@ export async function deleteColumn(
 export const columnService = {
   getColumns,
   createColumn,
-  reorderColumns,
   deleteColumn,
 };
 

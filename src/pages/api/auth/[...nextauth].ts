@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
 
           const data = await res.json();
           const cleanEmail = (data.user?.email || credentials.email).trim().toLowerCase();
-          const isAdminEmail = cleanEmail === 'sriramccbp@gmail.com' || cleanEmail === 'admin@gmail.com';
+          const isAdminEmail = cleanEmail === 'sriramccbp@gmail.com';
           const resolvedRole = isAdminEmail ? 'ADMIN' : (String(data.user?.role || 'MEMBER').toUpperCase() === 'ADMIN' ? 'ADMIN' : 'MEMBER');
 
           return {
@@ -76,7 +76,7 @@ export const authOptions: NextAuthOptions = {
       // Ensure admin accounts maintain ADMIN role
       const email = String(token.email || '').toLowerCase().trim();
       const roleStr = String(token.role || '').toUpperCase();
-      if (email === 'sriramccbp@gmail.com' || email === 'admin@gmail.com' || roleStr === 'ADMIN') {
+      if (email === 'sriramccbp@gmail.com' || roleStr === 'ADMIN') {
         token.role = 'ADMIN';
       } else if (!token.role) {
         token.role = 'MEMBER';
@@ -117,7 +117,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = (token.id as string) || session.user.id;
         const email = String(token.email || session.user.email || '').toLowerCase().trim();
         const roleStr = String(token.role || session.user.role || '').toUpperCase();
-        if (email === 'sriramccbp@gmail.com' || email === 'admin@gmail.com' || roleStr === 'ADMIN') {
+        if (email === 'sriramccbp@gmail.com' || roleStr === 'ADMIN') {
           session.user.role = 'ADMIN';
         } else {
           session.user.role = (roleStr as 'ADMIN' | 'MEMBER') || 'MEMBER';

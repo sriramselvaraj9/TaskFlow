@@ -223,10 +223,10 @@ export function isAdminRole(
     return true;
   }
   const email = (userOrRole.email || '').trim().toLowerCase();
-  if (email === 'sriramccbp@gmail.com' || email === 'admin@gmail.com') {
+  if (email === 'sriramccbp@gmail.com') {
     return true;
   }
-  if (userOrRole.id === 'user-admin-1' || userOrRole.id === 'user-admin-2') {
+  if (userOrRole.id === 'user-admin-1') {
     return true;
   }
   return false;

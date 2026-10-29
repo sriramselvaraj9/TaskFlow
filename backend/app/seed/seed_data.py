@@ -54,24 +54,8 @@ SEED_USERS = [
         "name": "Sriram S",
         "email": "sriramccbp@gmail.com",
         "role": UserRole.ADMIN,
-        "designation": "Lead Administrator",
+        "designation": "Administrator",
         "password_hash": ADMIN_HASH,
-    },
-    {
-        "id": "user-admin-2",
-        "name": "Admin User",
-        "email": "admin@gmail.com",
-        "role": UserRole.ADMIN,
-        "designation": "System Administrator",
-        "password_hash": ADMIN_HASH,
-    },
-    {
-        "id": "user-member-1",
-        "name": "Member User",
-        "email": "member@gmail.com",
-        "role": UserRole.MEMBER,
-        "designation": "Software Engineer",
-        "password_hash": MEMBER_HASH,
     },
 ]
 
@@ -123,12 +107,31 @@ async def seed_users(session: AsyncSession) -> int:
     return created_count
 
 
+async def cleanup_extra_seed_users(session: AsyncSession) -> int:
+    """Removes obsolete extra seed accounts, preserving only the super admin."""
+    stmt = select(User).where(User.email.in_(["admin@gmail.com", "member@gmail.com"]))
+    result = await session.execute(stmt)
+    obsolete = result.scalars().all()
+    count = 0
+    for u in obsolete:
+        await session.delete(u)
+        count += 1
+        logger.info("Removed extra seed user account: %s", u.email)
+    return count
+
+
 async def run_seed(session: AsyncSession) -> None:
     """Executes all seed tasks inside a safe transactional boundary."""
     cols_added = await seed_columns(session)
     users_added = await seed_users(session)
+    users_removed = await cleanup_extra_seed_users(session)
     await session.commit()
-    logger.info("Seed execution complete: %d columns added, %d users added.", cols_added, users_added)
+    logger.info(
+        "Seed execution complete: %d columns added, %d super admin ensured, %d extra accounts cleaned.",
+        cols_added,
+        users_added,
+        users_removed,
+    )
 
 
 async def main() -> None:
