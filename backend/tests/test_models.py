@@ -5,11 +5,9 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.activity import ActivityAction, ActivityLog
 from app.models.column import BoardColumn
 from app.models.project import Project, ProjectStatus
 from app.models.task import Task, TaskPriority
-from app.models.token import TokenType, UserToken
 from app.models.user import User, UserRole
 
 

@@ -37,10 +37,7 @@ async def test_rbac_admin_vs_member_project_actions(async_client: AsyncClient, d
     await user_dao.create(db_session, admin)
     await user_dao.create(db_session, member)
 
-    admin_token = create_access_token({"sub": admin.id, "role": "ADMIN"})
     member_token = create_access_token({"sub": member.id, "role": "MEMBER"})
-
-    admin_headers = {"Authorization": f"Bearer {admin_token}"}
     member_headers = {"Authorization": f"Bearer {member_token}"}
 
     # 1. Member CANNOT create project (403 Forbidden)
@@ -78,10 +75,7 @@ async def test_rbac_admin_vs_member_column_actions(async_client: AsyncClient, db
     await user_dao.create(db_session, admin)
     await user_dao.create(db_session, member)
 
-    admin_token = create_access_token({"sub": admin.id, "role": "ADMIN"})
     member_token = create_access_token({"sub": member.id, "role": "MEMBER"})
-
-    admin_headers = {"Authorization": f"Bearer {admin_token}"}
     member_headers = {"Authorization": f"Bearer {member_token}"}
 
     # 1. Member cannot create column (403)

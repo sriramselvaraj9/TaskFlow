@@ -5,8 +5,6 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import hash_password, verify_password
-from app.daos.user_dao import user_dao
-from app.models.user import User, UserRole
 
 
 def test_password_hashing_and_verification():

@@ -12,14 +12,11 @@ Covers:
 """
 
 import logging
-from unittest.mock import AsyncMock, MagicMock, patch
-from fastapi import APIRouter, BackgroundTasks, FastAPI, Request, status
-from fastapi.testclient import TestClient
+from unittest.mock import patch
+from fastapi import BackgroundTasks, FastAPI, status
 from httpx import ASGITransport, AsyncClient
 import pytest
-from starlette.middleware.cors import CORSMiddleware
 
-from app.routers import api_router
 from app.core.background_tasks import record_audit_telemetry, send_lightweight_notification
 from app.core.config import settings
 from app.core.exceptions import (
@@ -29,9 +26,7 @@ from app.core.exceptions import (
     NotFoundException,
     PermissionDeniedException,
     RateLimitException,
-    TaskFlowException,
     ValidationException,
-    WorkflowRestrictionException,
     register_exception_handlers,
 )
 from app.core.logging_config import SensitiveDataFilter, mask_sensitive_data, mask_sensitive_string
@@ -44,14 +39,6 @@ def phase_g_app():
     """Isolated FastAPI test instance with Phase G middleware and handlers."""
     test_app = FastAPI(title="Phase G Test")
     test_app.add_middleware(RequestTrackingMiddleware)
-    test_app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS,
-        allow_credentials=True,
-        allow_methods=settings.CORS_ALLOWED_METHODS,
-        allow_headers=settings.CORS_ALLOWED_HEADERS,
-        expose_headers=["X-Request-ID", "X-Process-Time"],
-    )
     register_exception_handlers(test_app)
 
     # Diagnostic trigger routes for testing domain exceptions
@@ -278,12 +265,12 @@ def test_logging_filter_scrubs_records():
 # ============================================================================
 
 @pytest.mark.asyncio
-async def test_cors_allowed_origin_and_preflight_headers(phase_g_app):
+async def test_cors_allowed_origin_and_preflight_headers():
     """Verify configured Next.js origin receives CORS headers and preflight approval."""
-    async with AsyncClient(transport=ASGITransport(app=phase_g_app), base_url="http://test") as client:
+    async with AsyncClient(transport=ASGITransport(app=main_app), base_url="http://test") as client:
         # Preflight OPTIONS request
         res_options = await client.options(
-            "/trigger-not-found",
+            "/api/health",
             headers={
                 "Origin": "http://localhost:3000",
                 "Access-Control-Request-Method": "GET",
@@ -296,7 +283,7 @@ async def test_cors_allowed_origin_and_preflight_headers(phase_g_app):
 
         # Standard GET with Origin
         res_get = await client.get(
-            "/trigger-not-found",
+            "/api/health",
             headers={"Origin": "http://localhost:3000"},
         )
         assert res_get.headers.get("access-control-allow-origin") == "http://localhost:3000"
@@ -306,11 +293,11 @@ async def test_cors_allowed_origin_and_preflight_headers(phase_g_app):
 
 
 @pytest.mark.asyncio
-async def test_cors_disallows_unauthorized_origin(phase_g_app):
+async def test_cors_disallows_unauthorized_origin():
     """Verify unauthorized external origin does not receive CORS approval."""
-    async with AsyncClient(transport=ASGITransport(app=phase_g_app), base_url="http://test") as client:
+    async with AsyncClient(transport=ASGITransport(app=main_app), base_url="http://test") as client:
         res = await client.get(
-            "/trigger-not-found",
+            "/api/health",
             headers={"Origin": "http://unauthorized-malicious-site.com"},
         )
         assert res.headers.get("access-control-allow-origin") is None

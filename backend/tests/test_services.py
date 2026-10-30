@@ -12,15 +12,13 @@ from app.core.exceptions import (
 )
 from app.daos.column_dao import column_dao
 from app.daos.project_dao import project_dao
-from app.daos.task_dao import task_dao
 from app.daos.user_dao import user_dao
 from app.models.column import BoardColumn
 from app.models.project import Project, ProjectStatus
-from app.models.task import Task, TaskPriority
 from app.models.user import User, UserRole
 from app.schemas.column import ColumnCreate
 from app.schemas.project import ProjectCreate, ProjectUpdate
-from app.schemas.task import TaskCreate, TaskFilterParams, TaskUpdate
+from app.schemas.task import TaskCreate, TaskUpdate
 from app.schemas.user import UserCreate, UserTokenPayload
 from app.services.column_service import column_service
 from app.services.project_service import project_service

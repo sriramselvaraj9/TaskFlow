@@ -12,7 +12,6 @@ Tests:
 """
 
 from datetime import datetime, timezone
-import os
 import socket
 from unittest.mock import AsyncMock, MagicMock
 import pytest
@@ -25,17 +24,15 @@ from app.core.exceptions import AuthenticationException, RateLimitException
 from app.core.rate_limiter import RedisRateLimiter
 from app.core.redis_session import RedisSessionService
 
-from app.models.activity import ActivityAction, ActivityLog
 from app.models.column import BoardColumn
-from app.models.project import Project, ProjectStatus
+from app.models.project import Project
 from app.models.task import Task, TaskPriority
 from app.models.user import User, UserRole
 from app.schemas.column import ColumnCreate
 from app.schemas.dashboard import DashboardStatsResponse
-from app.schemas.project import ProjectCreate, ProjectUpdate
-from app.schemas.task import TaskCreate, TaskFilterParams, TaskUpdate
+from app.schemas.project import ProjectCreate
+from app.schemas.task import TaskCreate, TaskFilterParams
 from app.schemas.user import UserCreate, UserTokenPayload
-from app.services.activity_service import ActivityService
 from app.services.column_service import ColumnService
 from app.services.dashboard_service import DashboardService
 from app.services.project_service import ProjectService

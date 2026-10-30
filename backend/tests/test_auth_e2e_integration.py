@@ -10,7 +10,7 @@ Tests:
 7. Object-level cross-project access restrictions on task updates/deletions.
 """
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, timedelta
 from httpx import AsyncClient
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession

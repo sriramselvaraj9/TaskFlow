@@ -17,11 +17,8 @@ from app.core.exceptions import (
     WorkflowRestrictionException,
 )
 from app.core.dependencies import (
-    get_auth_service,
     get_current_user,
     get_dashboard_service,
-    get_project_service,
-    get_user_service,
 )
 from app.main import app
 from app.models.column import BoardColumn
@@ -35,7 +32,7 @@ from app.schemas.auth import (
 from app.schemas.dashboard import DashboardStatsResponse
 from app.schemas.project import ProjectCreate
 from app.schemas.task import TaskUpdate
-from app.schemas.user import UserResponse, UserTokenPayload
+from app.schemas.user import UserTokenPayload
 from app.services.auth_service import AuthService
 from app.services.column_service import ColumnService
 from app.services.dashboard_service import DashboardService

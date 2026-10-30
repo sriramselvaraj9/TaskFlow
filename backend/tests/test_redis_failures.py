@@ -1,7 +1,6 @@
 """Tests for fail-secure behavior when Redis is unavailable or fails."""
 
 from unittest.mock import AsyncMock
-from httpx import AsyncClient
 import pytest
 from redis.exceptions import ConnectionError, RedisError
 

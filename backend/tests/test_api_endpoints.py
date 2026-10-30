@@ -5,7 +5,6 @@ from httpx import AsyncClient
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import hash_password
 from app.daos.column_dao import column_dao
 from app.daos.project_dao import project_dao
 from app.daos.user_dao import user_dao

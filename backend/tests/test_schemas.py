@@ -1,15 +1,14 @@
 """Unit tests for Pydantic v2 schemas and camelCase serialization."""
 
-from datetime import date, datetime, timezone
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.column import ColumnCreate, ColumnReorder, ColumnResponse
-from app.schemas.common import CamelModel, to_camel
+from app.schemas.column import ColumnReorder
+from app.schemas.common import to_camel
 from app.schemas.dashboard import DashboardStatsResponse
-from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
-from app.schemas.task import TaskCreate, TaskFilterParams, TaskResponse, TaskUpdate
-from app.schemas.user import ProvisionUserResponse, UserCreate, UserResponse
+from app.schemas.project import ProjectCreate
+from app.schemas.task import TaskCreate
+from app.schemas.user import UserCreate
 
 
 def test_to_camel_utility():

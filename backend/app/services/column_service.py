@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cache import CacheService, cache_service as default_cache_service
 from app.core.config import settings
-from app.core.exceptions import ConflictException, NotFoundException, ValidationException, WorkflowRestrictionException
+from app.core.exceptions import ConflictException, ValidationException, WorkflowRestrictionException
 from app.daos.column_dao import ColumnDAO, column_dao as default_column_dao
 from app.daos.task_dao import TaskDAO, task_dao as default_task_dao
 from app.models.activity import ActivityAction

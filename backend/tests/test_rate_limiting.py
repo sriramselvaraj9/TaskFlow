@@ -4,7 +4,7 @@ from httpx import AsyncClient
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.rate_limiter import RedisRateLimiter, check_login_rate_limit, rate_limiter
+from app.core.rate_limiter import RedisRateLimiter, rate_limiter
 from app.core.redis import set_redis_client
 from app.core.security import hash_password
 from app.daos.user_dao import user_dao

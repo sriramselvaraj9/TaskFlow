@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.redis import set_redis_client
 from app.core.redis_session import RedisSessionService, redis_session_service
-from app.core.security import hash_password, hash_token
+from app.core.security import hash_password
 from app.daos.user_dao import user_dao
 from app.models.user import User, UserRole
 from tests.fake_redis import FakeRedis

@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.core.exceptions import ConflictException, NotFoundException, ValidationException
+from app.core.exceptions import ConflictException, NotFoundException
 from app.daos.column_dao import column_dao
 from app.daos.project_dao import project_dao
 from app.daos.task_dao import task_dao
