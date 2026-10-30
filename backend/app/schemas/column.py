@@ -10,7 +10,7 @@ from app.schemas.common import CamelModel
 class ColumnBase(CamelModel):
     """Base board column schema."""
 
-    title: str = Field(..., min_length=2, max_length=30)
+    title: str = Field(..., min_length=2, max_length=30, pattern=r"^[A-Za-z\s&'-]+$")
     dot_color: Optional[str] = Field(
         default="bg-slate-900 shadow-[0_0_8px_rgba(15,23,42,0.6)]",
         max_length=100,

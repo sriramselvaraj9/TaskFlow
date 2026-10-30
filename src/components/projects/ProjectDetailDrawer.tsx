@@ -1,7 +1,6 @@
 import {
   AlertCircle,
   Calendar,
-  Check,
   FolderKanban,
   Plus,
   Save,

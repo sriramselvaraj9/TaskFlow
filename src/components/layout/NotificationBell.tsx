@@ -9,16 +9,14 @@ import {
   FolderKanban,
   Layers,
   RotateCcw,
-  Sparkles,
   Trash2,
   UserPlus,
-  Users,
   X,
 } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useActivitiesQuery } from '@/hooks/useDashboard';
-import { cn, formatRelativeTime, getUserInitials } from '@/lib/utils';
+import { cn, formatRelativeTime } from '@/lib/utils';
 import { useTaskStore } from '@/store/useTaskStore';
 import type { ActivityAction, ActivityLog } from '@/types';
 
@@ -322,14 +320,6 @@ export const NotificationBell: React.FC = () => {
                 );
               })
             )}
-          </div>
-
-          {/* Footer Bar */}
-          <div className="p-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium px-4">
-            <span>Real-time Workspace Audit</span>
-            <span className="text-[10px] font-mono font-bold text-slate-400">
-              TaskFlow v0.1.1
-            </span>
           </div>
         </div>
       )}

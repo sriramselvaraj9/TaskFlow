@@ -6,7 +6,7 @@ refresh tokens, and sensitive query parameters in application logs.
 
 import logging
 import re
-from typing import Any, Dict
+from typing import Any
 
 # Keywords that must be masked if found in log dictionaries or query strings
 SENSITIVE_FIELD_NAMES = {

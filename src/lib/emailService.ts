@@ -1,11 +1,5 @@
 import nodemailer from 'nodemailer';
 
-export interface SendOtpEmailParams {
-  to: string;
-  otpCode: string;
-  userName?: string;
-}
-
 export interface SendInviteEmailParams {
   to: string;
   inviteUrl: string;
@@ -393,74 +387,6 @@ export const emailService = {
           `Set Password Link:\n${inviteUrl}\n`,
       );
       return { sent: false, inviteUrl, error: errorMsg };
-    }
-  },
-
-  /**
-   * Sends the OTP verification code email for password resets.
-   */
-  async sendOtpEmail({ to, otpCode, userName = 'Team Member' }: SendOtpEmailParams): Promise<{ sent: boolean; error?: string }> {
-    const subject = `Your Taskflow Verification Code: ${otpCode}`;
-    const textContent = `Hello ${userName},\n\nYour Taskflow password reset OTP code is: ${otpCode}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, please ignore this email.`;
-    const htmlContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-            <div style="background-color: #4f46e5; border-radius: 6px; width: 24px; height: 24px; display: inline-block; text-align: center; line-height: 24px; color: #ffffff; font-weight: bold; font-size: 14px;">✓</div>
-            <h2 style="color: #0f1422; margin: 0; display: inline-block; font-size: 18px; font-weight: bold;">Taskflow Security</h2>
-          </div>
-          <p style="color: #334155; font-size: 14px; margin: 0 0 12px;">Hello <strong>${userName}</strong>,</p>
-          <p style="color: #64748b; font-size: 14px; margin: 0 0 20px;">Use the following 6-digit verification code to reset your account password:</p>
-          <div style="text-align: center; margin: 20px 0; padding: 16px; background-color: #f1f5f9; border-radius: 8px;">
-            <span style="font-family: monospace; font-size: 28px; font-weight: bold; letter-spacing: 6px; color: #4f46e5;">${otpCode}</span>
-          </div>
-          <p style="color: #64748b; font-size: 12px; margin: 16px 0 0;">This code is valid for <strong>10 minutes</strong>. If you did not make this request, please disregard this email.</p>
-        </div>
-      `;
-
-    // 1. Try Brevo REST API v3 first
-    const brevoApi = getBrevoApiConfig();
-    if (brevoApi) {
-      const result = await sendViaBrevoApi({
-        apiKey: brevoApi.apiKey,
-        fromEmail: brevoApi.fromEmail,
-        fromName: brevoApi.fromName,
-        toEmail: to,
-        toName: userName,
-        subject,
-        htmlContent,
-        textContent,
-      });
-      if (result.sent) {
-        return { sent: true };
-      }
-    }
-
-    // 2. Fallback to SMTP
-    const emailConfig = getEmailTransporter();
-    if (!emailConfig) {
-      console.warn(
-        `\n=======================================================\n` +
-          `[TaskFlow Email] SMTP credentials not configured in environment.\n` +
-          `Recipient: ${to}\n` +
-          `Verification Code: ${otpCode}\n` +
-          `=======================================================\n`,
-      );
-      return { sent: false, error: 'Email credentials not configured in server environment.' };
-    }
-
-    const { transporter, from } = emailConfig;
-
-    try {
-      await transporter.sendMail({
-        from,
-        to,
-        subject,
-        text: textContent,
-        html: htmlContent,
-      });
-      return { sent: true };
-    } catch (err: any) {
-      return { sent: false, error: err?.message || 'Failed to send OTP email' };
     }
   },
 };

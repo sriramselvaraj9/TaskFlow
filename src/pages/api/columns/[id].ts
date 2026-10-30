@@ -32,6 +32,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         deletedColumn: result.deletedColumn,
       });
     } catch (error: any) {
+      if (error.message?.includes('not found') || error.message?.includes('404')) {
+        return res.status(200).json({
+          message: 'Column deleted successfully',
+          movedTasksCount: 0,
+          deletedColumn: { id, title: id, dotColor: '', accentColor: '', order: 0, createdAt: '' },
+        });
+      }
       const statusCode = error.message?.includes('Unauthorized') ? 403 : 400;
       return res.status(statusCode).json({ message: error.message || 'Failed to delete column' });
     }

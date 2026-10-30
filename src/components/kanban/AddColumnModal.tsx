@@ -22,6 +22,7 @@ export const AddColumnModal: React.FC<AddColumnModalProps> = ({ isOpen, onClose 
     formState: { errors },
   } = useForm<CreateColumnFormData>({
     resolver: zodResolver(createColumnSchema),
+    mode: 'onChange',
     defaultValues: {
       title: '',
       dotColor: 'bg-slate-900 shadow-[0_0_8px_rgba(15,23,42,0.6)]',
@@ -58,7 +59,7 @@ export const AddColumnModal: React.FC<AddColumnModalProps> = ({ isOpen, onClose 
           </label>
           <input
             type="text"
-            placeholder="e.g. QA & Testing, Blocked, Ready for Deploy..."
+            placeholder="e.g. QA, Testing, Blocked, Ready for Deploy..."
             {...register('title')}
             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 shadow-xs font-semibold"
             autoFocus

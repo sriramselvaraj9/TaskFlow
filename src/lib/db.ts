@@ -152,6 +152,23 @@ export async function createColumn(
   return res.json();
 }
 
+export async function reorderColumns(
+  columnIds: string[],
+  user: User
+): Promise<BoardColumn[]> {
+  const backend = getBackendBaseUrl();
+  const res = await fetch(`${backend}/api/columns/reorder`, {
+    method: 'POST',
+    headers: buildHeaders(user),
+    body: JSON.stringify({ columnIds }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || err.detail || 'Failed to reorder columns');
+  }
+  return res.json();
+}
+
 export async function deleteColumn(
   id: string,
   user: User
@@ -162,7 +179,36 @@ export async function deleteColumn(
     headers: buildHeaders(user),
   });
   if (!res.ok) {
+    if (res.status === 404) {
+      // Idempotent delete: column is already absent from backend database
+      return {
+        success: true,
+        movedTasksCount: 0,
+        deletedColumn: {
+          id,
+          title: id,
+          dotColor: '',
+          accentColor: '',
+          order: 0,
+          createdAt: new Date().toISOString(),
+        },
+      };
+    }
     const err = await res.json().catch(() => ({}));
+    if (err.message?.includes('not found') || err.detail?.includes('not found')) {
+      return {
+        success: true,
+        movedTasksCount: 0,
+        deletedColumn: {
+          id,
+          title: id,
+          dotColor: '',
+          accentColor: '',
+          order: 0,
+          createdAt: new Date().toISOString(),
+        },
+      };
+    }
     throw new Error(err.message || err.detail || 'Failed to delete column');
   }
   const result = await res.json();
@@ -176,6 +222,7 @@ export async function deleteColumn(
 export const columnService = {
   getColumns,
   createColumn,
+  reorderColumns,
   deleteColumn,
 };
 
@@ -560,32 +607,6 @@ export async function requestForgotPassword(
 }
 
 
-export async function createUser(
-  data: {
-    name: string;
-    email: string;
-    designation?: string;
-    password?: string;
-    passwordAttempt?: string;
-    role?: 'ADMIN' | 'MEMBER';
-    frontendUrl?: string;
-  },
-  adminUser?: User
-): Promise<User> {
-  const result = await provisionUser(
-    {
-      name: data.name,
-      email: data.email,
-      role: data.role,
-      designation: data.designation,
-      password: data.password || data.passwordAttempt,
-      frontendUrl: data.frontendUrl,
-    },
-    adminUser
-  );
-  return result.user;
-}
-
 export async function deleteUser(id: string, adminUser: User): Promise<boolean> {
   const backend = getBackendBaseUrl();
   const res = await fetch(`${backend}/api/users/${id}`, {
@@ -598,11 +619,6 @@ export async function deleteUser(id: string, adminUser: User): Promise<boolean> 
   }
   return true;
 }
-
-export async function createInviteToken(email: string): Promise<string> {
-  return crypto.randomBytes(32).toString('hex');
-}
-
 
 export async function setPasswordWithInviteToken(
   email: string,
@@ -623,17 +639,3 @@ export async function setPasswordWithInviteToken(
   const result = await res.json();
   return result.user;
 }
-
-export const authService = {
-  getUserByEmail,
-  getUserById,
-  verifyPassword,
-  createUser,
-  createInviteToken,
-  setPasswordWithInviteToken,
-};
-
-export const adminService = {
-  getAllUsers: getUsers,
-  deleteUser,
-};

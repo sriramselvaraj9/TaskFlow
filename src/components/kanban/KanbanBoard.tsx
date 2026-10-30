@@ -2,7 +2,7 @@ import { Plus, RotateCcw, Search } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import type React from 'react';
 import { useState } from 'react';
-import { useColumnsQuery } from '@/hooks/useColumns';
+import { useColumnsQuery, useReorderColumnsMutation } from '@/hooks/useColumns';
 import { useTaskStore } from '@/store/useTaskStore';
 import { isAdminRole } from '@/lib/utils';
 import type { Task } from '@/types';
@@ -19,10 +19,23 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, isLoading }) =>
   const { data: session } = useSession();
   const { searchQuery, setSearchQuery } = useTaskStore();
   const { data: columns = [], isLoading: isColumnsLoading } = useColumnsQuery();
+  const reorderColumnsMutation = useReorderColumnsMutation();
 
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
 
   const isAdmin = isAdminRole(session?.user);
+
+  const handleMoveColumn = (index: number, direction: 'left' | 'right') => {
+    const targetIndex = direction === 'left' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= columns.length) return;
+
+    const newColumnIds = columns.map((c) => c.id);
+    const temp = newColumnIds[index];
+    newColumnIds[index] = newColumnIds[targetIndex];
+    newColumnIds[targetIndex] = temp;
+
+    reorderColumnsMutation.mutate(newColumnIds);
+  };
 
   if (isLoading || isColumnsLoading) {
     return (
@@ -78,6 +91,10 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, isLoading }) =>
               tasks={columnTasks}
               accentColor={col.accentColor}
               dotColor={col.dotColor}
+              onMoveLeft={() => handleMoveColumn(index, 'left')}
+              onMoveRight={() => handleMoveColumn(index, 'right')}
+              canMoveLeft={index > 0}
+              canMoveRight={index < columns.length - 1}
             />
           );
         })}

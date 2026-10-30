@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   ChevronDown,
   Clock,
-  Filter,
   FolderKanban,
   PieChart as PieIcon,
   RotateCcw,

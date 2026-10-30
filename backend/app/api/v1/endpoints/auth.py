@@ -1,7 +1,7 @@
 """Authentication API router: login, registration, token refresh, sessions, and invitations."""
 
 from typing import Any, Dict, Optional
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db

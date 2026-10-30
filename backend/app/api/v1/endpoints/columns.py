@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_column_service, get_current_user, get_db, require_admin
-from app.schemas.column import ColumnCreate, ColumnDeleteResponse, ColumnResponse
+from app.schemas.column import ColumnCreate, ColumnDeleteResponse, ColumnReorder, ColumnResponse
 from app.schemas.user import UserTokenPayload
 from app.services.column_service import ColumnService
 
@@ -33,6 +33,19 @@ async def create_column(
     """Create a new custom workflow column (Admin only)."""
     col = await column_service.create_column(session, data, current_user)
     return ColumnResponse.model_validate(col)
+
+
+@router.post("/reorder", response_model=List[ColumnResponse])
+@router.put("/reorder", response_model=List[ColumnResponse])
+async def reorder_columns(
+    data: ColumnReorder,
+    session: AsyncSession = Depends(get_db),
+    current_user: UserTokenPayload = Depends(require_admin),
+    column_service: ColumnService = Depends(get_column_service),
+) -> List[ColumnResponse]:
+    """Atomically update workflow column sequence (Admin only)."""
+    columns = await column_service.reorder_columns(session, data.column_ids, current_user)
+    return [ColumnResponse.model_validate(c) for c in columns]
 
 
 @router.delete("/{id}", response_model=ColumnDeleteResponse)

@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.core.exceptions import AuthenticationException, ValidationException
+from app.core.exceptions import AuthenticationException
 from app.core.rate_limiter import check_login_rate_limit, reset_login_rate_limit
 from app.core.redis_session import RedisSessionService, redis_session_service as default_redis_session_service
 from app.core.security import create_access_token, decode_token

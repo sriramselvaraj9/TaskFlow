@@ -2,6 +2,7 @@
 
 import re
 from typing import Any, List, Optional, Tuple
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cache import CacheService, cache_service as default_cache_service
@@ -57,6 +58,8 @@ class ColumnService:
         """Create a new custom workflow column with automatic ordering."""
         # Normalize column ID from title
         clean_title = data.title.strip()
+        if not re.search(r"[A-Za-z]", clean_title) or not re.match(r"^[A-Za-z\s&'-]+$", clean_title):
+            raise ValidationException("Column title can only contain letters and spaces")
         col_id = re.sub(r"[^A-Za-z0-9_]+", "_", clean_title.upper()).strip("_")
         if not col_id:
             raise ValidationException("Invalid column title")
@@ -139,14 +142,44 @@ class ColumnService:
                 f"Cannot delete protected default column '{normalized_id}'"
             )
 
+        # 1. Try finding by ID exact
         col = await self.column_dao.get_by_id(session, normalized_id)
+
+        # 2. Try finding by ID case-insensitive
         if not col:
-            raise NotFoundException(f"Column '{normalized_id}' not found")
+            col = await self.column_dao.get_by_id_ci(session, normalized_id)
+
+        # 3. Try finding by Title case-insensitive
+        if not col:
+            stmt = select(BoardColumn).where(BoardColumn.title.ilike(normalized_id))
+            result = await session.execute(stmt)
+            col = result.scalar_one_or_none()
+
+        # 4. Try finding by slugified ID
+        if not col:
+            slug = re.sub(r"[^A-Za-z0-9_]+", "_", normalized_id.upper()).strip("_")
+            if slug:
+                col = await self.column_dao.get_by_id_ci(session, slug)
+
+        if not col:
+            # Column is already not in database (idempotent delete)
+            # Invalidate caches to ensure any stale cached column list is purged
+            await self.cache_service.delete_pattern("columns:*")
+            await self.cache_service.delete_pattern("tasks:*")
+            await self.cache_service.delete_pattern("dashboard:*")
+            phantom_col = BoardColumn(
+                id=normalized_id,
+                title=normalized_id,
+                dot_color="bg-slate-900 shadow-[0_0_8px_rgba(15,23,42,0.6)]",
+                accent_color="border-slate-900",
+                order=999,
+            )
+            return phantom_col, 0
 
         # Migrate all tasks under this column to BACKLOG
         moved_tasks_count = await self.task_dao.migrate_column_tasks(
             session=session,
-            column_id=normalized_id,
+            column_id=col.id,
             new_status="BACKLOG",
         )
 

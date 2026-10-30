@@ -1,12 +1,10 @@
-import { Plus, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { useDeleteColumnMutation } from '@/hooks/useColumns';
-import { useUpdateTaskMutation } from '@/hooks/useTasks';
 import { cn, isAdminRole } from '@/lib/utils';
 import { useTaskStore } from '@/store/useTaskStore';
-import { toast } from '@/store/useToastStore';
 import type { Task, TaskStatus } from '@/types';
 import { TaskCard } from './TaskCard';
 
@@ -16,6 +14,10 @@ interface KanbanColumnProps {
   tasks: Task[];
   accentColor?: string;
   dotColor?: string;
+  onMoveLeft?: () => void;
+  onMoveRight?: () => void;
+  canMoveLeft?: boolean;
+  canMoveRight?: boolean;
 }
 
 export const KanbanColumn: React.FC<KanbanColumnProps> = ({
@@ -23,6 +25,10 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   title,
   tasks,
   dotColor = 'bg-slate-900 shadow-[0_0_6px_rgba(15,23,42,0.6)]',
+  onMoveLeft,
+  onMoveRight,
+  canMoveLeft = false,
+  canMoveRight = false,
 }) => {
   const { data: session } = useSession();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -71,6 +77,38 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
+                {(onMoveLeft || onMoveRight) && (
+                  <div className="flex items-center bg-slate-200/70 p-0.5 rounded-lg border border-slate-300/60">
+                    <button
+                      type="button"
+                      onClick={onMoveLeft}
+                      disabled={!canMoveLeft}
+                      className={cn(
+                        'p-1 rounded-md transition-colors',
+                        canMoveLeft
+                          ? 'text-slate-600 hover:text-indigo-600 hover:bg-white cursor-pointer'
+                          : 'text-slate-300 cursor-not-allowed opacity-40',
+                      )}
+                      title={canMoveLeft ? `Move "${title}" left` : 'Already at first position'}
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onMoveRight}
+                      disabled={!canMoveRight}
+                      className={cn(
+                        'p-1 rounded-md transition-colors',
+                        canMoveRight
+                          ? 'text-slate-600 hover:text-indigo-600 hover:bg-white cursor-pointer'
+                          : 'text-slate-300 cursor-not-allowed opacity-40',
+                      )}
+                      title={canMoveRight ? `Move "${title}" right` : 'Already at last position'}
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
                 {!isStaticColumn && (
                   <button
                     type="button"

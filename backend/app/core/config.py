@@ -1,7 +1,7 @@
 """Centralized application settings using Pydantic Settings."""
 
 from typing import List, Literal, Optional, Union
-from pydantic import AnyHttpUrl, EmailStr, field_validator
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

@@ -12,8 +12,6 @@ from app.core.database import Base
 class TokenType(str, enum.Enum):
     """Categorization of ephemeral user verification tokens."""
     INVITE = "INVITE"
-    OTP = "OTP"
-    REFRESH = "REFRESH"
 
 
 class UserToken(Base):

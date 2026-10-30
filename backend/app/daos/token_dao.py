@@ -1,7 +1,7 @@
 """Security and verification token Data Access Object."""
 
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import Optional
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,7 +10,7 @@ from app.models.token import TokenType, UserToken
 
 
 class TokenDAO(BaseDAO[UserToken]):
-    """DAO for managing ephemeral tokens (invitations, OTP, refresh sessions)."""
+    """DAO for managing ephemeral tokens (invitations and password resets)."""
 
     def __init__(self) -> None:
         super().__init__(UserToken)

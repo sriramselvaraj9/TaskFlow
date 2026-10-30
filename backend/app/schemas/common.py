@@ -1,7 +1,6 @@
 """Common base schemas, camelCase serialization, and utility models."""
 
 from datetime import date, datetime
-import re
 from typing import Any, Optional
 from pydantic import BaseModel, ConfigDict, field_serializer
 

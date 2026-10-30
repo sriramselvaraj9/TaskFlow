@@ -111,7 +111,8 @@ export const createColumnSchema = z.object({
     .string()
     .trim()
     .min(2, 'Column name must be at least 2 characters')
-    .max(30, 'Column name cannot exceed 30 characters'),
+    .max(30, 'Column name cannot exceed 30 characters')
+    .regex(/^[A-Za-z\s]+$/, 'Column name can only contain letters and spaces'),
   dotColor: z.string().optional(),
   accentColor: z.string().optional(),
 });

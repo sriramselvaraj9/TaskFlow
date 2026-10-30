@@ -8,7 +8,6 @@ from typing import Any, Dict, Optional, Tuple
 import uuid
 
 from redis.asyncio import Redis
-from redis.exceptions import RedisError
 
 from app.core.config import settings
 from app.core.exceptions import AuthenticationException

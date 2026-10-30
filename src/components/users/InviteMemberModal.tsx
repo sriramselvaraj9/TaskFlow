@@ -8,7 +8,6 @@ import {
   Mail,
   Send,
   ShieldCheck,
-  User as UserIcon,
 } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
