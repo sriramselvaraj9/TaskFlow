@@ -243,7 +243,7 @@ def test_endpoint_dependency_injection_override():
 def test_architectural_boundaries_no_daos_in_routers():
     """Inspects router modules to ensure zero DAO imports or direct database queries."""
     import inspect
-    from app.api.routers import (
+    from app.routers import (
         activities,
         auth,
         columns,
