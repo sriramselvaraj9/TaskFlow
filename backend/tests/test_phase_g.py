@@ -19,7 +19,7 @@ from httpx import ASGITransport, AsyncClient
 import pytest
 from starlette.middleware.cors import CORSMiddleware
 
-from app.api.router import api_router
+from app.routers import api_router
 from app.core.background_tasks import record_audit_telemetry, send_lightweight_notification
 from app.core.config import settings
 from app.core.exceptions import (
