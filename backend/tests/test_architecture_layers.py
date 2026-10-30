@@ -224,7 +224,7 @@ def test_endpoint_dependency_injection_override():
 
     try:
         with TestClient(app) as client:
-            resp = client.get("/api/dashboard/stats")
+            resp = client.get("/task_management/api/v1/dashboard/stats")
             assert resp.status_code == 200
             data = resp.json()
             assert data["totalTasks"] == 99

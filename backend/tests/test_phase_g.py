@@ -75,7 +75,7 @@ def phase_g_app():
         # Raises unexpected exception with internal database password in message
         raise RuntimeError("Database connection string postgresql://admin:SuperSecretPass123@db:5432 failed")
 
-    @test_app.put("/api/columns/reorder")
+    @test_app.put("/task_management/api/v1/columns/reorder")
     async def trigger_reorder_error():
         raise ValidationException("Invalid column sequence")
 
@@ -143,7 +143,7 @@ async def test_domain_exception_status_codes_and_payload_contracts(phase_g_app):
 async def test_reorder_column_error_contract_compatibility(phase_g_app):
     """Verify column reorder route returns {'error': ...} to maintain frontend hook compatibility."""
     async with AsyncClient(transport=ASGITransport(app=phase_g_app), base_url="http://test") as client:
-        res = await client.put("/api/columns/reorder")
+        res = await client.put("/task_management/api/v1/columns/reorder")
         assert res.status_code == 400
         data = res.json()
         assert "error" in data
@@ -270,7 +270,7 @@ async def test_cors_allowed_origin_and_preflight_headers():
     async with AsyncClient(transport=ASGITransport(app=main_app), base_url="http://test") as client:
         # Preflight OPTIONS request
         res_options = await client.options(
-            "/api/health",
+            "/task_management/api/v1/health",
             headers={
                 "Origin": "http://localhost:3000",
                 "Access-Control-Request-Method": "GET",
@@ -283,7 +283,7 @@ async def test_cors_allowed_origin_and_preflight_headers():
 
         # Standard GET with Origin
         res_get = await client.get(
-            "/api/health",
+            "/task_management/api/v1/health",
             headers={"Origin": "http://localhost:3000"},
         )
         assert res_get.headers.get("access-control-allow-origin") == "http://localhost:3000"
@@ -297,7 +297,7 @@ async def test_cors_disallows_unauthorized_origin():
     """Verify unauthorized external origin does not receive CORS approval."""
     async with AsyncClient(transport=ASGITransport(app=main_app), base_url="http://test") as client:
         res = await client.get(
-            "/api/health",
+            "/task_management/api/v1/health",
             headers={"Origin": "http://unauthorized-malicious-site.com"},
         )
         assert res.headers.get("access-control-allow-origin") is None
@@ -311,7 +311,7 @@ async def test_cors_disallows_unauthorized_origin():
 async def test_health_endpoint_probes_dependencies_without_exposing_secrets():
     """Verify /api/health probes dependencies, reports accurate status, and omits secrets."""
     async with AsyncClient(transport=ASGITransport(app=main_app), base_url="http://test") as client:
-        res = await client.get("/api/health")
+        res = await client.get("/task_management/api/v1/health")
         assert res.status_code == 200
         data = res.json()
 

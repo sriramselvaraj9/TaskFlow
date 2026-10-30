@@ -58,14 +58,14 @@ async def test_login_rate_limiting_http_429(async_client: AsyncClient, db_sessio
     # Attempt 5 incorrect logins (up to configured max attempts = 5)
     for _ in range(5):
         res = await async_client.post(
-            "/api/auth/login",
+            "/task_management/api/v1/auth/login",
             json={"email": user.email, "password": "WrongPasswordAttempt"},
         )
         assert res.status_code == 401
 
     # 6th attempt must be rejected with HTTP 429 Too Many Requests
     res_exceeded = await async_client.post(
-        "/api/auth/login",
+        "/task_management/api/v1/auth/login",
         json={"email": user.email, "password": "WrongPasswordAttempt"},
     )
     assert res_exceeded.status_code == 429
@@ -86,12 +86,12 @@ async def test_rate_limiting_avoids_email_enumeration(async_client: AsyncClient,
 
     # Failed login for existing email
     res_existing = await async_client.post(
-        "/api/auth/login",
+        "/task_management/api/v1/auth/login",
         json={"email": "existing@taskflow.dev", "password": "BadPassword"},
     )
     # Failed login for non-existent email
     res_non_existing = await async_client.post(
-        "/api/auth/login",
+        "/task_management/api/v1/auth/login",
         json={"email": "doesnotexist@taskflow.dev", "password": "BadPassword"},
     )
 

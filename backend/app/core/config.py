@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     PORT: int = 8000
     HOST: str = "0.0.0.0"
+    API_V1_STR: str = "/task_management/api/v1"
 
     # Frontend Canonical URL & CORS
     FRONTEND_URL: str = "http://localhost:3000"

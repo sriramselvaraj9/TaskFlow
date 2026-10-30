@@ -38,7 +38,7 @@ def test_password_backward_compatibility():
 async def test_public_registration_disabled(async_client: AsyncClient, db_session: AsyncSession):
     """Verify public registration endpoint is disabled to enforce strict invite-only provisioning."""
     res = await async_client.post(
-        "/api/auth/register",
+        "/task_management/api/v1/auth/register",
         json={
             "name": "Public Registrant",
             "email": "public@taskflow.dev",

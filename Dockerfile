@@ -27,7 +27,7 @@ ARG BACKEND_URL=http://backend:8000
 ENV BACKEND_URL=$BACKEND_URL
 
 # Build-time argument for browser-accessible API endpoint
-ARG NEXT_PUBLIC_API_URL=http://localhost:8000/api
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000/task_management/api/v1
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 RUN npm run build

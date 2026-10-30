@@ -39,7 +39,7 @@ async def test_refresh_token_issuance_and_storage(async_client: AsyncClient, db_
 
     # Login to receive access and refresh tokens
     login_res = await async_client.post(
-        "/api/auth/login",
+        "/task_management/api/v1/auth/login",
         json={"email": user.email, "password": "ValidPassword123!"},
     )
     assert login_res.status_code == 200
@@ -71,14 +71,14 @@ async def test_refresh_token_rotation_and_invalidation(async_client: AsyncClient
 
     # 1. Login to get initial refresh token
     login_res = await async_client.post(
-        "/api/auth/login",
+        "/task_management/api/v1/auth/login",
         json={"email": user.email, "password": "ValidPassword123!"},
     )
     token_v1 = login_res.json()["refreshToken"]
 
     # 2. Rotate token via /api/auth/refresh
     refresh_res = await async_client.post(
-        "/api/auth/refresh",
+        "/task_management/api/v1/auth/refresh",
         json={"refreshToken": token_v1},
     )
     assert refresh_res.status_code == 200
@@ -90,7 +90,7 @@ async def test_refresh_token_rotation_and_invalidation(async_client: AsyncClient
     assert access_v2 is not None
 
     # 3. New access token works
-    me_res = await async_client.get("/api/auth/me", headers={"Authorization": f"Bearer {access_v2}"})
+    me_res = await async_client.get("/task_management/api/v1/auth/me", headers={"Authorization": f"Bearer {access_v2}"})
     assert me_res.status_code == 200
     assert me_res.json()["id"] == user.id
 
@@ -109,14 +109,14 @@ async def test_refresh_token_reuse_detection(async_client: AsyncClient, db_sessi
 
     # 1. Login
     login_res = await async_client.post(
-        "/api/auth/login",
+        "/task_management/api/v1/auth/login",
         json={"email": user.email, "password": "ValidPassword123!"},
     )
     token_v1 = login_res.json()["refreshToken"]
 
     # 2. Legitimate rotation: v1 -> v2
     rot_res = await async_client.post(
-        "/api/auth/refresh",
+        "/task_management/api/v1/auth/refresh",
         json={"refreshToken": token_v1},
     )
     assert rot_res.status_code == 200
@@ -125,7 +125,7 @@ async def test_refresh_token_reuse_detection(async_client: AsyncClient, db_sessi
     # 3. Attacker replays stolen old token_v1:
     # Must detect REUSE, revoke entire session, and return 401
     replay_res = await async_client.post(
-        "/api/auth/refresh",
+        "/task_management/api/v1/auth/refresh",
         json={"refreshToken": token_v1},
     )
     assert replay_res.status_code == 401
@@ -133,7 +133,7 @@ async def test_refresh_token_reuse_detection(async_client: AsyncClient, db_sessi
 
     # 4. Legitimate token_v2 is now ALSO revoked due to session compromise!
     followup_res = await async_client.post(
-        "/api/auth/refresh",
+        "/task_management/api/v1/auth/refresh",
         json={"refreshToken": token_v2},
     )
     assert followup_res.status_code == 401
@@ -170,7 +170,7 @@ async def test_logout_and_session_revocation(async_client: AsyncClient, db_sessi
 
     # 1. Login
     login_res = await async_client.post(
-        "/api/auth/login",
+        "/task_management/api/v1/auth/login",
         json={"email": user.email, "password": "ValidPassword123!"},
     )
     refresh_tok = login_res.json()["refreshToken"]
@@ -178,7 +178,7 @@ async def test_logout_and_session_revocation(async_client: AsyncClient, db_sessi
 
     # 2. Logout
     logout_res = await async_client.post(
-        "/api/auth/logout",
+        "/task_management/api/v1/auth/logout",
         json={"refreshToken": refresh_tok},
         headers={"Authorization": f"Bearer {access_tok}"},
     )
@@ -187,7 +187,7 @@ async def test_logout_and_session_revocation(async_client: AsyncClient, db_sessi
 
     # 3. Attempting to refresh with revoked token returns 401
     ref_res = await async_client.post(
-        "/api/auth/refresh",
+        "/task_management/api/v1/auth/refresh",
         json={"refreshToken": refresh_tok},
     )
     assert ref_res.status_code == 401

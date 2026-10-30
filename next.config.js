@@ -9,23 +9,28 @@ const nextConfig = {
       process.env.NEXT_PUBLIC_API_URL;
 
     if (rawBackendUrl) {
-      const cleanUrl = rawBackendUrl.trim().replace(/\/+$/, '').replace(/\/api$/, '');
+      const cleanUrl = rawBackendUrl
+        .trim()
+        .replace(/\/+$/, '')
+        .replace(/\/task_management\/api\/v1$/, '')
+        .replace(/\/api$/, '');
       return {
         // Use fallback so Next.js pages/api handlers (e.g. users/[id], auth, etc.)
         // always take precedence and handle session cookies properly.
         fallback: [
-          { source: '/api/tasks/:path*', destination: `${cleanUrl}/api/tasks/:path*` },
-          { source: '/api/tasks', destination: `${cleanUrl}/api/tasks` },
-          { source: '/api/projects/:path*', destination: `${cleanUrl}/api/projects/:path*` },
-          { source: '/api/projects', destination: `${cleanUrl}/api/projects` },
-          { source: '/api/columns/:path*', destination: `${cleanUrl}/api/columns/:path*` },
-          { source: '/api/columns', destination: `${cleanUrl}/api/columns` },
-          { source: '/api/dashboard/:path*', destination: `${cleanUrl}/api/dashboard/:path*` },
-          { source: '/api/activities/:path*', destination: `${cleanUrl}/api/activities/:path*` },
-          { source: '/api/activities', destination: `${cleanUrl}/api/activities` },
-          { source: '/api/users/:path*', destination: `${cleanUrl}/api/users/:path*` },
-          { source: '/api/users', destination: `${cleanUrl}/api/users` },
-          { source: '/api/health', destination: `${cleanUrl}/api/health` },
+          { source: '/task_management/api/v1/:path*', destination: `${cleanUrl}/task_management/api/v1/:path*` },
+          { source: '/api/tasks/:path*', destination: `${cleanUrl}/task_management/api/v1/tasks/:path*` },
+          { source: '/api/tasks', destination: `${cleanUrl}/task_management/api/v1/tasks` },
+          { source: '/api/projects/:path*', destination: `${cleanUrl}/task_management/api/v1/projects/:path*` },
+          { source: '/api/projects', destination: `${cleanUrl}/task_management/api/v1/projects` },
+          { source: '/api/columns/:path*', destination: `${cleanUrl}/task_management/api/v1/columns/:path*` },
+          { source: '/api/columns', destination: `${cleanUrl}/task_management/api/v1/columns` },
+          { source: '/api/dashboard/:path*', destination: `${cleanUrl}/task_management/api/v1/dashboard/:path*` },
+          { source: '/api/activities/:path*', destination: `${cleanUrl}/task_management/api/v1/activities/:path*` },
+          { source: '/api/activities', destination: `${cleanUrl}/task_management/api/v1/activities` },
+          { source: '/api/users/:path*', destination: `${cleanUrl}/task_management/api/v1/users/:path*` },
+          { source: '/api/users', destination: `${cleanUrl}/task_management/api/v1/users` },
+          { source: '/api/health', destination: `${cleanUrl}/task_management/api/v1/health` },
         ],
       };
     }

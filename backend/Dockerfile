@@ -62,7 +62,7 @@ EXPOSE 8000
 
 # Container health check querying application health endpoint
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=5 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/task_management/api/v1/health')" || exit 1
 
 # Run migrations, seed idempotent baseline data, and start FastAPI via uvicorn ASGI server
 CMD ["sh", "-c", "alembic upgrade head && python -m app.seed.seed_data && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

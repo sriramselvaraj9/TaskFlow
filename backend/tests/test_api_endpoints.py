@@ -32,7 +32,7 @@ MEMBER_HEADERS = {
 @pytest.mark.asyncio
 async def test_health_endpoint(async_client: AsyncClient):
     """Verify GET /api/health returns operational telemetry."""
-    res = await async_client.get("/api/health")
+    res = await async_client.get("/task_management/api/v1/health")
     assert res.status_code == 200
     data = res.json()
     assert data["appName"] == "TaskFlow"
@@ -44,7 +44,7 @@ async def test_health_endpoint(async_client: AsyncClient):
 async def test_columns_endpoints(async_client: AsyncClient, db_session: AsyncSession):
     """Verify columns endpoints: unauthorized, creation, reordering, and deletion."""
     # 1. Unauthorized request
-    res_unauth = await async_client.get("/api/columns")
+    res_unauth = await async_client.get("/task_management/api/v1/columns")
     assert res_unauth.status_code == 401
     assert "Unauthorized" in res_unauth.json()["message"]
 
@@ -56,7 +56,7 @@ async def test_columns_endpoints(async_client: AsyncClient, db_session: AsyncSes
 
     # 2. Member cannot create column (403)
     res_forbidden = await async_client.post(
-        "/api/columns",
+        "/task_management/api/v1/columns",
         json={"title": "Custom Dev"},
         headers=MEMBER_HEADERS,
     )
@@ -64,7 +64,7 @@ async def test_columns_endpoints(async_client: AsyncClient, db_session: AsyncSes
 
     # 3. Admin creates column (201)
     res_created = await async_client.post(
-        "/api/columns",
+        "/task_management/api/v1/columns",
         json={"title": "Custom Dev"},
         headers=ADMIN_HEADERS,
     )
@@ -74,13 +74,13 @@ async def test_columns_endpoints(async_client: AsyncClient, db_session: AsyncSes
     assert data["order"] == 2
 
     # 4. List columns (200)
-    res_list = await async_client.get("/api/columns", headers=MEMBER_HEADERS)
+    res_list = await async_client.get("/task_management/api/v1/columns", headers=MEMBER_HEADERS)
     assert res_list.status_code == 200
     assert len(res_list.json()) == 3
 
     # 5. Reorder columns (200)
     res_reorder = await async_client.post(
-        "/api/columns/reorder",
+        "/task_management/api/v1/columns/reorder",
         json={"columnIds": ["CUSTOM_DEV", "TODO", "DONE"]},
         headers=ADMIN_HEADERS,
     )
@@ -89,7 +89,7 @@ async def test_columns_endpoints(async_client: AsyncClient, db_session: AsyncSes
 
     # 6. Reorder invalid payload returns { "error": ... } shape
     res_bad_reorder = await async_client.post(
-        "/api/columns/reorder",
+        "/task_management/api/v1/columns/reorder",
         json={"columnIds": ["NON_EXISTENT"]},
         headers=ADMIN_HEADERS,
     )
@@ -97,7 +97,7 @@ async def test_columns_endpoints(async_client: AsyncClient, db_session: AsyncSes
     assert "error" in res_bad_reorder.json()
 
     # 7. Delete custom column (200)
-    res_del = await async_client.delete("/api/columns/CUSTOM_DEV", headers=ADMIN_HEADERS)
+    res_del = await async_client.delete("/task_management/api/v1/columns/CUSTOM_DEV", headers=ADMIN_HEADERS)
     assert res_del.status_code == 200
     assert res_del.json()["message"] == "Column deleted successfully"
 
@@ -111,7 +111,7 @@ async def test_projects_crud_endpoints(async_client: AsyncClient, db_session: As
 
     # 1. Create project
     res_create = await async_client.post(
-        "/api/projects",
+        "/task_management/api/v1/projects",
         json={
             "name": "Backend Refactor",
             "key": "BCK",
@@ -124,13 +124,13 @@ async def test_projects_crud_endpoints(async_client: AsyncClient, db_session: As
     assert res_create.json()["key"] == "BCK"
 
     # 2. Get project by ID
-    res_get = await async_client.get(f"/api/projects/{proj_id}", headers=MEMBER_HEADERS)
+    res_get = await async_client.get(f"/task_management/api/v1/projects/{proj_id}", headers=MEMBER_HEADERS)
     assert res_get.status_code == 200
     assert res_get.json()["name"] == "Backend Refactor"
 
     # 3. Update project
     res_put = await async_client.put(
-        f"/api/projects/{proj_id}",
+        f"/task_management/api/v1/projects/{proj_id}",
         json={"description": "Updated project description"},
         headers=ADMIN_HEADERS,
     )
@@ -138,7 +138,7 @@ async def test_projects_crud_endpoints(async_client: AsyncClient, db_session: As
     assert res_put.json()["description"] == "Updated project description"
 
     # 4. Delete project
-    res_del = await async_client.delete(f"/api/projects/{proj_id}", headers=ADMIN_HEADERS)
+    res_del = await async_client.delete(f"/task_management/api/v1/projects/{proj_id}", headers=ADMIN_HEADERS)
     assert res_del.status_code == 200
     assert res_del.json()["message"] == "Project deleted successfully"
 
@@ -170,7 +170,7 @@ async def test_tasks_endpoints_and_dashboard(async_client: AsyncClient, db_sessi
 
     # 1. Create Task
     res_task = await async_client.post(
-        "/api/tasks",
+        "/task_management/api/v1/tasks",
         json={
             "title": "Build Dashboard",
             "description": "KPI Aggregation",
@@ -186,7 +186,7 @@ async def test_tasks_endpoints_and_dashboard(async_client: AsyncClient, db_sessi
 
     # 2. Query tasks with filtering
     res_filter = await async_client.get(
-        f"/api/tasks?projectId={proj.id}&status=TODO&priority=HIGH",
+        f"/task_management/api/v1/tasks?projectId={proj.id}&status=TODO&priority=HIGH",
         headers=ADMIN_HEADERS,
     )
     assert res_filter.status_code == 200
@@ -194,7 +194,7 @@ async def test_tasks_endpoints_and_dashboard(async_client: AsyncClient, db_sessi
 
     # 3. Illegal state update: TODO -> DONE returns 400
     res_illegal = await async_client.put(
-        f"/api/tasks/{task_id}",
+        f"/task_management/api/v1/tasks/{task_id}",
         json={"status": "DONE"},
         headers=ADMIN_HEADERS,
     )
@@ -203,7 +203,7 @@ async def test_tasks_endpoints_and_dashboard(async_client: AsyncClient, db_sessi
 
     # 4. Legal transition: TODO -> IN_PROGRESS
     res_legal = await async_client.put(
-        f"/api/tasks/{task_id}",
+        f"/task_management/api/v1/tasks/{task_id}",
         json={"status": "IN_PROGRESS"},
         headers=ADMIN_HEADERS,
     )
@@ -212,7 +212,7 @@ async def test_tasks_endpoints_and_dashboard(async_client: AsyncClient, db_sessi
 
     # 5. Dashboard stats endpoint
     res_stats = await async_client.get(
-        f"/api/dashboard/stats?projectId={proj.id}",
+        f"/task_management/api/v1/dashboard/stats?projectId={proj.id}",
         headers=ADMIN_HEADERS,
     )
     assert res_stats.status_code == 200
@@ -230,7 +230,7 @@ async def test_users_endpoints(async_client: AsyncClient, db_session: AsyncSessi
 
     # Provision user
     res_prov = await async_client.post(
-        "/api/users/create",
+        "/task_management/api/v1/users/create",
         json={
             "name": "Sarah Connor",
             "email": "sarah@cyberdyne.com",
@@ -245,12 +245,12 @@ async def test_users_endpoints(async_client: AsyncClient, db_session: AsyncSessi
     user_id = prov_data["user"]["id"]
 
     # List users
-    res_list = await async_client.get("/api/users", headers=ADMIN_HEADERS)
+    res_list = await async_client.get("/task_management/api/v1/users", headers=ADMIN_HEADERS)
     assert res_list.status_code == 200
     assert len(res_list.json()) == 2
 
     # Delete user
-    res_del = await async_client.delete(f"/api/users/{user_id}", headers=ADMIN_HEADERS)
+    res_del = await async_client.delete(f"/task_management/api/v1/users/{user_id}", headers=ADMIN_HEADERS)
     assert res_del.status_code == 200
     assert res_del.json()["message"] == "Team member deleted successfully"
 
@@ -258,7 +258,7 @@ async def test_users_endpoints(async_client: AsyncClient, db_session: AsyncSessi
 @pytest.mark.asyncio
 async def test_activities_endpoint(async_client: AsyncClient, db_session: AsyncSession):
     """Verify GET /api/activities returns logged activities."""
-    res = await async_client.get("/api/activities?limit=5", headers=ADMIN_HEADERS)
+    res = await async_client.get("/task_management/api/v1/activities?limit=5", headers=ADMIN_HEADERS)
     assert res.status_code == 200
     assert isinstance(res.json(), list)
 
@@ -267,22 +267,22 @@ async def test_activities_endpoint(async_client: AsyncClient, db_session: AsyncS
 async def test_missing_resources_return_404(async_client: AsyncClient, db_session: AsyncSession):
     """Verify that non-existent entities return structured 404 responses."""
     # 1. Project 404
-    p_res = await async_client.get("/api/projects/unknown_prj", headers=ADMIN_HEADERS)
+    p_res = await async_client.get("/task_management/api/v1/projects/unknown_prj", headers=ADMIN_HEADERS)
     assert p_res.status_code == 404
     assert "not found" in p_res.json()["message"].lower()
 
     # 2. Task 404
-    t_res = await async_client.get("/api/tasks/unknown_tsk", headers=ADMIN_HEADERS)
+    t_res = await async_client.get("/task_management/api/v1/tasks/unknown_tsk", headers=ADMIN_HEADERS)
     assert t_res.status_code == 404
     assert "not found" in t_res.json()["message"].lower()
 
     # 3. User 404
-    u_res = await async_client.get("/api/users/unknown_usr", headers=ADMIN_HEADERS)
+    u_res = await async_client.get("/task_management/api/v1/users/unknown_usr", headers=ADMIN_HEADERS)
     assert u_res.status_code == 404
     assert "not found" in u_res.json()["message"].lower()
 
     # 4. Column 404
-    c_res = await async_client.delete("/api/columns/UNKNOWN_COL", headers=ADMIN_HEADERS)
+    c_res = await async_client.delete("/task_management/api/v1/columns/UNKNOWN_COL", headers=ADMIN_HEADERS)
     assert c_res.status_code == 404
     assert "not found" in c_res.json()["message"].lower()
 

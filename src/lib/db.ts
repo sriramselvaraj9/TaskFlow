@@ -28,13 +28,19 @@ const JWT_SECRET =
   process.env.NEXTAUTH_SECRET ||
   'taskflow-super-secure-production-secret-key-32chars';
 
+const API_PREFIX = '/task_management/api/v1';
+
 function getBackendBaseUrl(): string {
   const rawUrl =
     process.env.BACKEND_URL ||
     process.env.NEXT_PUBLIC_BACKEND_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
     'http://127.0.0.1:8000';
-  return rawUrl.trim().replace(/\/+$/, '').replace(/\/api$/, '');
+  return rawUrl
+    .trim()
+    .replace(/\/+$/, '')
+    .replace(/\/task_management\/api\/v1$/, '')
+    .replace(/\/api$/, '');
 }
 
 function isTokenExpired(token?: string): boolean {
@@ -125,7 +131,7 @@ function buildHeaders(
 
 export async function getColumns(user?: User): Promise<BoardColumn[]> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/columns`, {
+  const res = await fetch(`${backend}${API_PREFIX}/columns`, {
     headers: buildHeaders(user),
   });
   if (!res.ok) {
@@ -140,7 +146,7 @@ export async function createColumn(
   user: User
 ): Promise<BoardColumn> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/columns`, {
+  const res = await fetch(`${backend}${API_PREFIX}/columns`, {
     method: 'POST',
     headers: buildHeaders(user),
     body: JSON.stringify(data),
@@ -157,7 +163,7 @@ export async function reorderColumns(
   user: User
 ): Promise<BoardColumn[]> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/columns/reorder`, {
+  const res = await fetch(`${backend}${API_PREFIX}/columns/reorder`, {
     method: 'POST',
     headers: buildHeaders(user),
     body: JSON.stringify({ columnIds }),
@@ -174,7 +180,7 @@ export async function deleteColumn(
   user: User
 ): Promise<{ success: boolean; movedTasksCount: number; deletedColumn: BoardColumn }> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/columns/${id}`, {
+  const res = await fetch(`${backend}${API_PREFIX}/columns/${id}`, {
     method: 'DELETE',
     headers: buildHeaders(user),
   });
@@ -237,7 +243,7 @@ export async function getProjects(
 ): Promise<Project[]> {
   const backend = getBackendBaseUrl();
   const authUser = user || (userId ? { id: userId, role: userRole as UserRole } : undefined);
-  const res = await fetch(`${backend}/api/projects`, {
+  const res = await fetch(`${backend}${API_PREFIX}/projects`, {
     headers: buildHeaders(authUser),
   });
   if (!res.ok) {
@@ -252,7 +258,7 @@ export async function getProjectById(
   user?: User
 ): Promise<Project | undefined> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/projects/${id}`, {
+  const res = await fetch(`${backend}${API_PREFIX}/projects/${id}`, {
     headers: buildHeaders(user),
   });
   if (res.status === 404) return undefined;
@@ -268,7 +274,7 @@ export async function createProject(
   creator: User
 ): Promise<Project> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/projects`, {
+  const res = await fetch(`${backend}${API_PREFIX}/projects`, {
     method: 'POST',
     headers: buildHeaders(creator),
     body: JSON.stringify(data),
@@ -286,7 +292,7 @@ export async function updateProject(
   user: User
 ): Promise<Project> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/projects/${id}`, {
+  const res = await fetch(`${backend}${API_PREFIX}/projects/${id}`, {
     method: 'PUT',
     headers: buildHeaders(user),
     body: JSON.stringify(data),
@@ -300,7 +306,7 @@ export async function updateProject(
 
 export async function deleteProject(id: string, user: User): Promise<boolean> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/projects/${id}`, {
+  const res = await fetch(`${backend}${API_PREFIX}/projects/${id}`, {
     method: 'DELETE',
     headers: buildHeaders(user),
   });
@@ -341,7 +347,7 @@ export async function getTasks(
   if (filters?.assigneeId && filters.assigneeId !== 'ALL') query.set('assigneeId', filters.assigneeId);
   if (filters?.search) query.set('search', filters.search);
 
-  const res = await fetch(`${backend}/api/tasks?${query.toString()}`, {
+  const res = await fetch(`${backend}${API_PREFIX}/tasks?${query.toString()}`, {
     headers: buildHeaders(user),
   });
   if (!res.ok) {
@@ -353,7 +359,7 @@ export async function getTasks(
 
 export async function getTaskById(id: string, user?: User): Promise<Task | undefined> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/tasks/${id}`, {
+  const res = await fetch(`${backend}${API_PREFIX}/tasks/${id}`, {
     headers: buildHeaders(user),
   });
   if (res.status === 404) return undefined;
@@ -379,7 +385,7 @@ export async function createTask(
   creator: User
 ): Promise<Task> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/tasks`, {
+  const res = await fetch(`${backend}${API_PREFIX}/tasks`, {
     method: 'POST',
     headers: buildHeaders(creator),
     body: JSON.stringify(data),
@@ -402,7 +408,7 @@ export async function updateTask(
   user: User
 ): Promise<Task> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/tasks/${id}`, {
+  const res = await fetch(`${backend}${API_PREFIX}/tasks/${id}`, {
     method: 'PUT',
     headers: buildHeaders(user),
     body: JSON.stringify(data),
@@ -416,7 +422,7 @@ export async function updateTask(
 
 export async function deleteTask(id: string, user: User): Promise<boolean> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/tasks/${id}`, {
+  const res = await fetch(`${backend}${API_PREFIX}/tasks/${id}`, {
     method: 'DELETE',
     headers: buildHeaders(user),
   });
@@ -449,7 +455,7 @@ export async function getDashboardStats(
   if (projectId && projectId !== 'ALL') query.set('projectId', projectId);
 
   const authUser = user || (userId ? { id: userId } : undefined);
-  const res = await fetch(`${backend}/api/dashboard/stats?${query.toString()}`, {
+  const res = await fetch(`${backend}${API_PREFIX}/dashboard/stats?${query.toString()}`, {
     headers: buildHeaders(authUser),
   });
   if (!res.ok) {
@@ -461,7 +467,7 @@ export async function getDashboardStats(
 
 export async function getActivities(limit = 20, user?: User): Promise<ActivityLog[]> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/activities?limit=${limit}`, {
+  const res = await fetch(`${backend}${API_PREFIX}/activities?limit=${limit}`, {
     headers: buildHeaders(user),
   });
   if (!res.ok) {
@@ -502,7 +508,7 @@ export const activityService = {
 
 export async function getUsers(user?: User): Promise<User[]> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/users`, {
+  const res = await fetch(`${backend}${API_PREFIX}/users`, {
     headers: buildHeaders(user),
   });
   if (!res.ok) {
@@ -514,7 +520,7 @@ export async function getUsers(user?: User): Promise<User[]> {
 
 export async function getUserById(id: string, user?: User): Promise<User | undefined> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/users/${id}`, {
+  const res = await fetch(`${backend}${API_PREFIX}/users/${id}`, {
     headers: buildHeaders(user),
   });
   if (res.status === 404) return undefined;
@@ -533,7 +539,7 @@ export async function getUserByEmail(email: string, user?: User): Promise<User |
 export async function verifyPassword(email: string, passwordAttempt: string): Promise<boolean> {
   const backend = getBackendBaseUrl();
   try {
-    const res = await fetch(`${backend}/api/auth/login`, {
+    const res = await fetch(`${backend}${API_PREFIX}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.trim().toLowerCase(), password: passwordAttempt }),
@@ -562,7 +568,7 @@ export async function provisionUser(
   emailError?: string;
 }> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/users/create`, {
+  const res = await fetch(`${backend}${API_PREFIX}/users/create`, {
     method: 'POST',
     headers: buildHeaders(adminUser),
     body: JSON.stringify({
@@ -591,7 +597,7 @@ export async function requestForgotPassword(
   emailSent: boolean;
 }> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/auth/forgot-password`, {
+  const res = await fetch(`${backend}${API_PREFIX}/auth/forgot-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -609,7 +615,7 @@ export async function requestForgotPassword(
 
 export async function deleteUser(id: string, adminUser: User): Promise<boolean> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/users/${id}`, {
+  const res = await fetch(`${backend}${API_PREFIX}/users/${id}`, {
     method: 'DELETE',
     headers: buildHeaders(adminUser),
   });
@@ -627,7 +633,7 @@ export async function setPasswordWithInviteToken(
   name?: string
 ): Promise<User> {
   const backend = getBackendBaseUrl();
-  const res = await fetch(`${backend}/api/auth/set-password`, {
+  const res = await fetch(`${backend}${API_PREFIX}/auth/set-password`, {
     method: 'POST',
     headers: buildHeaders(),
     body: JSON.stringify({ email, token, password, name }),

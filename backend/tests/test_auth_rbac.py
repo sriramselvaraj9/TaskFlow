@@ -45,7 +45,7 @@ async def test_rbac_admin_vs_member_project_actions(async_client: AsyncClient, d
 
     # 1. Member CANNOT create project (403 Forbidden)
     res_mem_create = await async_client.post(
-        "/api/projects",
+        "/task_management/api/v1/projects",
         json={"name": "Member Project", "key": "MEM", "description": "Forbidden"},
         headers=member_headers,
     )
@@ -54,7 +54,7 @@ async def test_rbac_admin_vs_member_project_actions(async_client: AsyncClient, d
 
     # 2. Admin CAN create project (201 Created)
     res_adm_create = await async_client.post(
-        "/api/projects",
+        "/task_management/api/v1/projects",
         json={"name": "Admin Project", "key": "ADM", "description": "Allowed"},
         headers=admin_headers,
     )
@@ -62,11 +62,11 @@ async def test_rbac_admin_vs_member_project_actions(async_client: AsyncClient, d
     proj_id = res_adm_create.json()["id"]
 
     # 3. Member CANNOT delete project (403 Forbidden)
-    res_mem_del = await async_client.delete(f"/api/projects/{proj_id}", headers=member_headers)
+    res_mem_del = await async_client.delete(f"/task_management/api/v1/projects/{proj_id}", headers=member_headers)
     assert res_mem_del.status_code == 403
 
     # 4. Admin CAN delete project (200 OK)
-    res_adm_del = await async_client.delete(f"/api/projects/{proj_id}", headers=admin_headers)
+    res_adm_del = await async_client.delete(f"/task_management/api/v1/projects/{proj_id}", headers=admin_headers)
     assert res_adm_del.status_code == 200
 
 
@@ -86,7 +86,7 @@ async def test_rbac_admin_vs_member_column_actions(async_client: AsyncClient, db
 
     # 1. Member cannot create column (403)
     res_create = await async_client.post(
-        "/api/columns",
+        "/task_management/api/v1/columns",
         json={"title": "QA Column"},
         headers=member_headers,
     )
@@ -94,19 +94,19 @@ async def test_rbac_admin_vs_member_column_actions(async_client: AsyncClient, db
 
     # 2. Member cannot reorder columns (403)
     res_reorder = await async_client.post(
-        "/api/columns/reorder",
+        "/task_management/api/v1/columns/reorder",
         json={"columnIds": ["TODO", "DONE"]},
         headers=member_headers,
     )
     assert res_reorder.status_code == 403
 
     # 3. Member cannot delete columns (403)
-    res_del = await async_client.delete("/api/columns/TODO", headers=member_headers)
+    res_del = await async_client.delete("/task_management/api/v1/columns/TODO", headers=member_headers)
     assert res_del.status_code == 403
 
     # 4. Admin CAN create column (201 Created)
     res_adm_create = await async_client.post(
-        "/api/columns",
+        "/task_management/api/v1/columns",
         json={"title": "QA Column"},
         headers=admin_headers,
     )
@@ -163,7 +163,7 @@ async def test_object_level_task_permissions(async_client: AsyncClient, db_sessi
 
     # 1. Member 2 tries to edit task assigned to Member 1 -> 403 Forbidden
     res_m2_edit = await async_client.put(
-        f"/api/tasks/{task1.id}",
+        f"/task_management/api/v1/tasks/{task1.id}",
         json={"title": "Unauthorized Modification"},
         headers=m2_headers,
     )
@@ -172,7 +172,7 @@ async def test_object_level_task_permissions(async_client: AsyncClient, db_sessi
 
     # 2. Member 1 (the assignee) CAN edit the task -> 200 OK
     res_m1_edit = await async_client.put(
-        f"/api/tasks/{task1.id}",
+        f"/task_management/api/v1/tasks/{task1.id}",
         json={"status": "IN_PROGRESS"},
         headers=m1_headers,
     )
@@ -180,9 +180,9 @@ async def test_object_level_task_permissions(async_client: AsyncClient, db_sessi
     assert res_m1_edit.json()["status"] == "IN_PROGRESS"
 
     # 3. Member cannot delete task -> 403 Forbidden
-    res_m1_del = await async_client.delete(f"/api/tasks/{task1.id}", headers=m1_headers)
+    res_m1_del = await async_client.delete(f"/task_management/api/v1/tasks/{task1.id}", headers=m1_headers)
     assert res_m1_del.status_code == 403
 
     # 4. Admin CAN delete task -> 200 OK
-    res_adm_del = await async_client.delete(f"/api/tasks/{task1.id}", headers=admin_headers)
+    res_adm_del = await async_client.delete(f"/task_management/api/v1/tasks/{task1.id}", headers=admin_headers)
     assert res_adm_del.status_code == 200

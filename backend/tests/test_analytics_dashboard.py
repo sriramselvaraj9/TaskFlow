@@ -240,7 +240,7 @@ async def test_dashboard_api_http_endpoint_integration(async_client: AsyncClient
     }
 
     # 1. Global dashboard
-    res = await async_client.get("/api/dashboard/stats", headers=headers_admin)
+    res = await async_client.get("/task_management/api/v1/dashboard/stats", headers=headers_admin)
     assert res.status_code == 200
     data = res.json()
     assert data["totalTasks"] == 10
@@ -251,7 +251,7 @@ async def test_dashboard_api_http_endpoint_integration(async_client: AsyncClient
 
     # 2. Project scoped
     p1_id = seeded_dashboard_data["p1"].id
-    res_p1 = await async_client.get(f"/api/dashboard/stats?projectId={p1_id}", headers=headers_admin)
+    res_p1 = await async_client.get(f"/task_management/api/v1/dashboard/stats?projectId={p1_id}", headers=headers_admin)
     assert res_p1.status_code == 200
     data_p1 = res_p1.json()
     assert data_p1["totalTasks"] == 5
@@ -266,7 +266,7 @@ async def test_dashboard_api_http_endpoint_integration(async_client: AsyncClient
         "x-user-email": "mem1.dash@t.dev",
     }
     p2_id = seeded_dashboard_data["p2"].id
-    res_forbidden = await async_client.get(f"/api/dashboard/stats?projectId={p2_id}", headers=headers_mem1)
+    res_forbidden = await async_client.get(f"/task_management/api/v1/dashboard/stats?projectId={p2_id}", headers=headers_mem1)
     assert res_forbidden.status_code == 403
     assert "Forbidden" in res_forbidden.json()["message"]
 

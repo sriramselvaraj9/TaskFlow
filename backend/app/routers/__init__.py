@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter
 
+from app.core.config import settings
 from app.routers import (
     activities,
     auth,
@@ -24,16 +25,13 @@ core_router.include_router(dashboard.router)
 core_router.include_router(activities.router)
 core_router.include_router(users.router)
 
-# 1. Primary Router mounted under /api
-api_router = APIRouter(prefix="/api")
+# Centralized API Router mounted strictly under settings.API_V1_STR (/task_management/api/v1)
+api_router = APIRouter(prefix=settings.API_V1_STR)
 api_router.include_router(core_router)
 
-# 2. Compatibility Router mounted under /task_management/api/v1
-task_management_router = APIRouter(prefix="/task_management/api/v1")
-task_management_router.include_router(core_router)
-
-# Backward-compatible alias
-v1_router = core_router
+# Backward-compatible aliases pointing to the canonical api_router
+task_management_router = api_router
+v1_router = api_router
 
 __all__ = [
     "activities",

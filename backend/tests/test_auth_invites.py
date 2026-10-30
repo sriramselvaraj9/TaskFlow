@@ -25,7 +25,7 @@ async def test_invite_lifecycle_verify_and_set_password(async_client: AsyncClien
 
     # 1. Admin provisions new member
     res_prov = await async_client.post(
-        "/api/users/create",
+        "/task_management/api/v1/users/create",
         json={
             "name": "Invited Developer",
             "email": "dev.invited@taskflow.dev",
@@ -44,7 +44,7 @@ async def test_invite_lifecycle_verify_and_set_password(async_client: AsyncClien
 
     # 2. Invalid token in set-password fails
     res_bad_set = await async_client.post(
-        "/api/auth/set-password",
+        "/task_management/api/v1/auth/set-password",
         json={
             "email": "dev.invited@taskflow.dev",
             "token": "invalid_token_123",
@@ -55,7 +55,7 @@ async def test_invite_lifecycle_verify_and_set_password(async_client: AsyncClien
 
     # 3. User sets account password directly via POST /api/auth/set-password with valid token
     res_set = await async_client.post(
-        "/api/auth/set-password",
+        "/task_management/api/v1/auth/set-password",
         json={
             "email": "dev.invited@taskflow.dev",
             "token": token,
@@ -67,7 +67,7 @@ async def test_invite_lifecycle_verify_and_set_password(async_client: AsyncClien
 
     # 4. Token is now consumed; reusing it fails
     res_reuse = await async_client.post(
-        "/api/auth/set-password",
+        "/task_management/api/v1/auth/set-password",
         json={
             "email": "dev.invited@taskflow.dev",
             "token": token,
@@ -78,7 +78,7 @@ async def test_invite_lifecycle_verify_and_set_password(async_client: AsyncClien
 
     # 5. User can now sign in with the new password
     res_login = await async_client.post(
-        "/api/auth/login",
+        "/task_management/api/v1/auth/login",
         json={"email": "dev.invited@taskflow.dev", "password": "ActivatedPass2026!"},
     )
     assert res_login.status_code == 200
@@ -98,7 +98,7 @@ async def test_current_user_profile_endpoint(async_client: AsyncClient, db_sessi
     await user_dao.create(db_session, user)
 
     token = create_access_token({"sub": user.id, "role": user.role.value})
-    res = await async_client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    res = await async_client.get("/task_management/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
     assert res.status_code == 200
     data = res.json()
     assert data["id"] == user.id

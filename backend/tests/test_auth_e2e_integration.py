@@ -283,7 +283,7 @@ async def test_rbac_admin_vs_member_project_mutations(async_client: AsyncClient,
 
     # Member attempt: 403 Forbidden
     res_mem = await async_client.post(
-        "/api/projects",
+        "/task_management/api/v1/projects",
         json={"name": "Member Project", "key": "MEM", "description": "Forbidden Attempt Description"},
         headers=headers_member,
     )
@@ -299,7 +299,7 @@ async def test_rbac_admin_vs_member_project_mutations(async_client: AsyncClient,
         "x-user-email": auth_test_env["admin"].email,
     }
     res_adm = await async_client.post(
-        "/api/projects",
+        "/task_management/api/v1/projects",
         json={"name": "Admin Project", "key": "ADM", "description": "Allowed Admin Project"},
         headers=headers_admin,
     )
