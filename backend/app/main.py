@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.api.router import api_router
+from app.api.router import api_router, task_management_router
 from app.core.config import settings
 from app.core.database import engine
 from app.core.exceptions import register_exception_handlers
@@ -76,8 +76,9 @@ def create_app() -> FastAPI:
     # 3. Centralized exception handlers for uniform JSON error responses
     register_exception_handlers(app)
 
-    # 4. Register central API router (/api)
+    # 4. Register central API routers (/api and /task_management/api/v1)
     app.include_router(api_router)
+    app.include_router(task_management_router)
 
     return app
 

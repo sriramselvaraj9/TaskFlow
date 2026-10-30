@@ -1,8 +1,8 @@
-"""Central API routing configuration mounted under /api."""
+"""Central API routing configuration mounted under /api and /task_management/api/v1."""
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import (
+from app.api.routers import (
     activities,
     auth,
     columns,
@@ -13,20 +13,24 @@ from app.api.v1.endpoints import (
     users,
 )
 
-# 1. Core v1 Sub-Router (Routes inside Routes)
-v1_router = APIRouter()
-v1_router.include_router(health.router)
-v1_router.include_router(auth.router)
-v1_router.include_router(columns.router)
-v1_router.include_router(projects.router)
-v1_router.include_router(tasks.router)
-v1_router.include_router(dashboard.router)
-v1_router.include_router(activities.router)
-v1_router.include_router(users.router)
+# 1. Core Router aggregating all domain-specific routers
+core_router = APIRouter()
+core_router.include_router(health.router)
+core_router.include_router(auth.router)
+core_router.include_router(columns.router)
+core_router.include_router(projects.router)
+core_router.include_router(tasks.router)
+core_router.include_router(dashboard.router)
+core_router.include_router(activities.router)
+core_router.include_router(users.router)
 
 # 2. Primary Router mounted under /api
 api_router = APIRouter(prefix="/api")
-api_router.include_router(v1_router)
+api_router.include_router(core_router)
 
+# 3. Transparent compatibility router mounted under /task_management/api/v1
+task_management_router = APIRouter(prefix="/task_management/api/v1")
+task_management_router.include_router(core_router)
 
-
+# 4. Backward-compatible alias
+v1_router = core_router

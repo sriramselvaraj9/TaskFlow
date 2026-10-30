@@ -240,10 +240,10 @@ def test_endpoint_dependency_injection_override():
 
 
 
-def test_architectural_boundaries_no_daos_in_endpoints():
-    """Inspects endpoint modules to ensure zero DAO imports or direct database queries."""
+def test_architectural_boundaries_no_daos_in_routers():
+    """Inspects router modules to ensure zero DAO imports or direct database queries."""
     import inspect
-    from app.api.v1.endpoints import (
+    from app.api.routers import (
         activities,
         auth,
         columns,
@@ -254,8 +254,8 @@ def test_architectural_boundaries_no_daos_in_endpoints():
         users,
     )
 
-    endpoint_modules = [activities, auth, columns, dashboard, health, projects, tasks, users]
-    for mod in endpoint_modules:
+    router_modules = [activities, auth, columns, dashboard, health, projects, tasks, users]
+    for mod in router_modules:
         source = inspect.getsource(mod)
         assert "from app.daos" not in source, f"Violation: {mod.__name__} imports from app.daos directly"
         assert "select(" not in source, f"Violation: {mod.__name__} contains SQLAlchemy select query"
