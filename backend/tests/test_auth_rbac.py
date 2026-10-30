@@ -37,7 +37,10 @@ async def test_rbac_admin_vs_member_project_actions(async_client: AsyncClient, d
     await user_dao.create(db_session, admin)
     await user_dao.create(db_session, member)
 
+    admin_token = create_access_token({"sub": admin.id, "role": "ADMIN"})
     member_token = create_access_token({"sub": member.id, "role": "MEMBER"})
+
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
     member_headers = {"Authorization": f"Bearer {member_token}"}
 
     # 1. Member CANNOT create project (403 Forbidden)
@@ -75,7 +78,10 @@ async def test_rbac_admin_vs_member_column_actions(async_client: AsyncClient, db
     await user_dao.create(db_session, admin)
     await user_dao.create(db_session, member)
 
+    admin_token = create_access_token({"sub": admin.id, "role": "ADMIN"})
     member_token = create_access_token({"sub": member.id, "role": "MEMBER"})
+
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
     member_headers = {"Authorization": f"Bearer {member_token}"}
 
     # 1. Member cannot create column (403)
@@ -97,6 +103,14 @@ async def test_rbac_admin_vs_member_column_actions(async_client: AsyncClient, db
     # 3. Member cannot delete columns (403)
     res_del = await async_client.delete("/api/columns/TODO", headers=member_headers)
     assert res_del.status_code == 403
+
+    # 4. Admin CAN create column (201 Created)
+    res_adm_create = await async_client.post(
+        "/api/columns",
+        json={"title": "QA Column"},
+        headers=admin_headers,
+    )
+    assert res_adm_create.status_code == 201
 
 
 @pytest.mark.asyncio
