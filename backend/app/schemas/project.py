@@ -12,7 +12,7 @@ class ProjectBase(CamelModel):
 
     name: str = Field(..., min_length=3, max_length=60)
     key: Optional[str] = Field(default="", max_length=10)
-    description: str = Field(..., min_length=5, max_length=2000)
+    description: Optional[str] = Field(default="", max_length=2000)
     status: Literal["ACTIVE", "ARCHIVED", "COMPLETED"] = Field(default="ACTIVE")
 
 
@@ -21,7 +21,7 @@ class ProjectCreate(CamelModel):
 
     name: str = Field(..., min_length=3, max_length=60)
     key: Optional[str] = Field(default="", max_length=10)
-    description: str = Field(..., min_length=5, max_length=2000)
+    description: Optional[str] = Field(default="", max_length=2000)
     member_ids: List[str] = Field(default_factory=list)
 
 
@@ -29,7 +29,7 @@ class ProjectUpdate(CamelModel):
     """Payload for partial project settings update."""
 
     name: Optional[str] = Field(default=None, min_length=3, max_length=60)
-    description: Optional[str] = Field(default=None, min_length=5, max_length=2000)
+    description: Optional[str] = Field(default=None, max_length=2000)
     status: Optional[Literal["ACTIVE", "ARCHIVED", "COMPLETED"]] = None
     member_ids: Optional[List[str]] = None
 
@@ -40,7 +40,7 @@ class ProjectResponse(CamelModel):
     id: str
     name: str
     key: str
-    description: str
+    description: Optional[str] = Field(default="")
     status: Literal["ACTIVE", "ARCHIVED", "COMPLETED"]
     owner_id: str
     member_ids: List[str] = Field(default_factory=list)

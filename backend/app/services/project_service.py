@@ -116,7 +116,7 @@ class ProjectService:
             id=str(uuid.uuid4()),
             name=data.name.strip(),
             key=key,
-            description=data.description.strip(),
+            description=(data.description or "").strip(),
             status=ProjectStatus.ACTIVE,
             owner_id=current_user.id,
             members=members,

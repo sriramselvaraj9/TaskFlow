@@ -68,7 +68,6 @@ export const CreateTaskModal: React.FC = () => {
 
   const isStep1Valid =
     currentTitle.trim().length >= 3 &&
-    currentDescription.trim().length >= 3 &&
     Boolean(currentProjectId);
 
   const isStep2Valid = Boolean(currentDueDate) && Boolean(currentPriority);
@@ -348,11 +347,11 @@ export const CreateTaskModal: React.FC = () => {
 
             <div>
               <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                Description *
+                Description <span className="text-slate-400 font-normal lowercase">(optional)</span>
               </label>
               <textarea
                 rows={3}
-                placeholder="Provide comprehensive task details, AC, or links..."
+                placeholder="Provide comprehensive task details, AC, or links (optional)..."
                 {...register('description')}
                 className={cn(
                   'w-full bg-slate-50 border rounded-xl px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none leading-relaxed shadow-xs transition-colors',

@@ -36,7 +36,7 @@ class Task(Base):
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     title: Mapped[str] = mapped_column(String(150), nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str] = mapped_column(Text, default="", nullable=False)
     project_id: Mapped[str] = mapped_column(
         String(64),
         ForeignKey("projects.id", ondelete="CASCADE"),

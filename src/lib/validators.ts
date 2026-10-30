@@ -50,8 +50,9 @@ export const taskSchemaStep1 = z.object({
   description: z
     .string()
     .trim()
-    .min(3, 'Description must be at least 3 characters')
-    .max(2000, 'Description cannot exceed 2000 characters'),
+    .max(2000, 'Description cannot exceed 2000 characters')
+    .optional()
+    .default(''),
   projectId: z.string().min(1, 'Please select a project'),
 });
 
@@ -127,8 +128,9 @@ export const projectSchema = z.object({
   key: z.string().optional().default(''),
   description: z
     .string()
-    .min(5, 'Description must be at least 5 characters')
-    .max(2000, 'Description cannot exceed 2000 characters'),
+    .max(2000, 'Description cannot exceed 2000 characters')
+    .optional()
+    .default(''),
   memberIds: z.array(z.string()).default([]),
 });
 

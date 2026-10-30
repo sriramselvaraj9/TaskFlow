@@ -174,7 +174,7 @@ class TaskService:
         task = Task(
             id=task_id,
             title=data.title.strip(),
-            description=data.description.strip(),
+            description=(data.description or "").strip(),
             status=data.status,
             priority=TaskPriority(data.priority),
             start_date=start,

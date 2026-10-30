@@ -11,7 +11,7 @@ class TaskBase(CamelModel):
     """Base fields common across Task schemas."""
 
     title: str = Field(..., min_length=3, max_length=100)
-    description: str = Field(..., min_length=3, max_length=2000)
+    description: Optional[str] = Field(default="", max_length=2000)
     project_id: str = Field(..., min_length=1)
     status: str = Field(default="TODO")
     priority: Literal["LOW", "MEDIUM", "HIGH"] = Field(default="MEDIUM")
@@ -43,7 +43,7 @@ class TaskUpdate(CamelModel):
     """Payload to update an existing task."""
 
     title: Optional[str] = Field(default=None, min_length=3, max_length=100)
-    description: Optional[str] = Field(default=None, min_length=3, max_length=2000)
+    description: Optional[str] = Field(default=None, max_length=2000)
     status: Optional[str] = None
     priority: Optional[Literal["LOW", "MEDIUM", "HIGH"]] = None
     assignee_id: Optional[str] = None
@@ -70,7 +70,7 @@ class TaskResponse(CamelModel):
 
     id: str
     title: str
-    description: str
+    description: Optional[str] = Field(default="")
     project_id: str
     status: str
     priority: Literal["LOW", "MEDIUM", "HIGH"]

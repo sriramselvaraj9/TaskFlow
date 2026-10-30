@@ -112,11 +112,11 @@ export const CreateProjectModal: React.FC = () => {
           {/* Description */}
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-              Description *
+              Description <span className="text-slate-400 font-normal lowercase">(optional)</span>
             </label>
             <textarea
               rows={3}
-              placeholder="Describe product goals and architecture scope..."
+              placeholder="Describe product goals and architecture scope (optional)..."
               {...register('description')}
               className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 leading-relaxed shadow-xs"
             />

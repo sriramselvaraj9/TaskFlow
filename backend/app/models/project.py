@@ -53,7 +53,7 @@ class Project(Base):
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     key: Mapped[str] = mapped_column(String(10), unique=True, index=True, nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str] = mapped_column(Text, default="", nullable=False)
     status: Mapped[ProjectStatus] = mapped_column(
         Enum(ProjectStatus, name="project_status", native_enum=False),
         default=ProjectStatus.ACTIVE,

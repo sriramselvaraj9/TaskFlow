@@ -94,3 +94,42 @@ def test_dashboard_stats_response():
     assert dumped["totalTasks"] == 10
     assert dumped["completionRate"] == 50
     assert dumped["tasksByStatus"]["DONE"] == 5
+
+
+def test_project_optional_description():
+    """Verify project creation allows empty or omitted description."""
+    # Omitted description
+    proj_no_desc = ProjectCreate(name="Frontend App")
+    assert proj_no_desc.name == "Frontend App"
+    assert proj_no_desc.description == ""
+
+    # Explicit empty string description
+    proj_empty_desc = ProjectCreate(name="Frontend App", description="")
+    assert proj_empty_desc.description == ""
+
+    # Provided description
+    proj_with_desc = ProjectCreate(name="Frontend App", description="Core web application")
+    assert proj_with_desc.description == "Core web application"
+
+
+def test_task_optional_description():
+    """Verify task creation allows empty or omitted description."""
+    # Omitted description
+    task_no_desc = TaskCreate(
+        title="Implement Auth",
+        project_id="prj_1",
+        due_date="2026-11-15",
+    )
+    assert task_no_desc.title == "Implement Auth"
+    assert task_no_desc.description == ""
+
+    # Explicit empty string description
+    task_empty_desc = TaskCreate(
+        title="Implement Auth",
+        description="",
+        project_id="prj_1",
+        due_date="2026-11-15",
+    )
+    assert task_empty_desc.description == ""
+
+
