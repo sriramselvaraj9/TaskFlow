@@ -14,14 +14,20 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email and password are required');
         }
 
-        const backendUrl =
+        const rawBackendUrl =
           process.env.BACKEND_URL ||
           process.env.NEXT_PUBLIC_BACKEND_URL ||
+          process.env.NEXT_PUBLIC_API_URL ||
           'http://127.0.0.1:8000';
-        const cleanUrl = backendUrl.trim().replace(/\/+$/, '').replace(/\/api$/, '');
+        const cleanUrl = rawBackendUrl
+          .trim()
+          .replace(/\/+$/, '')
+          .replace(/\/task_management\/api\/v1$/, '')
+          .replace(/\/api$/, '');
 
         try {
-          const res = await fetch(`${cleanUrl}/api/auth/login`, {
+          // Attempt canonical /task_management/api/v1/auth/login first, fallback to /api/auth/login
+          let res = await fetch(`${cleanUrl}/task_management/api/v1/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -29,6 +35,17 @@ export const authOptions: NextAuthOptions = {
               password: credentials.password,
             }),
           });
+
+          if (res.status === 404) {
+            res = await fetch(`${cleanUrl}/api/auth/login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: credentials.email.trim().toLowerCase(),
+                password: credentials.password,
+              }),
+            });
+          }
 
           if (!res.ok) {
             const err = await res.json().catch(() => ({}));
@@ -85,16 +102,28 @@ export const authOptions: NextAuthOptions = {
       // Proactively rotate expired or soon-to-expire access tokens
       if (token.expiresAt && token.refreshToken && Date.now() / 1000 > (token.expiresAt as number) - 60) {
         try {
-          const backendUrl =
+          const rawBackendUrl =
             process.env.BACKEND_URL ||
             process.env.NEXT_PUBLIC_BACKEND_URL ||
+            process.env.NEXT_PUBLIC_API_URL ||
             'http://127.0.0.1:8000';
-          const cleanUrl = backendUrl.trim().replace(/\/+$/, '').replace(/\/api$/, '');
-          const refreshRes = await fetch(`${cleanUrl}/api/auth/refresh`, {
+          const cleanUrl = rawBackendUrl
+            .trim()
+            .replace(/\/+$/, '')
+            .replace(/\/task_management\/api\/v1$/, '')
+            .replace(/\/api$/, '');
+          let refreshRes = await fetch(`${cleanUrl}/task_management/api/v1/auth/refresh`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ refreshToken: token.refreshToken }),
           });
+          if (refreshRes.status === 404) {
+            refreshRes = await fetch(`${cleanUrl}/api/auth/refresh`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ refreshToken: token.refreshToken }),
+            });
+          }
           if (refreshRes.ok) {
             const refreshed = await refreshRes.json();
             token.accessToken = refreshed.accessToken;
