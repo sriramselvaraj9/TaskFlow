@@ -29,10 +29,6 @@ core_router.include_router(users.router)
 api_router = APIRouter(prefix=settings.API_V1_STR)
 api_router.include_router(core_router)
 
-# Backward-compatibility Router mounted under /api to prevent 404s from legacy clients or NextAuth
-legacy_api_router = APIRouter(prefix="/api")
-legacy_api_router.include_router(core_router)
-
 # Backward-compatible aliases pointing to the canonical api_router
 task_management_router = api_router
 v1_router = api_router
@@ -48,7 +44,6 @@ __all__ = [
     "users",
     "core_router",
     "api_router",
-    "legacy_api_router",
     "task_management_router",
     "v1_router",
 ]
