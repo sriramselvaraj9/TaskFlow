@@ -63,6 +63,7 @@ class UserService:
         if cached is not None:
             return cached
 
+        #cahch is missing then db query excutes here
         users = await self.user_dao.get_all(session)
         serialized = [
             UserResponse.model_validate(u).model_dump(mode="json", by_alias=True)
@@ -157,8 +158,8 @@ class UserService:
 
         return created_user
 
-
-    async def set_password_with_token(
+    # this function is used to verfy the token passowrd update
+    async def set_password_with_token( 
         self,
         session: AsyncSession,
         email: str,
@@ -223,7 +224,7 @@ class UserService:
 
         return user
 
-
+    #this function help to generate the token,send the mail to user
     async def request_password_reset(
         self,
         session: AsyncSession,
@@ -277,7 +278,7 @@ class UserService:
             user_role=user.role.value,
         )
 
-        # Send password reset email via Brevo / SMTP with Jinja2 template
+        # Send password reset email via Brevo with Jinja2 template
         await send_password_reset_email(
             to_email=user.email,
             to_name=user.name,

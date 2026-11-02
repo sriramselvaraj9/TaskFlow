@@ -36,7 +36,6 @@ async def create_column(
 
 
 @router.post("/reorder", response_model=List[ColumnResponse])
-@router.put("/reorder", response_model=List[ColumnResponse])
 async def reorder_columns(
     data: ColumnReorder,
     session: AsyncSession = Depends(get_db),
