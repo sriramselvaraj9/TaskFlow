@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import type { User } from '@/types';
 
+//Loads team members directory and roles
+
 export interface CreateUserResponse {
   user: User;
   inviteUrl?: string;
@@ -9,7 +11,6 @@ export interface CreateUserResponse {
   emailError?: string;
   message?: string;
 }
-
 
 async function fetchUsers(): Promise<User[]> {
   const res = await fetch('/api/users');
@@ -53,7 +54,7 @@ export function useCreateUserMutation() {
         'Content-Type': 'application/json',
       };
       if ((session as any)?.accessToken) {
-        headers['Authorization'] = `Bearer ${(session as any).accessToken}`;
+        headers.Authorization = `Bearer ${(session as any).accessToken}`;
       }
       const res = await fetch('/api/users/create', {
         method: 'POST',
@@ -66,7 +67,9 @@ export function useCreateUserMutation() {
         responseData = text ? JSON.parse(text) : {};
       } catch {
         if (!res.ok) {
-          throw new Error(`Server returned error ${res.status}: ${res.statusText || 'Unable to process request'}`);
+          throw new Error(
+            `Server returned error ${res.status}: ${res.statusText || 'Unable to process request'}`,
+          );
         }
       }
       if (!res.ok) {
@@ -84,7 +87,6 @@ export function useCreateUserMutation() {
   });
 }
 
-
 export function useDeleteUserMutation() {
   const queryClient = useQueryClient();
   const { data: session } = useSession();
@@ -95,7 +97,7 @@ export function useDeleteUserMutation() {
         'Content-Type': 'application/json',
       };
       if ((session as any)?.accessToken) {
-        headers['Authorization'] = `Bearer ${(session as any).accessToken}`;
+        headers.Authorization = `Bearer ${(session as any).accessToken}`;
       }
       const res = await fetch(`/api/users/${userId}`, {
         method: 'DELETE',
@@ -105,7 +107,7 @@ export function useDeleteUserMutation() {
       if (!res.ok) {
         throw new Error(data.message || 'Failed to delete member');
       }
-      return data;   
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });

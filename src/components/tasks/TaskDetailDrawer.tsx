@@ -16,7 +16,7 @@ import type { Task, TaskPriority, TaskStatus } from '@/types';
 export const TaskDetailDrawer: React.FC = () => {
   const { data: session } = useSession();
   const { selectedTaskId, setSelectedTaskId, openRestrictionModal } = useTaskStore();
-  
+
   const { data: task, isLoading } = useTaskQuery(selectedTaskId);
   const { data: projects = [] } = useProjectsQuery();
   const { data: users = [] } = useUsersQuery();
@@ -99,7 +99,7 @@ export const TaskDetailDrawer: React.FC = () => {
           description: description.trim(),
           status,
           priority,
-          assigneeId: isAdmin ? (assigneeId || '') : task.assigneeId,
+          assigneeId: isAdmin ? assigneeId || '' : task.assigneeId,
           startDate: startDate
             ? startDate.includes('T')
               ? startDate

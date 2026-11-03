@@ -574,7 +574,9 @@ export const ProjectDetailDrawer: React.FC = () => {
                   {assignedMembers.length === 0 ? (
                     <div className="py-12 text-center border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
                       <Users className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                      <p className="text-xs font-bold text-slate-700">No project members assigned</p>
+                      <p className="text-xs font-bold text-slate-700">
+                        No project members assigned
+                      </p>
                       <p className="text-[11px] text-slate-400 mt-0.5">
                         {isAdmin
                           ? 'Use the selector above to assign workspace members to this project.'

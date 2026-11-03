@@ -17,7 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const activities = await getActivities(limit, currentUser);
       return res.status(200).json(activities);
     } catch (error: any) {
-      return res.status(502).json({ message: error.message || 'Failed to fetch activities from backend' });
+      return res
+        .status(502)
+        .json({ message: error.message || 'Failed to fetch activities from backend' });
     }
   }
 

@@ -148,7 +148,7 @@ export const NotificationBell: React.FC = () => {
           'p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all cursor-pointer relative border',
           isOpen
             ? 'bg-slate-100 text-slate-900 border-slate-300'
-            : 'border-transparent hover:border-slate-200'
+            : 'border-transparent hover:border-slate-200',
         )}
         title="Workspace notifications & activity"
         aria-label="View notifications"
@@ -190,7 +190,9 @@ export const NotificationBell: React.FC = () => {
                 className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
                 title="Refresh activities"
               >
-                <RotateCcw className={cn('w-3.5 h-3.5', isRefetching && 'animate-spin text-indigo-600')} />
+                <RotateCcw
+                  className={cn('w-3.5 h-3.5', isRefetching && 'animate-spin text-indigo-600')}
+                />
               </button>
 
               <button
@@ -213,7 +215,7 @@ export const NotificationBell: React.FC = () => {
                 'px-2.5 py-1 rounded-lg transition-colors cursor-pointer',
                 activeFilter === 'ALL'
                   ? 'bg-indigo-50 text-indigo-700 font-bold border border-indigo-100'
-                  : 'text-slate-500 hover:bg-slate-50'
+                  : 'text-slate-500 hover:bg-slate-50',
               )}
             >
               All ({activities.length})
@@ -225,7 +227,7 @@ export const NotificationBell: React.FC = () => {
                 'px-2.5 py-1 rounded-lg transition-colors cursor-pointer',
                 activeFilter === 'TASKS'
                   ? 'bg-indigo-50 text-indigo-700 font-bold border border-indigo-100'
-                  : 'text-slate-500 hover:bg-slate-50'
+                  : 'text-slate-500 hover:bg-slate-50',
               )}
             >
               Tasks
@@ -237,7 +239,7 @@ export const NotificationBell: React.FC = () => {
                 'px-2.5 py-1 rounded-lg transition-colors cursor-pointer',
                 activeFilter === 'PROJECTS_MEMBERS'
                   ? 'bg-indigo-50 text-indigo-700 font-bold border border-indigo-100'
-                  : 'text-slate-500 hover:bg-slate-50'
+                  : 'text-slate-500 hover:bg-slate-50',
               )}
             >
               Team & Projects
@@ -272,8 +274,8 @@ export const NotificationBell: React.FC = () => {
                 const IconComponent = iconInfo.icon;
                 const isClickable = Boolean(
                   (act.taskId || act.projectId) &&
-                  act.action !== 'TASK_DELETED' &&
-                  act.action !== 'COLUMN_DELETED'
+                    act.action !== 'TASK_DELETED' &&
+                    act.action !== 'COLUMN_DELETED',
                 );
 
                 return (
@@ -282,16 +284,14 @@ export const NotificationBell: React.FC = () => {
                     onClick={() => handleActivityClick(act)}
                     className={cn(
                       'p-3 sm:p-3.5 flex items-start gap-3 transition-colors text-left group',
-                      isClickable
-                        ? 'hover:bg-slate-50 cursor-pointer'
-                        : 'hover:bg-slate-50/50'
+                      isClickable ? 'hover:bg-slate-50 cursor-pointer' : 'hover:bg-slate-50/50',
                     )}
                   >
                     {/* Action Icon Badge */}
                     <div
                       className={cn(
                         'w-7 h-7 rounded-xl border flex items-center justify-center shrink-0 mt-0.5 shadow-2xs transition-transform group-hover:scale-105',
-                        iconInfo.bg
+                        iconInfo.bg,
                       )}
                     >
                       <IconComponent className={cn('w-3.5 h-3.5', iconInfo.color)} />
@@ -300,9 +300,7 @@ export const NotificationBell: React.FC = () => {
                     {/* Activity Content */}
                     <div className="flex-1 min-w-0">
                       <div className="text-xs text-slate-800 leading-relaxed font-normal">
-                        <span className="font-bold text-slate-900 mr-1">
-                          {act.userName}
-                        </span>
+                        <span className="font-bold text-slate-900 mr-1">{act.userName}</span>
                         <span>{act.details}</span>
                       </div>
 

@@ -11,9 +11,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const hasBrevoKey = Boolean(
       process.env.BREVO_API_KEY ||
-      (process.env.BREVO_SMTP_KEY?.startsWith('xkeysib-') ? process.env.BREVO_SMTP_KEY : undefined)
+        (process.env.BREVO_SMTP_KEY?.startsWith('xkeysib-')
+          ? process.env.BREVO_SMTP_KEY
+          : undefined),
     );
-    const hasSmtp = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+    const hasSmtp = Boolean(
+      process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS,
+    );
     const hasGmail = Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASS);
 
     let activeEmailProvider = 'Not Configured (Fallback logging enabled)';
@@ -44,9 +48,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         emailProvider: activeEmailProvider,
         senderVerifiedEmailConfigured: Boolean(
           process.env.BREVO_USER ||
-          process.env.BREVO_FROM ||
-          process.env.SMTP_FROM ||
-          process.env.GMAIL_USER
+            process.env.BREVO_FROM ||
+            process.env.SMTP_FROM ||
+            process.env.GMAIL_USER,
         ),
       },
     };

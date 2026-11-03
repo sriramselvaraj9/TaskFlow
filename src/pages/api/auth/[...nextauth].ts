@@ -87,7 +87,11 @@ export const authOptions: NextAuthOptions = {
           const data = await res.json();
           const cleanEmail = (data.user?.email || credentials.email).trim().toLowerCase();
           const isAdminEmail = cleanEmail === 'sriramccbp@gmail.com';
-          const resolvedRole = isAdminEmail ? 'ADMIN' : (String(data.user?.role || 'MEMBER').toUpperCase() === 'ADMIN' ? 'ADMIN' : 'MEMBER');
+          const resolvedRole = isAdminEmail
+            ? 'ADMIN'
+            : String(data.user?.role || 'MEMBER').toUpperCase() === 'ADMIN'
+              ? 'ADMIN'
+              : 'MEMBER';
 
           return {
             id: data.user.id,
@@ -123,7 +127,9 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Ensure admin accounts maintain ADMIN role
-      const email = String(token.email || '').toLowerCase().trim();
+      const email = String(token.email || '')
+        .toLowerCase()
+        .trim();
       const roleStr = String(token.role || '').toUpperCase();
       if (email === 'sriramccbp@gmail.com' || roleStr === 'ADMIN') {
         token.role = 'ADMIN';
@@ -132,7 +138,11 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Proactively rotate expired or soon-to-expire access tokens with concurrency deduplication
-      if (token.expiresAt && token.refreshToken && Date.now() / 1000 > (token.expiresAt as number) - 60) {
+      if (
+        token.expiresAt &&
+        token.refreshToken &&
+        Date.now() / 1000 > (token.expiresAt as number) - 60
+      ) {
         try {
           const rf = token.refreshToken as string;
           let refreshPromise = inFlightRefreshes.get(rf);
@@ -159,7 +169,9 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = (token.id as string) || session.user.id;
-        const email = String(token.email || session.user.email || '').toLowerCase().trim();
+        const email = String(token.email || session.user.email || '')
+          .toLowerCase()
+          .trim();
         const roleStr = String(token.role || session.user.role || '').toUpperCase();
         if (email === 'sriramccbp@gmail.com' || roleStr === 'ADMIN') {
           session.user.role = 'ADMIN';
@@ -194,7 +206,7 @@ export const authOptions: NextAuthOptions = {
           'Content-Type': 'application/json',
         };
         if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
+          headers.Authorization = `Bearer ${accessToken}`;
         }
 
         await fetch(`${cleanUrl}/task_management/api/v1/auth/logout`, {
@@ -211,7 +223,10 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/signin',
     error: '/auth/signin',
   },
-  secret: process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'taskflow-super-secure-production-secret-key-32chars',
+  secret:
+    process.env.NEXTAUTH_SECRET ||
+    process.env.JWT_SECRET ||
+    'taskflow-super-secure-production-secret-key-32chars',
 };
 
 export default NextAuth(authOptions);

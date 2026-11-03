@@ -10,7 +10,7 @@ interface TaskFilterParams {
   assigneeId?: string | 'ALL';
   search?: string;
 }
-
+//Fetches tasks, creates tasks, updates task status/column, deletes tasks
 // Fetch tasks directly from the server API
 async function fetchTasks(params: TaskFilterParams): Promise<Task[]> {
   const query = new URLSearchParams();
@@ -39,7 +39,7 @@ async function fetchTask(id: string): Promise<Task> {
 
 async function createTask(data: CreateTaskFormData, token?: string): Promise<Task> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers.Authorization = `Bearer ${token}`;
   const res = await fetch('/api/tasks', {
     method: 'POST',
     headers,
@@ -54,10 +54,10 @@ async function createTask(data: CreateTaskFormData, token?: string): Promise<Tas
 
 async function updateTask(
   { id, updates }: { id: string; updates: Partial<Task> },
-  token?: string
+  token?: string,
 ): Promise<Task> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers.Authorization = `Bearer ${token}`;
   const res = await fetch(`/api/tasks/${id}`, {
     method: 'PUT',
     headers,
@@ -72,7 +72,7 @@ async function updateTask(
 
 async function deleteTask(id: string, token?: string): Promise<void> {
   const headers: Record<string, string> = {};
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers.Authorization = `Bearer ${token}`;
   const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE', headers });
   if (!res.ok && res.status !== 404) {
     const error = await res.json().catch(() => ({}));
@@ -173,4 +173,3 @@ export function useDeleteTaskMutation() {
     },
   });
 }
-

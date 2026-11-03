@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   };
   const authHeader = req.headers.authorization;
   if (authHeader) {
-    headers['Authorization'] = authHeader;
+    headers.Authorization = authHeader;
   }
 
   try {
@@ -36,9 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const data = await backendRes.json().catch(() => ({ message: 'Logged out successfully' }));
     return res.status(backendRes.status).json(data);
-  } catch (error: any) {
+  } catch (_error: any) {
     // Graceful fallback: return success even if backend is offline so client logout completes
     return res.status(200).json({ message: 'Logged out successfully' });
   }
 }
-

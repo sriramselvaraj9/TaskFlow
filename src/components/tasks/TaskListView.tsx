@@ -154,9 +154,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks, isLoading }) 
               <th className="py-3.5 px-3.5 w-[110px] whitespace-nowrap">Priority</th>
               <th className="py-3.5 px-3.5 w-[130px] whitespace-nowrap">Assignee</th>
               <th className="py-3.5 px-3.5 w-[115px] whitespace-nowrap">Due Date</th>
-              <th className="py-3.5 px-3.5 pr-5 text-right w-[85px] whitespace-nowrap">
-                Actions
-              </th>
+              <th className="py-3.5 px-3.5 pr-5 text-right w-[85px] whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">

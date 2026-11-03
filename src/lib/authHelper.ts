@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
 import { getToken } from 'next-auth/jwt';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import type { User } from '@/types';
 
@@ -15,7 +15,7 @@ export function applyCors(req: NextApiRequest, res: NextApiResponse): boolean {
   res.setHeader('Access-Control-Allow-Methods', 'GET,DELETE,PATCH,POST,PUT,OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, Cookie'
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, Cookie',
   );
 
   if (req.method === 'OPTIONS') {
@@ -25,11 +25,11 @@ export function applyCors(req: NextApiRequest, res: NextApiResponse): boolean {
   return false;
 }
 
-export const ADMIN_EMAILS = new Set([
-  'sriramccbp@gmail.com',
-]);
+export const ADMIN_EMAILS = new Set(['sriramccbp@gmail.com']);
 
-export function isAdmin(user?: Partial<User> | { email?: string; role?: string; id?: string } | null): boolean {
+export function isAdmin(
+  user?: Partial<User> | { email?: string; role?: string; id?: string } | null,
+): boolean {
   if (!user) return false;
   const role = String(user.role || '').toUpperCase();
   if (role === 'ADMIN') return true;
@@ -41,13 +41,21 @@ export function isAdmin(user?: Partial<User> | { email?: string; role?: string; 
 
 export async function getAuthenticatedUser(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<AuthenticatedUser | null> {
-  const secret = (authOptions.secret as string) || process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'taskflow-super-secure-production-secret-key-32chars';
+  const secret =
+    (authOptions.secret as string) ||
+    process.env.NEXTAUTH_SECRET ||
+    process.env.JWT_SECRET ||
+    'taskflow-super-secure-production-secret-key-32chars';
 
   // Strategy 0: Direct Authorization Header (Bearer <token>)
   const authHeader = req.headers.authorization;
-  if (authHeader && typeof authHeader === 'string' && authHeader.toLowerCase().startsWith('bearer ')) {
+  if (
+    authHeader &&
+    typeof authHeader === 'string' &&
+    authHeader.toLowerCase().startsWith('bearer ')
+  ) {
     const rawToken = authHeader.substring(7).trim();
     if (rawToken) {
       try {
@@ -67,7 +75,7 @@ export async function getAuthenticatedUser(
               id: userId || (isUserAdmin ? 'user-admin-1' : 'user-member-1'),
               name: userName || (isUserAdmin ? 'Admin User' : 'Team Member'),
               email: userEmail || (isUserAdmin ? 'sriramccbp@gmail.com' : 'member@gmail.com'),
-              role: isUserAdmin ? 'ADMIN' : (userRole.toUpperCase() === 'ADMIN' ? 'ADMIN' : 'MEMBER'),
+              role: isUserAdmin ? 'ADMIN' : userRole.toUpperCase() === 'ADMIN' ? 'ADMIN' : 'MEMBER',
               designation,
               accessToken: rawToken,
               createdAt: new Date().toISOString(),
@@ -90,7 +98,11 @@ export async function getAuthenticatedUser(
         id: session.user.id || (isUserAdmin ? 'user-admin-1' : ''),
         name: session.user.name || '',
         email: session.user.email || '',
-        role: isUserAdmin ? 'ADMIN' : (String(session.user.role || '').toUpperCase() === 'ADMIN' ? 'ADMIN' : 'MEMBER'),
+        role: isUserAdmin
+          ? 'ADMIN'
+          : String(session.user.role || '').toUpperCase() === 'ADMIN'
+            ? 'ADMIN'
+            : 'MEMBER',
         designation: (session.user as any).designation,
         accessToken: (session as any).accessToken,
         createdAt: new Date().toISOString(),
@@ -118,7 +130,11 @@ export async function getAuthenticatedUser(
           id: userId || (isUserAdmin ? 'user-admin-1' : ''),
           name: (token.name as string) || (sessionUser?.name ?? ''),
           email: email || sessionUser?.email || '',
-          role: isUserAdmin ? 'ADMIN' : (String(token.role || '').toUpperCase() === 'ADMIN' ? 'ADMIN' : 'MEMBER'),
+          role: isUserAdmin
+            ? 'ADMIN'
+            : String(token.role || '').toUpperCase() === 'ADMIN'
+              ? 'ADMIN'
+              : 'MEMBER',
           designation: (token.designation as string) || sessionUser?.designation,
           accessToken: (token.accessToken as string) || sessionUser?.accessToken,
           createdAt: new Date().toISOString(),

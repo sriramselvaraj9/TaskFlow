@@ -61,12 +61,12 @@ export default function SignInPage() {
       const data = await res.json();
       setForgotSuccess(
         data.message ||
-          'If an account exists with this email address, a password reset link has been sent to your inbox.'
+          'If an account exists with this email address, a password reset link has been sent to your inbox.',
       );
       toast.success('Password reset instructions sent!');
-    } catch (err: any) {
+    } catch (_err: any) {
       setForgotSuccess(
-        'If an account with this email address exists, a password reset link has been sent to your inbox.'
+        'If an account with this email address exists, a password reset link has been sent to your inbox.',
       );
     } finally {
       setForgotLoading(false);

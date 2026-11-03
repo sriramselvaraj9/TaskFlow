@@ -62,13 +62,11 @@ export const CreateTaskModal: React.FC = () => {
 
   const currentProjectId = watch('projectId');
   const currentTitle = watch('title') || '';
-  const currentDescription = watch('description') || '';
+  const _currentDescription = watch('description') || '';
   const currentPriority = watch('priority');
   const currentDueDate = watch('dueDate') || '';
 
-  const isStep1Valid =
-    currentTitle.trim().length >= 3 &&
-    Boolean(currentProjectId);
+  const isStep1Valid = currentTitle.trim().length >= 3 && Boolean(currentProjectId);
 
   const isStep2Valid = Boolean(currentDueDate) && Boolean(currentPriority);
   const isAllValid = isStep1Valid && isStep2Valid;
@@ -385,7 +383,11 @@ export const CreateTaskModal: React.FC = () => {
                       key={p}
                       type="button"
                       onClick={() => {
-                        setValue('priority', p, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                        setValue('priority', p, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        });
                         clearErrors('priority');
                       }}
                       className={cn(
@@ -514,7 +516,8 @@ export const CreateTaskModal: React.FC = () => {
                     <>
                       <span>•</span>
                       <span>
-                        Start: <strong className="text-slate-800 font-bold">{watch('startDate')}</strong>
+                        Start:{' '}
+                        <strong className="text-slate-800 font-bold">{watch('startDate')}</strong>
                       </span>
                     </>
                   )}

@@ -258,7 +258,9 @@ export const DashboardOverview: React.FC = () => {
               </div>
             ) : (
               projects.map((proj) => {
-                const projectTaskCount = effectiveTasks.filter((t) => t.projectId === proj.id).length;
+                const projectTaskCount = effectiveTasks.filter(
+                  (t) => t.projectId === proj.id,
+                ).length;
                 return (
                   <div
                     key={proj.id}
@@ -292,4 +294,3 @@ export const DashboardOverview: React.FC = () => {
     </div>
   );
 };
-

@@ -22,9 +22,12 @@ export default function Custom404() {
 
         {/* Message */}
         <div className="space-y-3">
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">404 - Page Not Found</h1>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">
+            404 - Page Not Found
+          </h1>
           <p className="text-sm text-slate-300 font-medium leading-relaxed">
-            The workspace route or page you are looking for does not exist, has been moved, or the link may contain a typo.
+            The workspace route or page you are looking for does not exist, has been moved, or the
+            link may contain a typo.
           </p>
           <p className="text-xs text-slate-400 leading-relaxed max-w-sm mx-auto">
             Please check the URL for mistakes or navigate back to the main application below.

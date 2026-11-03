@@ -104,8 +104,7 @@ export const AnalyticsView: React.FC = () => {
   // If project is selected, show members in that project or with assigned tasks in that project
   const relevantUsers = currentProject
     ? users.filter(
-        (u) =>
-          currentProject.memberIds.includes(u.id) || tasks.some((t) => t.assigneeId === u.id),
+        (u) => currentProject.memberIds.includes(u.id) || tasks.some((t) => t.assigneeId === u.id),
       )
     : users;
 
@@ -149,7 +148,10 @@ export const AnalyticsView: React.FC = () => {
         </div>
 
         {/* Project Selector & Filter Controls */}
-        <div className="flex flex-row items-center gap-2 sm:gap-2.5 self-start sm:self-auto shrink-0" ref={dropdownRef}>
+        <div
+          className="flex flex-row items-center gap-2 sm:gap-2.5 self-start sm:self-auto shrink-0"
+          ref={dropdownRef}
+        >
           <div className="relative">
             <button
               type="button"
@@ -289,7 +291,9 @@ export const AnalyticsView: React.FC = () => {
             {totalTasks}
           </div>
           <div className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 sm:mt-1 font-medium truncate">
-            {currentProject ? `Project ${currentProject.key}` : `Across ${projects.length} projects`}
+            {currentProject
+              ? `Project ${currentProject.key}`
+              : `Across ${projects.length} projects`}
           </div>
         </div>
 
@@ -360,8 +364,8 @@ export const AnalyticsView: React.FC = () => {
                 <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 font-medium">
                   {currentProject ? (
                     <span>
-                      Lifecycle distribution for <strong>{currentProject.name}</strong> ({totalTasks}{' '}
-                      total tasks)
+                      Lifecycle distribution for <strong>{currentProject.name}</strong> (
+                      {totalTasks} total tasks)
                     </span>
                   ) : (
                     `Breakdown of all workspace tasks across lifecycle states (${totalTasks} total)`
@@ -460,7 +464,8 @@ export const AnalyticsView: React.FC = () => {
                 </p>
               </div>
               <div className="text-xs font-semibold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 self-start sm:self-auto">
-                Assignees: <strong className="text-indigo-600 font-bold">{relevantUsers.length}</strong>
+                Assignees:{' '}
+                <strong className="text-indigo-600 font-bold">{relevantUsers.length}</strong>
               </div>
             </div>
 
@@ -539,4 +544,3 @@ export const AnalyticsView: React.FC = () => {
     </div>
   );
 };
-

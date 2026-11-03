@@ -19,11 +19,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const result = await requestForgotPassword(email.trim().toLowerCase(), baseUrl);
 
     return res.status(200).json(result);
-  } catch (error: any) {
+  } catch (_error: any) {
     // Maintain security parity even if downstream error occurs
     return res.status(200).json({
       success: true,
-      message: 'If an account with this email address exists, a password reset link has been sent to your inbox.',
+      message:
+        'If an account with this email address exists, a password reset link has been sent to your inbox.',
       emailSent: true,
     });
   }

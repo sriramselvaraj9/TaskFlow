@@ -1,11 +1,12 @@
 /**
  * Authoritative Backend Client Bridge for TaskFlow.
- * 
+ *
  * Directs all production domain operations to the live FastAPI backend over HTTP.
  * The backend interacts directly with the single authoritative PostgreSQL database and Redis cache.
  */
 
-import crypto from 'crypto';
+import crypto from 'node:crypto';
+import { isAdmin } from '@/lib/authHelper';
 import type {
   ActivityAction,
   ActivityLog,
@@ -18,10 +19,6 @@ import type {
   User,
   UserRole,
 } from '@/types';
-import { emailService } from '@/lib/emailService';
-import { isAdmin } from '@/lib/authHelper';
-
-export { emailService };
 
 const JWT_SECRET =
   process.env.JWT_SECRET ||
@@ -64,7 +61,9 @@ function isTokenExpired(token?: string): boolean {
  * Otherwise, generates a fresh valid 1-hour access token for the authenticated user session.
  * Uses the authoritative seeded admin account 'user-admin-1' as the fallback subject.
  */
-function signInternalToken(user?: Partial<User> & { role?: UserRole; accessToken?: string }): string {
+function signInternalToken(
+  user?: Partial<User> & { role?: UserRole; accessToken?: string },
+): string {
   if (user?.accessToken && !isTokenExpired(user.accessToken)) {
     return user.accessToken;
   }
@@ -72,7 +71,7 @@ function signInternalToken(user?: Partial<User> & { role?: UserRole; accessToken
   // When user is not explicitly specified (server-to-server call), default to Admin authority
   const isUserAdmin = !user || isAdmin(user);
   const userId = user?.id || (isUserAdmin ? 'user-admin-1' : 'user-member-1');
-  const role = isUserAdmin ? 'ADMIN' : (user?.role || 'MEMBER');
+  const role = isUserAdmin ? 'ADMIN' : user?.role || 'MEMBER';
   const email = user?.email || (isUserAdmin ? 'sriramccbp@gmail.com' : 'member@gmail.com');
   const name = user?.name || (isUserAdmin ? 'Sriram S' : 'Member User');
 
@@ -101,7 +100,7 @@ function signInternalToken(user?: Partial<User> & { role?: UserRole; accessToken
 
 function buildHeaders(
   user?: Partial<User> & { accessToken?: string },
-  customHeaders: Record<string, string> = {}
+  customHeaders: Record<string, string> = {},
 ): Record<string, string> {
   const token = signInternalToken(user);
   const headers: Record<string, string> = {
@@ -113,7 +112,7 @@ function buildHeaders(
 
   const isUserAdmin = !user || isAdmin(user);
   const userId = user?.id || (isUserAdmin ? 'user-admin-1' : 'user-member-1');
-  const userRole = isUserAdmin ? 'ADMIN' : (user?.role || 'MEMBER');
+  const userRole = isUserAdmin ? 'ADMIN' : user?.role || 'MEMBER';
   const userEmail = user?.email || (isUserAdmin ? 'sriramccbp@gmail.com' : 'member@gmail.com');
   const userName = user?.name || (isUserAdmin ? 'Sriram S' : 'Member User');
 
@@ -143,7 +142,7 @@ export async function getColumns(user?: User): Promise<BoardColumn[]> {
 
 export async function createColumn(
   data: { title: string; dotColor?: string; accentColor?: string },
-  user: User
+  user: User,
 ): Promise<BoardColumn> {
   const backend = getBackendBaseUrl();
   const res = await fetch(`${backend}${API_PREFIX}/columns`, {
@@ -158,10 +157,7 @@ export async function createColumn(
   return res.json();
 }
 
-export async function reorderColumns(
-  columnIds: string[],
-  user: User
-): Promise<BoardColumn[]> {
+export async function reorderColumns(columnIds: string[], user: User): Promise<BoardColumn[]> {
   const backend = getBackendBaseUrl();
   const res = await fetch(`${backend}${API_PREFIX}/columns/reorder`, {
     method: 'POST',
@@ -177,7 +173,7 @@ export async function reorderColumns(
 
 export async function deleteColumn(
   id: string,
-  user: User
+  user: User,
 ): Promise<{ success: boolean; movedTasksCount: number; deletedColumn: BoardColumn }> {
   const backend = getBackendBaseUrl();
   const res = await fetch(`${backend}${API_PREFIX}/columns/${id}`, {
@@ -239,7 +235,7 @@ export const columnService = {
 export async function getProjects(
   userId?: string,
   userRole?: string,
-  user?: User
+  user?: User,
 ): Promise<Project[]> {
   const backend = getBackendBaseUrl();
   const authUser = user || (userId ? { id: userId, role: userRole as UserRole } : undefined);
@@ -253,10 +249,7 @@ export async function getProjects(
   return res.json();
 }
 
-export async function getProjectById(
-  id: string,
-  user?: User
-): Promise<Project | undefined> {
+export async function getProjectById(id: string, user?: User): Promise<Project | undefined> {
   const backend = getBackendBaseUrl();
   const res = await fetch(`${backend}${API_PREFIX}/projects/${id}`, {
     headers: buildHeaders(user),
@@ -271,7 +264,7 @@ export async function getProjectById(
 
 export async function createProject(
   data: { name: string; key: string; description: string; memberIds: string[] },
-  creator: User
+  creator: User,
 ): Promise<Project> {
   const backend = getBackendBaseUrl();
   const res = await fetch(`${backend}${API_PREFIX}/projects`, {
@@ -289,7 +282,7 @@ export async function createProject(
 export async function updateProject(
   id: string,
   data: Partial<Pick<Project, 'name' | 'description' | 'status' | 'memberIds'>>,
-  user: User
+  user: User,
 ): Promise<Project> {
   const backend = getBackendBaseUrl();
   const res = await fetch(`${backend}${API_PREFIX}/projects/${id}`, {
@@ -337,14 +330,15 @@ export async function getTasks(
     assigneeId?: string | 'ALL';
     search?: string;
   },
-  user?: User
+  user?: User,
 ): Promise<Task[]> {
   const backend = getBackendBaseUrl();
   const query = new URLSearchParams();
   if (filters?.projectId && filters.projectId !== 'ALL') query.set('projectId', filters.projectId);
   if (filters?.status && filters.status !== 'ALL') query.set('status', filters.status);
   if (filters?.priority && filters.priority !== 'ALL') query.set('priority', filters.priority);
-  if (filters?.assigneeId && filters.assigneeId !== 'ALL') query.set('assigneeId', filters.assigneeId);
+  if (filters?.assigneeId && filters.assigneeId !== 'ALL')
+    query.set('assigneeId', filters.assigneeId);
   if (filters?.search) query.set('search', filters.search);
 
   const res = await fetch(`${backend}${API_PREFIX}/tasks?${query.toString()}`, {
@@ -382,7 +376,7 @@ export async function createTask(
     dueDate: string;
     tags?: string[];
   },
-  creator: User
+  creator: User,
 ): Promise<Task> {
   const backend = getBackendBaseUrl();
   const res = await fetch(`${backend}${API_PREFIX}/tasks`, {
@@ -402,10 +396,17 @@ export async function updateTask(
   data: Partial<
     Pick<
       Task,
-      'title' | 'description' | 'status' | 'priority' | 'assigneeId' | 'startDate' | 'dueDate' | 'tags'
+      | 'title'
+      | 'description'
+      | 'status'
+      | 'priority'
+      | 'assigneeId'
+      | 'startDate'
+      | 'dueDate'
+      | 'tags'
     >
   >,
-  user: User
+  user: User,
 ): Promise<Task> {
   const backend = getBackendBaseUrl();
   const res = await fetch(`${backend}${API_PREFIX}/tasks/${id}`, {
@@ -448,7 +449,7 @@ export const taskService = {
 export async function getDashboardStats(
   userId?: string | null,
   projectId?: string | null,
-  user?: User
+  user?: User,
 ): Promise<DashboardStats> {
   const backend = getBackendBaseUrl();
   const query = new URLSearchParams();
@@ -482,7 +483,7 @@ export async function logActivity(
   details: string,
   user: User,
   projectId?: string,
-  taskId?: string
+  taskId?: string,
 ): Promise<ActivityLog> {
   return {
     id: `act_${Date.now()}`,
@@ -559,7 +560,7 @@ export async function provisionUser(
     frontendUrl?: string;
     password?: string;
   },
-  adminUser?: User
+  adminUser?: User,
 ): Promise<{
   message: string;
   user: User;
@@ -587,10 +588,9 @@ export async function provisionUser(
   return res.json();
 }
 
-
 export async function requestForgotPassword(
   email: string,
-  frontendUrl?: string
+  frontendUrl?: string,
 ): Promise<{
   success: boolean;
   message: string;
@@ -612,7 +612,6 @@ export async function requestForgotPassword(
   return res.json();
 }
 
-
 export async function deleteUser(id: string, adminUser: User): Promise<boolean> {
   const backend = getBackendBaseUrl();
   const res = await fetch(`${backend}${API_PREFIX}/users/${id}`, {
@@ -630,7 +629,7 @@ export async function setPasswordWithInviteToken(
   email: string,
   token: string,
   password: string,
-  name?: string
+  name?: string,
 ): Promise<User> {
   const backend = getBackendBaseUrl();
   const res = await fetch(`${backend}${API_PREFIX}/auth/set-password`, {

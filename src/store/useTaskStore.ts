@@ -89,4 +89,3 @@ export const useTaskStore = create<TaskStoreState>((set) => ({
   openRestrictionModal: (data) => set({ restrictionModalData: data }),
   closeRestrictionModal: () => set({ restrictionModalData: null }),
 }));
-

@@ -27,7 +27,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'DELETE') {
     if (!isAdmin(currentUser)) {
-      return res.status(403).json({ message: 'Forbidden: Only administrators can delete team members' });
+      return res
+        .status(403)
+        .json({ message: 'Forbidden: Only administrators can delete team members' });
     }
 
     currentUser.role = 'ADMIN';

@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { useDeleteColumnMutation } from '@/hooks/useColumns';
 import { cn, isAdminRole } from '@/lib/utils';
@@ -51,9 +52,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
 
   return (
     <>
-      <div
-        className="flex flex-col min-w-[270px] sm:min-w-[290px] flex-1 rounded-2xl bg-slate-200/50 border border-slate-200/80 transition-all duration-200 min-h-[520px] shrink-0"
-      >
+      <div className="flex flex-col min-w-[270px] sm:min-w-[290px] flex-1 rounded-2xl bg-slate-200/50 border border-slate-200/80 transition-all duration-200 min-h-[520px] shrink-0">
         {/* Column header */}
         <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-slate-200/60">
           <div className="flex items-center gap-2 min-w-0">
@@ -155,4 +154,3 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
     </>
   );
 };
-

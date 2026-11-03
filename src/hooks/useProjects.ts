@@ -3,6 +3,7 @@ import { useSession } from 'next-auth/react';
 import type { ProjectFormData } from '@/lib/validators';
 import type { Project } from '@/types';
 
+// Loads projects, creates new projects, deletes projects
 async function fetchProjects(): Promise<Project[]> {
   const res = await fetch('/api/projects');
   if (!res.ok) {
@@ -23,7 +24,7 @@ async function fetchProject(id: string): Promise<Project> {
 
 async function createProject(data: ProjectFormData, token?: string): Promise<Project> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers.Authorization = `Bearer ${token}`;
   const res = await fetch('/api/projects', {
     method: 'POST',
     headers,
@@ -74,10 +75,10 @@ async function updateProject(
     id: string;
     updates: Partial<Project>;
   },
-  token?: string
+  token?: string,
 ): Promise<Project> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers.Authorization = `Bearer ${token}`;
   const res = await fetch(`/api/projects/${id}`, {
     method: 'PUT',
     headers,
@@ -92,7 +93,7 @@ async function updateProject(
 
 async function deleteProject(id: string, token?: string): Promise<{ message: string }> {
   const headers: Record<string, string> = {};
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers.Authorization = `Bearer ${token}`;
   const res = await fetch(`/api/projects/${id}`, {
     method: 'DELETE',
     headers,
@@ -135,4 +136,3 @@ export function useDeleteProjectMutation() {
     },
   });
 }
-

@@ -4,6 +4,8 @@ import type { CreateColumnFormData } from '@/lib/validators';
 import { toast } from '@/store/useToastStore';
 import type { BoardColumn } from '@/types';
 
+//Loads Kanban columns, reorders columns, manages column settings
+
 // Manages all column interactions
 export const columnKeys = {
   all: ['columns'] as const,
@@ -22,7 +24,7 @@ async function fetchColumns(): Promise<BoardColumn[]> {
 // create columns in the database
 async function createColumn(data: CreateColumnFormData, token?: string): Promise<BoardColumn> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers.Authorization = `Bearer ${token}`;
   const res = await fetch('/api/columns', {
     method: 'POST',
     headers,
@@ -36,13 +38,16 @@ async function createColumn(data: CreateColumnFormData, token?: string): Promise
 }
 
 // delete column hood request
-async function deleteColumn(id: string, token?: string): Promise<{
+async function deleteColumn(
+  id: string,
+  token?: string,
+): Promise<{
   message: string;
   movedTasksCount: number;
   deletedColumn: BoardColumn;
 }> {
   const headers: Record<string, string> = {};
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers.Authorization = `Bearer ${token}`;
   const res = await fetch(`/api/columns/${id}`, {
     method: 'DELETE',
     headers,
@@ -97,7 +102,7 @@ export function useDeleteColumnMutation() {
       if (previousColumns) {
         queryClient.setQueryData(
           columnKeys.all,
-          previousColumns.filter((c) => c.id !== deletedId && c.title !== deletedId)
+          previousColumns.filter((c) => c.id !== deletedId && c.title !== deletedId),
         );
       }
 
@@ -105,7 +110,7 @@ export function useDeleteColumnMutation() {
     },
     onSuccess: (result, deletedId) => {
       queryClient.setQueryData<BoardColumn[] | undefined>(columnKeys.all, (old) =>
-        old ? old.filter((c) => c.id !== deletedId && c.title !== deletedId) : []
+        old ? old.filter((c) => c.id !== deletedId && c.title !== deletedId) : [],
       );
       queryClient.invalidateQueries({ queryKey: columnKeys.all });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -121,7 +126,7 @@ export function useDeleteColumnMutation() {
     onError: (err: any, deletedId, context) => {
       if (err.message?.includes('not found') || err.message?.includes('404')) {
         queryClient.setQueryData<BoardColumn[] | undefined>(columnKeys.all, (old) =>
-          old ? old.filter((c) => c.id !== deletedId && c.title !== deletedId) : []
+          old ? old.filter((c) => c.id !== deletedId && c.title !== deletedId) : [],
         );
         queryClient.invalidateQueries({ queryKey: columnKeys.all });
         toast.success('Column removed from board');
@@ -140,7 +145,7 @@ export function useDeleteColumnMutation() {
 
 async function reorderColumns(columnIds: string[], token?: string): Promise<BoardColumn[]> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers.Authorization = `Bearer ${token}`;
   const res = await fetch('/api/columns/reorder', {
     method: 'POST',
     headers,
@@ -187,4 +192,3 @@ export function useReorderColumnsMutation() {
     },
   });
 }
-

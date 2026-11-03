@@ -191,7 +191,9 @@ export const ProjectsView: React.FC = () => {
                   {/* Members */}
                   <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs text-slate-500 font-medium">
                     <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 shrink-0" />
-                    <span>{members.length} {members.length === 1 ? 'Member' : 'Members'}</span>
+                    <span>
+                      {members.length} {members.length === 1 ? 'Member' : 'Members'}
+                    </span>
                   </div>
 
                   {/* Created date */}

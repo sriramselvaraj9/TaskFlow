@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 export default function IndexPage() {
   const { status } = useSession();
   const router = useRouter();
-  
+
   //CSR
   useEffect(() => {
     if (status === 'authenticated') {

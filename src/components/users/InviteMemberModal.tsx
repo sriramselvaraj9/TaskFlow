@@ -79,7 +79,7 @@ export const InviteMemberModal: React.FC = () => {
       setEmailErrorMessage(result.emailError || '');
 
       if (result.emailSent) {
-        toast.success(`Invitation email sent to "${invitedUser.name}" (${invitedUser.email})!`); 
+        toast.success(`Invitation email sent to "${invitedUser.name}" (${invitedUser.email})!`);
       } else {
         toast.warning(
           `Member added! Email could not be sent automatically. Please copy the invitation link.`,
@@ -148,7 +148,9 @@ export const InviteMemberModal: React.FC = () => {
                 {emailErrorMessage
                   ? `The account was created, but email delivery encountered an issue: ${emailErrorMessage}`
                   : 'The account was created, but the automatic email could not be sent.'}{' '}
-                <strong>Please copy and share the invitation link below directly with the member:</strong>
+                <strong>
+                  Please copy and share the invitation link below directly with the member:
+                </strong>
               </p>
             </div>
           )}
@@ -292,7 +294,10 @@ export const InviteMemberModal: React.FC = () => {
             {/* Corporate Designation (Optional) */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label htmlFor="new_member_designation" className="text-xs font-bold text-slate-700">
+                <label
+                  htmlFor="new_member_designation"
+                  className="text-xs font-bold text-slate-700"
+                >
                   Designation
                 </label>
                 <span className="text-[10px] text-slate-400 font-semibold bg-slate-100 px-1.5 py-0.5 rounded">
@@ -318,7 +323,8 @@ export const InviteMemberModal: React.FC = () => {
             <div className="p-3 bg-indigo-50/70 border border-indigo-100/80 rounded-xl flex items-start gap-2.5">
               <ShieldCheck className="w-4 h-4 text-indigo-600 mt-0.5 shrink-0" />
               <p className="text-[11px] text-indigo-900/80 leading-relaxed font-medium">
-                An email with a secure registration link will be sent to the member so they can set their own password and activate their account.
+                An email with a secure registration link will be sent to the member so they can set
+                their own password and activate their account.
               </p>
             </div>
 

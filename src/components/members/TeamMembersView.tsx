@@ -65,7 +65,9 @@ export const TeamMembersView: React.FC = () => {
               <Users className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">Team Members</h1>
+              <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                Team Members
+              </h1>
               <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
                 Workspace directory of all team members and their corporate designations.
               </p>

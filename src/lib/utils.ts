@@ -213,7 +213,7 @@ export function validateStatusTransition(
  * handling case-insensitivity, master admin emails, and undefined properties.
  */
 export function isAdminRole(
-  userOrRole?: { role?: string; email?: string; id?: string } | string | null
+  userOrRole?: { role?: string; email?: string; id?: string } | string | null,
 ): boolean {
   if (!userOrRole) return false;
   if (typeof userOrRole === 'string') {
@@ -231,4 +231,3 @@ export function isAdminRole(
   }
   return false;
 }
-

@@ -6,14 +6,12 @@ import {
   Eye,
   EyeOff,
   KeyRound,
-  Lock,
   ShieldCheck,
   Sparkles,
   User as UserIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { signIn } from 'next-auth/react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
@@ -188,7 +186,11 @@ export default function SetPasswordPage() {
                   <p className="text-xs text-rose-700 leading-relaxed">{verificationError}</p>
                 </div>
                 <Link href="/auth/signin">
-                  <Button variant="outline" size="md" className="w-full justify-center text-xs font-bold">
+                  <Button
+                    variant="outline"
+                    size="md"
+                    className="w-full justify-center text-xs font-bold"
+                  >
                     Return to Sign In
                   </Button>
                 </Link>
@@ -200,11 +202,12 @@ export default function SetPasswordPage() {
                 {email && (
                   <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
-                      {((name.trim() || (email as string) || 'U')).charAt(0).toUpperCase()}
+                      {(name.trim() || (email as string) || 'U').charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="text-xs font-bold text-slate-900 truncate">
-                        {name.trim() || (isReset ? 'Account Password Reset' : 'Workspace Member Activation')}
+                        {name.trim() ||
+                          (isReset ? 'Account Password Reset' : 'Workspace Member Activation')}
                       </div>
                       <div className="text-[11px] text-slate-500 truncate">{email as string}</div>
                     </div>
@@ -297,7 +300,11 @@ export default function SetPasswordPage() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1 cursor-pointer"
                       >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                     <div className="h-4 flex items-center mt-0.5">
@@ -338,7 +345,11 @@ export default function SetPasswordPage() {
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1 cursor-pointer"
                       >
-                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                     <div className="h-4 flex items-center mt-0.5">
@@ -361,7 +372,11 @@ export default function SetPasswordPage() {
                     disabled={!isFormValid || submitting}
                     className="w-full justify-center py-3 text-xs font-bold bg-[#4f46e5] hover:bg-[#4338ca] text-white rounded-xl shadow-lg shadow-indigo-600/20 cursor-pointer"
                   >
-                    <span>{isReset ? 'Save New Password & Sign In' : 'Set Password & Proceed to Sign In'}</span>
+                    <span>
+                      {isReset
+                        ? 'Save New Password & Sign In'
+                        : 'Set Password & Proceed to Sign In'}
+                    </span>
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </form>
