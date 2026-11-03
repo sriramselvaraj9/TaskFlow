@@ -1,4 +1,4 @@
-"""Dashboard and analytics calculations against deterministic known dataset.
+""" Integration tests Dashboard and analytics calculations against deterministic known dataset.
 
 Tests:
 1. Exact calculation of total tasks, completed tasks, in-progress tasks, and completion rate.

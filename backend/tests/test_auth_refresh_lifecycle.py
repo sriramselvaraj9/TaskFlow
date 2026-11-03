@@ -1,4 +1,4 @@
-"""Tests for refresh token issuance, rotation, reuse detection, concurrency locks, and revocation."""
+""" Integration tests Tests for refresh token issuance, rotation, reuse detection, concurrency locks, and revocation."""
 
 import json
 from httpx import AsyncClient

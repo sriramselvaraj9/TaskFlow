@@ -1,4 +1,4 @@
-"""Phase G Comprehensive Verification Test Suite.
+"""Integration tests Phase G Comprehensive Verification Test Suite.
 
 Covers:
 1. Centralized exception handling and status code mapping (400, 401, 403, 404, 409, 429, 503, 500).

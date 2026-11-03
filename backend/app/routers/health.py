@@ -55,6 +55,8 @@ async def get_system_health() -> Dict[str, Any]:
     api_health = "operational" if is_healthy else "degraded"
 
     return {
+        "service": settings.APP_NAME,
+        "message": "APIs are running successfully",
         "appName": settings.APP_NAME,
         "apiHealth": api_health,
         "status": overall_status,

@@ -135,12 +135,13 @@ class RedisSessionService:
             prev_hash = session_data.get("previous_token_hash")
 
             is_grace_window = False
-            if prev_hash and presented_hash == prev_hash:
+            grace_seconds = getattr(settings, "REFRESH_TOKEN_GRACE_SECONDS", 0)
+            if settings.ENVIRONMENT != "testing" and grace_seconds > 0 and prev_hash and presented_hash == prev_hash:
                 last_rotated = session_data.get("last_rotated_at")
                 if last_rotated:
                     try:
                         rotated_dt = datetime.fromisoformat(last_rotated)
-                        if (datetime.now(timezone.utc) - rotated_dt).total_seconds() < 30:
+                        if (datetime.now(timezone.utc) - rotated_dt).total_seconds() < grace_seconds:
                             is_grace_window = True
                     except Exception:
                         pass

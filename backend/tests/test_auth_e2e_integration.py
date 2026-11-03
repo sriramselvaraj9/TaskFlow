@@ -1,4 +1,4 @@
-"""End-to-end authentication, JWT, refresh rotation, logout, token reuse, and RBAC integration tests.
+""" Integration test End-to-end authentication, JWT, refresh rotation, logout, token reuse, and RBAC integration tests.
 
 Tests:
 1. Login flow with valid vs invalid credentials (no account enumeration).

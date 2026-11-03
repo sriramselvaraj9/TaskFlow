@@ -1,4 +1,4 @@
-"""Phase F Caching & Performance Verification Tests.
+""" Integration tests Phase F Caching & Performance Verification Tests.
 
 Tests:
 1. Reusable CacheService: get, set-with-TTL, delete, delete_pattern, and safe JSON serialization.
@@ -332,6 +332,7 @@ async def test_project_mutations_invalidate_caches():
 
     mock_project_dao = MagicMock()
     mock_project_dao.get_by_key = AsyncMock(return_value=None)
+    mock_project_dao.get_by_name = AsyncMock(return_value=None)
     mock_project_dao.create = AsyncMock(
         return_value=Project(
             id="p_new", name="New Project", key="NEW", description="Desc", owner_id="adm", members=[]

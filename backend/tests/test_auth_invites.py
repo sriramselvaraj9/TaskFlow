@@ -1,4 +1,4 @@
-"""Tests for invitation workflow, invite verification, password setup, and resend invite."""
+""" Integration Tests for invitation workflow, invite verification, password setup, and resend invite."""
 
 from httpx import AsyncClient
 import pytest

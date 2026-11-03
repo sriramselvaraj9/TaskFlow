@@ -1,4 +1,4 @@
-"""Tests for Role-Based Access Control (RBAC) and object-level authorization."""
+""" Integration tests Tests for Role-Based Access Control (RBAC) and object-level authorization."""
 
 from datetime import date, timedelta
 from httpx import AsyncClient

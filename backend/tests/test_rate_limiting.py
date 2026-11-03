@@ -1,4 +1,4 @@
-"""Tests for authentication rate limiting: atomic increments, 429 status code, and email non-disclosure."""
+""" Integration tests for authentication rate limiting: atomic increments, 429 status code, and email non-disclosure."""
 
 from httpx import AsyncClient
 import pytest
