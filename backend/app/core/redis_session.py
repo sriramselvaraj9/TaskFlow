@@ -54,6 +54,7 @@ class RedisSessionService:
             "session_id": session_id,
             "user_id": user_id,
             "current_token_hash": token_hash,
+            "previous_token_hash": None, 
             "created_at": datetime.now(timezone.utc).isoformat(),
             "last_rotated_at": datetime.now(timezone.utc).isoformat(),
             "revoked": False,
@@ -129,9 +130,22 @@ class RedisSessionService:
             if session_data.get("revoked", False):
                 raise AuthenticationException("Unauthorized: Refresh session has been revoked")
 
-            # 4. Refresh-Token Reuse Detection
+            # 4. Refresh-Token Reuse Detection with Grace Window for concurrent tab/request rotation
             current_hash = session_data.get("current_token_hash")
-            if current_hash != presented_hash:
+            prev_hash = session_data.get("previous_token_hash")
+
+            is_grace_window = False
+            if prev_hash and presented_hash == prev_hash:
+                last_rotated = session_data.get("last_rotated_at")
+                if last_rotated:
+                    try:
+                        rotated_dt = datetime.fromisoformat(last_rotated)
+                        if (datetime.now(timezone.utc) - rotated_dt).total_seconds() < 30:
+                            is_grace_window = True
+                    except Exception:
+                        pass
+
+            if current_hash != presented_hash and not is_grace_window:
                 logger.warning(
                     "SECURITY: Refresh token reuse detected for session %s (user %s)! Revoking entire session.",
                     session_id,
@@ -148,6 +162,7 @@ class RedisSessionService:
             new_refresh_token, new_jti = create_refresh_token(user_id=user_id, session_id=session_id)
             new_hash = hash_token(new_jti)
 
+            session_data["previous_token_hash"] = current_hash
             session_data["current_token_hash"] = new_hash
             session_data["last_rotated_at"] = datetime.now(timezone.utc).isoformat()
 

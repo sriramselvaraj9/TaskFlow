@@ -1,6 +1,38 @@
 import NextAuth, { type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
+const inFlightRefreshes = new Map<string, Promise<any>>();
+
+async function executeTokenRefresh(refreshToken: string): Promise<any> {
+  const rawBackendUrl =
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://127.0.0.1:8000';
+  const cleanUrl = rawBackendUrl
+    .trim()
+    .replace(/\/+$/, '')
+    .replace(/\/task_management\/api\/v1$/, '')
+    .replace(/\/api$/, '');
+
+  let refreshRes = await fetch(`${cleanUrl}/task_management/api/v1/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
+  });
+  if (refreshRes.status === 404) {
+    refreshRes = await fetch(`${cleanUrl}/api/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+  }
+  if (!refreshRes.ok) {
+    return null;
+  }
+  return refreshRes.json();
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -99,42 +131,25 @@ export const authOptions: NextAuthOptions = {
         token.role = 'MEMBER';
       }
 
-      // Proactively rotate expired or soon-to-expire access tokens
+      // Proactively rotate expired or soon-to-expire access tokens with concurrency deduplication
       if (token.expiresAt && token.refreshToken && Date.now() / 1000 > (token.expiresAt as number) - 60) {
         try {
-          const rawBackendUrl =
-            process.env.BACKEND_URL ||
-            process.env.NEXT_PUBLIC_BACKEND_URL ||
-            process.env.NEXT_PUBLIC_API_URL ||
-            'http://127.0.0.1:8000';
-          const cleanUrl = rawBackendUrl
-            .trim()
-            .replace(/\/+$/, '')
-            .replace(/\/task_management\/api\/v1$/, '')
-            .replace(/\/api$/, '');
-          let refreshRes = await fetch(`${cleanUrl}/task_management/api/v1/auth/refresh`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refreshToken: token.refreshToken }),
-          });
-          if (refreshRes.status === 404) {
-            refreshRes = await fetch(`${cleanUrl}/api/auth/refresh`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ refreshToken: token.refreshToken }),
+          const rf = token.refreshToken as string;
+          let refreshPromise = inFlightRefreshes.get(rf);
+          if (!refreshPromise) {
+            refreshPromise = executeTokenRefresh(rf).finally(() => {
+              inFlightRefreshes.delete(rf);
             });
+            inFlightRefreshes.set(rf, refreshPromise);
           }
-          if (refreshRes.ok) {
-            const refreshed = await refreshRes.json();
+
+          const refreshed = await refreshPromise;
+          if (refreshed?.accessToken) {
             token.accessToken = refreshed.accessToken;
             token.refreshToken = refreshed.refreshToken;
             token.expiresAt = Math.floor(Date.now() / 1000) + (refreshed.expiresIn || 1800);
-          } else {
-            // Drop expired access token so server-to-server calls dynamically generate valid internal tokens
-            delete (token as any).accessToken;
           }
         } catch (err) {
-          delete (token as any).accessToken;
           console.warn('[NextAuth] Token refresh error:', err);
         }
       }
