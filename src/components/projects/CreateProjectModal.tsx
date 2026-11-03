@@ -1,19 +1,66 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
-import { useCreateProjectMutation } from '@/hooks/useProjects';
+import { useCreateProjectMutation, useProjectsQuery } from '@/hooks/useProjects';
 import { useUsersQuery } from '@/hooks/useUsers';
+import { cn } from '@/lib/utils';
 import { type ProjectFormData, projectSchema } from '@/lib/validators';
 import { useTaskStore } from '@/store/useTaskStore';
+import { toast } from '@/store/useToastStore';
+
+function generateUniqueKey(name: string, takenKeys: Set<string>): string {
+  const clean = name.trim();
+  if (!clean) return '';
+  const words = clean.split(/\s+/).filter(Boolean);
+  let baseKey = '';
+  if (words.length >= 2) {
+    baseKey = words
+      .slice(0, 4)
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase();
+  } else if (words.length === 1) {
+    const match = words[0].match(/^([a-zA-Z]+)(\d+)?$/);
+    if (match) {
+      const letters = match[1].slice(0, 4).toUpperCase();
+      const num = match[2] || '';
+      baseKey = (letters.slice(0, 10 - num.length) + num).toUpperCase();
+    } else {
+      baseKey = words[0].slice(0, 4).toUpperCase();
+    }
+  }
+  baseKey = baseKey.replace(/[^A-Z0-9]/g, '');
+  if (baseKey.length < 2) {
+    baseKey = `PRJ${Math.floor(100 + Math.random() * 900)}`;
+  }
+
+  let candidate = baseKey.slice(0, 10);
+  let counter = 1;
+  while (takenKeys.has(candidate)) {
+    counter++;
+    const suffix = String(counter);
+    candidate = `${baseKey.slice(0, 10 - suffix.length)}${suffix}`;
+  }
+  return candidate;
+}
 
 export const CreateProjectModal: React.FC = () => {
   const { isCreateProjectOpen, setCreateProjectOpen } = useTaskStore();
   const { data: users = [] } = useUsersQuery();
+  const { data: existingProjects = [] } = useProjectsQuery();
   const createProjectMutation = useCreateProjectMutation();
   const [isKeyManuallyEdited, setIsKeyManuallyEdited] = useState(false);
+
+  const existingKeys = new Set(
+    existingProjects.map((p) => (p.key || '').trim().toUpperCase()).filter(Boolean)
+  );
+
+  const existingNames = new Set(
+    existingProjects.map((p) => (p.name || '').trim().toLowerCase()).filter(Boolean)
+  );
 
   const {
     register,
@@ -21,6 +68,8 @@ export const CreateProjectModal: React.FC = () => {
     setValue,
     watch,
     reset,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
@@ -34,42 +83,91 @@ export const CreateProjectModal: React.FC = () => {
 
   const memberIds = watch('memberIds') || [];
   const nameValue = watch('name') || '';
+  const keyValue = watch('key') || '';
+
+  useEffect(() => {
+    if (isCreateProjectOpen) {
+      reset();
+      clearErrors();
+      setIsKeyManuallyEdited(false);
+    }
+  }, [isCreateProjectOpen, reset, clearErrors]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setValue('name', val, { shouldValidate: true });
 
-    // Auto-generate project key if not manually customized
+    const trimmed = val.trim().toLowerCase();
+    if (trimmed && existingNames.has(trimmed)) {
+      setError('name', { message: `A project named "${val.trim()}" already exists` });
+    } else {
+      clearErrors('name');
+    }
+
     if (!isKeyManuallyEdited) {
-      const words = val.trim().split(/\s+/).filter(Boolean);
-      let autoKey = '';
-      if (words.length >= 2) {
-        autoKey = words
-          .slice(0, 4)
-          .map((w) => w[0])
-          .join('')
-          .toUpperCase();
-      } else if (words.length === 1) {
-        autoKey = words[0].slice(0, 4).toUpperCase();
-      }
-      autoKey = autoKey.replace(/[^A-Z0-9]/g, '');
-      if (autoKey.length >= 2) {
-        setValue('key', autoKey.slice(0, 5), { shouldValidate: true });
+      const autoKey = generateUniqueKey(val, existingKeys);
+      setValue('key', autoKey, { shouldValidate: true });
+      if (existingKeys.has(autoKey)) {
+        setError('key', { message: `Key "${autoKey}" is already taken` });
+      } else {
+        clearErrors('key');
       }
     }
   };
 
+  const handleKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsKeyManuallyEdited(true);
+    const val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+    setValue('key', val, { shouldValidate: true });
+
+    if (existingKeys.has(val)) {
+      setError('key', { message: `Key "${val}" is already taken by another project` });
+    } else {
+      clearErrors('key');
+    }
+  };
+
   const onSubmit = (data: ProjectFormData) => {
+    const cleanName = data.name.trim();
+    if (existingNames.has(cleanName.toLowerCase())) {
+      setError('name', { message: `A project named "${cleanName}" already exists.` });
+      toast.error(`Project name "${cleanName}" already exists. Please choose a different name.`);
+      return;
+    }
+
+    const finalKey = (data.key || generateUniqueKey(data.name, existingKeys)).toUpperCase();
+
+    if (existingKeys.has(finalKey)) {
+      setError('key', { message: `Project key "${finalKey}" is already taken.` });
+      toast.error(`Project key "${finalKey}" already exists. Please choose a different key.`);
+      return;
+    }
+
     createProjectMutation.mutate(
       {
         ...data,
-        key: data.key ? data.key.toUpperCase() : '',
+        name: cleanName,
+        key: finalKey,
       },
       {
-        onSuccess: () => {
+        onSuccess: (newProj) => {
+          toast.success(`Project "${newProj.name}" created successfully!`);
           reset();
+          clearErrors();
           setIsKeyManuallyEdited(false);
           setCreateProjectOpen(false);
+        },
+        onError: (err: any) => {
+          const msg = err.message || 'Failed to create project';
+          toast.error(msg);
+          const lower = msg.toLowerCase();
+          if (lower.includes('name')) {
+            setError('name', { message: msg });
+          } else if (lower.includes('key')) {
+            setError('key', { message: msg });
+          } else {
+            setError('name', { message: msg });
+          }
         },
       },
     );
@@ -77,6 +175,7 @@ export const CreateProjectModal: React.FC = () => {
 
   const handleClose = () => {
     reset();
+    clearErrors();
     setIsKeyManuallyEdited(false);
     setCreateProjectOpen(false);
   };
@@ -91,7 +190,7 @@ export const CreateProjectModal: React.FC = () => {
     >
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col justify-between min-h-[420px]"
+        className="flex flex-col justify-between min-h-[440px]"
       >
         <div className="space-y-4 flex-1">
           {/* Project Name */}
@@ -104,9 +203,44 @@ export const CreateProjectModal: React.FC = () => {
               placeholder="e.g. Core API Infrastructure"
               value={nameValue}
               onChange={handleNameChange}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 font-medium shadow-xs"
+              className={cn(
+                'w-full bg-slate-50 border rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none font-medium shadow-xs transition-colors',
+                errors.name
+                  ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20'
+                  : 'border-slate-200 focus:border-indigo-500'
+              )}
             />
-            {errors.name && <p className="text-xs text-rose-600 mt-1">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="text-xs text-rose-600 mt-1.5 font-medium flex items-center gap-1">
+                <span>⚠️</span> {errors.name.message}
+              </p>
+            )}
+          </div>
+
+          {/* Project Key */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                Project Key *
+              </label>
+              <span className="text-[10px] text-slate-400">
+                Prefix for tasks (e.g. {keyValue || 'KEY'}-1)
+              </span>
+            </div>
+            <input
+              type="text"
+              placeholder="e.g. FRON"
+              maxLength={10}
+              value={keyValue}
+              onChange={handleKeyChange}
+              className={cn(
+                'w-full bg-slate-50 border rounded-xl px-3.5 py-2.5 text-xs text-slate-900 uppercase font-mono font-bold tracking-wider placeholder-slate-400 focus:bg-white focus:outline-none shadow-xs transition-colors',
+                errors.key
+                  ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20'
+                  : 'border-slate-200 focus:border-indigo-500'
+              )}
+            />
+            {errors.key && <p className="text-xs text-rose-600 mt-1 font-medium">{errors.key.message}</p>}
           </div>
 
           {/* Description */}
@@ -158,6 +292,7 @@ export const CreateProjectModal: React.FC = () => {
             variant="primary"
             size="sm"
             loading={createProjectMutation.isPending}
+            disabled={createProjectMutation.isPending || Boolean(errors.name) || Boolean(errors.key)}
           >
             Create Project
           </Button>

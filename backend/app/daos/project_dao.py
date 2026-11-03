@@ -32,6 +32,12 @@ class ProjectDAO(BaseDAO[Project]):
         result = await session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def get_by_name(self, session: AsyncSession, name: str) -> Optional[Project]:
+        """Fetch project by case-insensitive name."""
+        stmt = select(Project).where(func.lower(Project.name) == name.strip().lower())
+        result = await session.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def get_all(self, session: AsyncSession) -> List[Project]:
         """Fetch all projects ordered by creation date descending with members loaded."""
         stmt = (

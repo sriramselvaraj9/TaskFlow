@@ -91,15 +91,26 @@ class ProjectService:
         if current_user.role != "ADMIN":
             raise PermissionDeniedException("Forbidden: Administrator privileges required to create projects")
 
-        # Derive or validate key
+        # 1. Enforce Project Name uniqueness
+        existing_name = await self.project_dao.get_by_name(session, data.name)
+        if existing_name:
+            raise ConflictException(f"Project with name '{data.name.strip()}' already exists")
+
+        # 2. Derive or validate key
         key = data.key.strip().upper() if data.key else ""
         if not key:
             alpha = re.sub(r"[^A-Za-z0-9]", "", data.name).upper()
-            key = alpha[:4] if len(alpha) >= 2 else f"PRJ{uuid.uuid4().hex[:3].upper()}"
-
-        existing_key = await self.project_dao.get_by_key(session, key)
-        if existing_key:
-            raise ConflictException(f"Project with key '{key}' already exists")
+            base_key = alpha[:4] if len(alpha) >= 2 else f"PRJ{uuid.uuid4().hex[:3].upper()}"
+            key = base_key
+            counter = 1
+            while await self.project_dao.get_by_key(session, key):
+                counter += 1
+                suffix = str(counter)
+                key = f"{base_key[:10 - len(suffix)]}{suffix}"
+        else:
+            existing_key = await self.project_dao.get_by_key(session, key)
+            if existing_key:
+                raise ConflictException(f"Project with key '{key}' already exists")
 
         # Resolve initial members strictly from provided member_ids
         members = []
@@ -158,8 +169,12 @@ class ProjectService:
         if current_user.role != "ADMIN" and project.owner_id != current_user.id:
             raise PermissionDeniedException("Forbidden: Only administrators or project owners can update projects")
 
-        if data.name is not None:
-            project.name = data.name.strip()
+        if data.name is not None and data.name.strip().lower() != project.name.strip().lower():
+            clean_name = data.name.strip()
+            existing_name = await self.project_dao.get_by_name(session, clean_name)
+            if existing_name and existing_name.id != project.id:
+                raise ConflictException(f"Project with name '{clean_name}' already exists")
+            project.name = clean_name
         if data.description is not None:
             project.description = data.description.strip()
         if data.status is not None:

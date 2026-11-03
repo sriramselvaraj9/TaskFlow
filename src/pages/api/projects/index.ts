@@ -30,7 +30,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (error?.name === 'ZodError') {
         return res.status(400).json({ message: 'Validation Error', errors: error.errors });
       }
-      const statusCode = error.message?.includes('Unauthorized') ? 403 : 400;
+      const isConflict =
+        error.message?.includes('already exists') ||
+        error.message?.includes('Conflict') ||
+        error.message?.includes('409');
+      const statusCode = error.message?.includes('Unauthorized') ? 403 : isConflict ? 409 : 400;
       return res.status(statusCode).json({ message: error.message || 'Failed to create project' });
     }
   }

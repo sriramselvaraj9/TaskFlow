@@ -5,7 +5,6 @@ import {
   CheckSquare,
   Clock,
   Edit3,
-  ExternalLink,
   FolderKanban,
   Layers,
   RotateCcw,
@@ -107,6 +106,9 @@ export const NotificationBell: React.FC = () => {
   };
 
   const handleActivityClick = (activity: ActivityLog) => {
+    if (activity.action === 'TASK_DELETED' || activity.action === 'COLUMN_DELETED') {
+      return;
+    }
     if (activity.taskId) {
       setSelectedTaskId(activity.taskId);
       setIsOpen(false);
@@ -268,7 +270,11 @@ export const NotificationBell: React.FC = () => {
               filteredActivities.map((act) => {
                 const iconInfo = getActivityIcon(act.action);
                 const IconComponent = iconInfo.icon;
-                const isClickable = Boolean(act.taskId || act.projectId);
+                const isClickable = Boolean(
+                  (act.taskId || act.projectId) &&
+                  act.action !== 'TASK_DELETED' &&
+                  act.action !== 'COLUMN_DELETED'
+                );
 
                 return (
                   <div
@@ -304,16 +310,6 @@ export const NotificationBell: React.FC = () => {
                         <span className="text-[10px] font-medium text-slate-400">
                           {formatRelativeTime(act.timestamp)}
                         </span>
-
-                        {isClickable && (
-                          <>
-                            <span className="text-slate-300 text-[10px]">•</span>
-                            <span className="text-[10px] font-semibold text-indigo-600 flex items-center gap-0.5 group-hover:underline">
-                              <span>Open details</span>
-                              <ExternalLink className="w-2.5 h-2.5" />
-                            </span>
-                          </>
-                        )}
                       </div>
                     </div>
                   </div>
