@@ -136,7 +136,7 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: Optional[str] = None
     REDIS_DB: int = 0
     REDIS_URL: Optional[str] = None
-    REDIS_TIMEOUT_MS: int = 500
+    REDIS_TIMEOUT_MS: int = 1500
 
     # Cache & Performance Configuration (Phase F)
     CACHE_ENABLED: bool = True

@@ -12,8 +12,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === 'GET') {
-    const users = await getUsers(currentUser);
-    return res.status(200).json(users);
+    try {
+      const users = await getUsers(currentUser);
+      return res.status(200).json(users);
+    } catch (error: any) {
+      return res.status(502).json({ message: error.message || 'Failed to fetch users from backend' });
+    }
   }
 
   return res.status(405).json({ message: 'Method Not Allowed' });
