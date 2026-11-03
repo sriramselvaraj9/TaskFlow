@@ -54,7 +54,7 @@ class RedisSessionService:
             "session_id": session_id,
             "user_id": user_id,
             "current_token_hash": token_hash,
-            "previous_token_hash": None, 
+            "previous_token_hash": None,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "last_rotated_at": datetime.now(timezone.utc).isoformat(),
             "revoked": False,
