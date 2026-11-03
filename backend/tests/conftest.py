@@ -14,6 +14,7 @@ from sqlalchemy.pool import StaticPool
 
 from httpx import ASGITransport, AsyncClient
 
+from app.core.config import settings
 from app.core.cache import cache_service
 from app.core.database import Base, get_db
 from app.core.rate_limiter import rate_limiter
@@ -22,13 +23,8 @@ from app.core.redis_session import redis_session_service
 from app.main import app
 from tests.fake_redis import FakeRedis
 
-
-@pytest.fixture(scope="session")
-def event_loop():
-    """Create an instance of the default event loop for the test session."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
+# Force testing environment for isolated, non-blocking test execution
+settings.ENVIRONMENT = "testing"
 
 
 @pytest.fixture(autouse=True)

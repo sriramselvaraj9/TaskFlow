@@ -350,7 +350,6 @@ export const ProjectDetailDrawer: React.FC = () => {
                         >
                           <option value="ACTIVE">ACTIVE</option>
                           <option value="COMPLETED">COMPLETED</option>
-                          <option value="ARCHIVED">ARCHIVED</option>
                         </select>
                       ) : (
                         <span
@@ -358,9 +357,7 @@ export const ProjectDetailDrawer: React.FC = () => {
                             'inline-block text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border mt-0.5',
                             project.status === 'ACTIVE'
                               ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
-                              : project.status === 'COMPLETED'
-                                ? 'text-indigo-700 bg-indigo-50 border-indigo-200'
-                                : 'text-slate-600 bg-slate-100 border-slate-200',
+                              : 'text-indigo-700 bg-indigo-50 border-indigo-200',
                           )}
                         >
                           {project.status}

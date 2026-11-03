@@ -20,6 +20,20 @@ export const Header: React.FC = () => {
   } = useTaskStore();
 
   const handleSignOut = async () => {
+    try {
+      const accessToken = (session as any)?.accessToken;
+      const refreshToken = (session as any)?.refreshToken;
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
+        body: JSON.stringify({ refreshToken }),
+      }).catch(() => {});
+    } catch {
+      // Ignore network errors on logout
+    }
     await signOut({ redirect: false });
     window.location.href = '/auth/signin';
   };

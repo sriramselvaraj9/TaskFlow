@@ -4,7 +4,7 @@ Tests:
 1. Exact calculation of total tasks, completed tasks, in-progress tasks, and completion rate.
 2. Accurate overdue calculation: tasks due before current date that are NOT DONE are counted; completed tasks are NOT counted.
 3. Accurate status distribution and priority distribution maps.
-4. Active projects count ignoring archived projects.
+4. Active projects count ignoring completed projects.
 5. User-scoped assigned_to_me calculation.
 6. Project-scoped filtering of metrics.
 7. Authorization boundaries: non-member access to private project dashboard yields 403 Forbidden.
@@ -14,6 +14,7 @@ Tests:
 from datetime import date, timedelta
 from httpx import AsyncClient
 import pytest
+import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import PermissionDeniedException
@@ -29,7 +30,7 @@ from app.schemas.user import UserTokenPayload
 from app.services.dashboard_service import dashboard_service
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def seeded_dashboard_data(db_session: AsyncSession):
     """Seeds a known, deterministic dataset with 3 users, 3 projects, and 10 tasks."""
     today = date.today()
@@ -54,7 +55,7 @@ async def seeded_dashboard_data(db_session: AsyncSession):
     ]:
         await column_dao.create(db_session, BoardColumn(id=cid, title=title, order=order))
 
-    # 3. Projects: 2 ACTIVE, 1 ARCHIVED
+    # 3. Projects: 2 ACTIVE, 1 COMPLETED
     p1 = Project(
         id="p_alpha",
         name="Project Alpha",
@@ -73,18 +74,18 @@ async def seeded_dashboard_data(db_session: AsyncSession):
         owner_id=admin.id,
         members=[admin, member2],
     )
-    p3_archived = Project(
+    p3_completed = Project(
         id="p_gamma",
         name="Project Gamma",
         key="GAM",
-        description="Archived project",
-        status=ProjectStatus.ARCHIVED,
+        description="Completed project",
+        status=ProjectStatus.COMPLETED,
         owner_id=admin.id,
         members=[admin],
     )
     await project_dao.create(db_session, p1)
     await project_dao.create(db_session, p2)
-    await project_dao.create(db_session, p3_archived)
+    await project_dao.create(db_session, p3_completed)
 
     # 4. Tasks in Project Alpha (5 tasks assigned to member1)
     t1 = Task(id="ALP-1", title="Alpha Done Past", description="Desc", status="DONE", priority=TaskPriority.HIGH, project_id=p1.id, assignee_id=member1.id, created_by_id=admin.id, due_date=yesterday)
@@ -130,7 +131,7 @@ async def test_global_dashboard_metrics_calculation(db_session: AsyncSession, se
     assert stats.overdue_tasks == 2
     assert stats.overdue_count == 2
 
-    # Active projects: 2 active (Alpha, Beta), Gamma is ARCHIVED
+    # Active projects: 2 active (Alpha, Beta), Gamma is COMPLETED
     assert stats.active_projects == 2
 
     # Status distribution

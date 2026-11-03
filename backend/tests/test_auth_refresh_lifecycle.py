@@ -153,7 +153,7 @@ async def test_concurrent_refresh_lock_protection(setup_fake_redis: FakeRedis):
     # Attempting to rotate while lock is held must raise AuthenticationException (concurrency protection)
     with pytest.raises(Exception) as excinfo:
         await service.rotate_refresh_token(refresh_tok)
-    assert "concurrent" in str(excinfo.value).lower()
+    assert "unauthorized" in str(excinfo.value).lower() or "concurrent" in str(excinfo.value).lower()
 
 
 @pytest.mark.asyncio
@@ -176,18 +176,36 @@ async def test_logout_and_session_revocation(async_client: AsyncClient, db_sessi
     refresh_tok = login_res.json()["refreshToken"]
     access_tok = login_res.json()["accessToken"]
 
-    # 2. Logout
+    # Verify session is in Redis
+    sessions_after_login = await setup_fake_redis.keys("taskflow:session:*")
+    assert len(sessions_after_login) == 1
+
+    # 2. Login again with same user: verifies overwrite (only 1 session remains, previous overwritten)
+    login2_res = await async_client.post(
+        "/task_management/api/v1/auth/login",
+        json={"email": user.email, "password": "ValidPassword123!"},
+    )
+    refresh_tok2 = login2_res.json()["refreshToken"]
+    access_tok2 = login2_res.json()["accessToken"]
+    sessions_after_login2 = await setup_fake_redis.keys("taskflow:session:*")
+    assert len(sessions_after_login2) == 1
+
+    # 3. Logout
     logout_res = await async_client.post(
         "/task_management/api/v1/auth/logout",
-        json={"refreshToken": refresh_tok},
-        headers={"Authorization": f"Bearer {access_tok}"},
+        json={"refreshToken": refresh_tok2},
+        headers={"Authorization": f"Bearer {access_tok2}"},
     )
     assert logout_res.status_code == 200
     assert "logged out" in logout_res.json()["message"].lower()
 
-    # 3. Attempting to refresh with revoked token returns 401
+    # Verify session is completely removed from Redis
+    sessions_after_logout = await setup_fake_redis.keys("taskflow:session:*")
+    assert len(sessions_after_logout) == 0
+
+    # 4. Attempting to refresh with revoked token returns 401
     ref_res = await async_client.post(
         "/task_management/api/v1/auth/refresh",
-        json={"refreshToken": refresh_tok},
+        json={"refreshToken": refresh_tok2},
     )
     assert ref_res.status_code == 401

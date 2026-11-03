@@ -13,7 +13,7 @@ class ProjectBase(CamelModel):
     name: str = Field(..., min_length=3, max_length=60)
     key: Optional[str] = Field(default="", max_length=10)
     description: Optional[str] = Field(default="", max_length=2000)
-    status: Literal["ACTIVE", "ARCHIVED", "COMPLETED"] = Field(default="ACTIVE")
+    status: Literal["ACTIVE", "COMPLETED"] = Field(default="ACTIVE")
 
 
 class ProjectCreate(CamelModel):
@@ -30,7 +30,7 @@ class ProjectUpdate(CamelModel):
 
     name: Optional[str] = Field(default=None, min_length=3, max_length=60)
     description: Optional[str] = Field(default=None, max_length=2000)
-    status: Optional[Literal["ACTIVE", "ARCHIVED", "COMPLETED"]] = None
+    status: Optional[Literal["ACTIVE", "COMPLETED"]] = None
     member_ids: Optional[List[str]] = None
 
 
@@ -41,7 +41,7 @@ class ProjectResponse(CamelModel):
     name: str
     key: str
     description: Optional[str] = Field(default="")
-    status: Literal["ACTIVE", "ARCHIVED", "COMPLETED"]
+    status: Literal["ACTIVE", "COMPLETED"]
     owner_id: str
     member_ids: List[str] = Field(default_factory=list)
     created_at: Union[datetime, str]

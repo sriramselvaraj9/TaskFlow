@@ -1,5 +1,6 @@
 """Authentication, credential verification, and session coordination service."""
 
+from app.core.background_tasks import logger
 from typing import Any, Callable, Dict, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -89,14 +90,24 @@ class AuthService:
         # 3. Clear rate limit record on successful authentication
         await self.rate_limiter_reset(ip=client_ip, email=data.email)
 
-        # 4. Issue refresh session in Redis
+        # 4. Overwrite: Revoke previous active sessions for this user so only 1 active session exists
+        try:
+            import inspect
+            if hasattr(self.session_service, "revoke_user_sessions"):
+                res = self.session_service.revoke_user_sessions(user.id)
+                if inspect.isawaitable(res):
+                    await res
+        except Exception as exc:
+            logger.warning("Failed to revoke previous user sessions on login: %s", exc)
+
+        # 5. Issue refresh session in Redis
         refresh_token, session_id, _ = await self.session_service.create_session(
             user_id=user.id,
             client_ip=client_ip,
             user_agent=user_agent,
         )
 
-        # 5. Issue cryptographic access token
+        # 6. Issue cryptographic access token
         access_token = create_access_token({
             "sub": user.id,
             "name": user.name,
@@ -149,12 +160,28 @@ class AuthService:
         current_user: Optional[UserTokenPayload] = None,
     ) -> MessageResponse:
         """Terminate active session and revoke refresh tokens."""
+        import inspect
         if refresh_token:
             try:
                 payload = decode_token(refresh_token, expected_type="refresh")
                 session_id = payload.get("sid")
+                user_id = payload.get("sub")
                 if session_id:
-                    await self.session_service.revoke_session(session_id)
+                    res = self.session_service.revoke_session(session_id)
+                    if inspect.isawaitable(res):
+                        await res
+                if user_id:
+                    res = self.session_service.revoke_user_sessions(user_id)
+                    if inspect.isawaitable(res):
+                        await res
+            except Exception:
+                pass
+
+        if current_user:
+            try:
+                res = self.session_service.revoke_user_sessions(current_user.id)
+                if inspect.isawaitable(res):
+                    await res
             except Exception:
                 pass
 

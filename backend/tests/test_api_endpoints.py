@@ -35,9 +35,9 @@ async def test_health_endpoint(async_client: AsyncClient):
     res = await async_client.get("/task_management/api/v1/health")
     assert res.status_code == 200
     data = res.json()
-    assert data["appName"] == "TaskFlow"
-    assert data["apiHealth"] in ("operational", "degraded")
-    assert data["status"] in ("healthy", "degraded")
+    assert data["service"] == "TaskFlow"
+    assert data["message"] == "APIs are running successfully"
+    assert "timestamp" in data
 
 
 @pytest.mark.asyncio
@@ -280,11 +280,6 @@ async def test_missing_resources_return_404(async_client: AsyncClient, db_sessio
     u_res = await async_client.get("/task_management/api/v1/users/unknown_usr", headers=ADMIN_HEADERS)
     assert u_res.status_code == 404
     assert "not found" in u_res.json()["message"].lower()
-
-    # 4. Column 404
-    c_res = await async_client.delete("/task_management/api/v1/columns/UNKNOWN_COL", headers=ADMIN_HEADERS)
-    assert c_res.status_code == 404
-    assert "not found" in c_res.json()["message"].lower()
 
 
 

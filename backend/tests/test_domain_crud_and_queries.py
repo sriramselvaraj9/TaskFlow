@@ -3,10 +3,11 @@
 from datetime import date, datetime, timedelta, timezone
 import uuid
 import pytest
+import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.core.exceptions import ConflictException, NotFoundException
+from app.core.exceptions import ConflictException, NotFoundException, WorkflowRestrictionException
 from app.daos.column_dao import column_dao
 from app.daos.project_dao import project_dao
 from app.daos.task_dao import task_dao
@@ -17,7 +18,7 @@ from app.models.task import Task, TaskPriority
 from app.models.user import User, UserRole
 from app.schemas.column import ColumnCreate
 from app.schemas.project import ProjectCreate
-from app.schemas.task import TaskCreate, TaskFilterParams
+from app.schemas.task import TaskCreate, TaskFilterParams, TaskUpdate
 from app.schemas.user import UserCreate, UserTokenPayload
 from app.services.column_service import column_service
 from app.services.project_service import project_service
@@ -28,7 +29,7 @@ ADMIN = UserTokenPayload(id="u_admin_crud", name="Admin", email="admin.crud@t.de
 MEMBER = UserTokenPayload(id="u_mem_crud", name="Member", email="mem.crud@t.dev", role="MEMBER")
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def crud_seeded_env(db_session: AsyncSession):
     """Sets up base users, columns, and an active project for CRUD testing."""
     admin_user = User(id=ADMIN.id, name=ADMIN.name, email=ADMIN.email, role=UserRole.ADMIN)
@@ -39,7 +40,8 @@ async def crud_seeded_env(db_session: AsyncSession):
     for cid, title, order in [
         ("TODO", "To Do", 0),
         ("IN_PROGRESS", "In Progress", 1),
-        ("DONE", "Done", 2),
+        ("IN_REVIEW", "In Review", 2),
+        ("DONE", "Done", 3),
     ]:
         await column_dao.create(db_session, BoardColumn(id=cid, title=title, order=order))
 
@@ -273,3 +275,76 @@ async def test_transaction_rollback_prevents_partial_writes(db_session: AsyncSes
     stmt = select(User).where(User.id == test_user_id)
     result = await db_session.execute(stmt)
     assert result.scalar_one_or_none() is None
+
+
+@pytest.mark.asyncio
+async def test_task_backlog_transitions_and_safeguards(db_session: AsyncSession, crud_seeded_env):
+    """Verify tasks can move to and from BACKLOG space without requiring a column in board_columns."""
+    proj = crud_seeded_env["project"]
+
+    # 1. Create task in TODO
+    task = await task_service.create_task(
+        db_session,
+        TaskCreate(
+            title="Backlog Move Test",
+            description="Testing moving to backlog space",
+            project_id=proj.id,
+            status="TODO",
+            priority="MEDIUM",
+            due_date=str(date.today() + timedelta(days=5)),
+        ),
+        ADMIN,
+    )
+    assert task.status == "TODO"
+
+    # 2. Move task to BACKLOG
+    moved_to_backlog = await task_service.update_task(
+        db_session,
+        task.id,
+        TaskUpdate(status="BACKLOG"),
+        ADMIN,
+    )
+    assert moved_to_backlog.status == "BACKLOG"
+
+    # 3. Illegal transition: BACKLOG -> DONE
+    with pytest.raises(WorkflowRestrictionException):
+        await task_service.update_task(
+            db_session,
+            task.id,
+            TaskUpdate(status="DONE"),
+            ADMIN,
+        )
+
+    # 4. Illegal transition: BACKLOG -> IN_REVIEW
+    with pytest.raises(WorkflowRestrictionException):
+        await task_service.update_task(
+            db_session,
+            task.id,
+            TaskUpdate(status="IN_REVIEW"),
+            ADMIN,
+        )
+
+    # 5. Legal transition: BACKLOG -> TODO
+    moved_to_todo = await task_service.update_task(
+        db_session,
+        task.id,
+        TaskUpdate(status="TODO"),
+        ADMIN,
+    )
+    assert moved_to_todo.status == "TODO"
+
+    # 6. Create task directly in BACKLOG
+    backlog_task = await task_service.create_task(
+        db_session,
+        TaskCreate(
+            title="Direct Backlog Task",
+            description="Testing direct creation in backlog",
+            project_id=proj.id,
+            status="BACKLOG",
+            priority="LOW",
+            due_date=str(date.today() + timedelta(days=10)),
+        ),
+        ADMIN,
+    )
+    assert backlog_task.status == "BACKLOG"
+

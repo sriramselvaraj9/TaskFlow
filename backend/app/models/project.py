@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 class ProjectStatus(str, enum.Enum):
     """Lifecycle status of a project workspace."""
     ACTIVE = "ACTIVE"
-    ARCHIVED = "ARCHIVED"
     COMPLETED = "COMPLETED"
 
 

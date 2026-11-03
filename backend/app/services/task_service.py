@@ -152,9 +152,14 @@ class TaskService:
                 if not is_assignee_member:
                     raise ValidationException("Assignee is not an enrolled member of this project")
 
-        col = await self.column_dao.get_by_id_ci(session, data.status)
-        if not col:
-            raise ValidationException(f"Workflow status column '{data.status}' does not exist")
+        clean_status = (data.status or "TODO").strip()
+        if clean_status.upper() == "BACKLOG":
+            status_val = "BACKLOG"
+        else:
+            col = await self.column_dao.get_by_id_ci(session, clean_status)
+            if not col:
+                raise ValidationException(f"Workflow status column '{clean_status}' does not exist")
+            status_val = col.id
 
         due = (
             data.due_date
@@ -175,7 +180,7 @@ class TaskService:
             id=task_id,
             title=data.title.strip(),
             description=(data.description or "").strip(),
-            status=data.status,
+            status=status_val,
             priority=TaskPriority(data.priority),
             start_date=start,
             due_date=due,
@@ -237,9 +242,13 @@ class TaskService:
         # 1. Workflow validation
         if data.status is not None and data.status != task.status:
             target_status = data.status.strip()
-            col = await self.column_dao.get_by_id_ci(session, target_status)
-            if not col:
-                raise ValidationException(f"Workflow status column '{target_status}' does not exist")
+            if target_status.upper() == "BACKLOG":
+                target_status = "BACKLOG"
+            else:
+                col = await self.column_dao.get_by_id_ci(session, target_status)
+                if not col:
+                    raise ValidationException(f"Workflow status column '{target_status}' does not exist")
+                target_status = col.id
 
             # Validate against illegal transition rules
             transition = (task.status.upper(), target_status.upper())

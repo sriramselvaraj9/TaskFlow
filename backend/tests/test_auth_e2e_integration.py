@@ -13,6 +13,7 @@ Tests:
 from datetime import date, timedelta
 from httpx import AsyncClient
 import pytest
+import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import AuthenticationException, PermissionDeniedException
@@ -34,7 +35,7 @@ from app.services.task_service import task_service
 from tests.fake_redis import FakeRedis
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def auth_test_env(db_session: AsyncSession):
     """Seeds test users, projects, and columns for auth integration tests."""
     admin = User(

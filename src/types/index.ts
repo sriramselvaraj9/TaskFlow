@@ -37,7 +37,7 @@ export interface Task {
   updatedAt: string;
 }
 
-export type ProjectStatus = 'ACTIVE' | 'ARCHIVED' | 'COMPLETED';
+export type ProjectStatus = 'ACTIVE' | 'COMPLETED';
 
 export interface Project {
   id: string;

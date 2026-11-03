@@ -179,27 +179,58 @@ class RedisSessionService:
         _IN_MEMORY_SESSIONS.pop(session_key, None)
         try:
             redis = await self._get_client()
-            raw = await redis.get(session_key)
-            if raw:
-                session_data = json.loads(raw)
-                session_data["revoked"] = True
-                await redis.set(session_key, json.dumps(session_data), ex=60)
-            await redis.delete(session_key)
+            if redis is not None:
+                raw = await redis.get(session_key)
+                if raw:
+                    try:
+                        session_data = json.loads(raw)
+                        user_id = session_data.get("user_id")
+                        if user_id and hasattr(redis, "srem"):
+                            await redis.srem(f"taskflow:user_sessions:{user_id}", session_id)
+                    except Exception:
+                        pass
+                await redis.delete(session_key)
             return True
         except Exception as exc:
             logger.warning("Redis session revocation error: %s", exc)
             return True
 
     async def revoke_user_sessions(self, user_id: str) -> int:
-        """Revokes all active sessions for a user (e.g., on password reset or offboarding)."""
+        """Revokes all active sessions for a user (e.g., on logout, login overwrite, or password reset)."""
         sids = _IN_MEMORY_USER_SESSIONS.pop(user_id, set())
         for sid in sids:
             _IN_MEMORY_SESSIONS.pop(f"taskflow:session:{sid}", None)
         count = len(sids)
         try:
             redis = await self._get_client()
+            if redis is None:
+                return count
+
             user_set_key = f"taskflow:user_sessions:{user_id}"
-            session_ids = await redis.smembers(user_set_key)
+            session_ids = set()
+            try:
+                smembers = await redis.smembers(user_set_key)
+                if smembers:
+                    session_ids.update(smembers)
+            except Exception:
+                pass
+
+            # Scan for any orphan taskflow:session:* keys matching this user_id
+            if hasattr(redis, "scan_iter"):
+                try:
+                    async for k in redis.scan_iter(match="taskflow:session:*", count=100):
+                        raw = await redis.get(k)
+                        if raw:
+                            try:
+                                data = json.loads(raw)
+                                if data.get("user_id") == user_id:
+                                    sid = data.get("session_id") or k.replace("taskflow:session:", "")
+                                    session_ids.add(sid)
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
+
             for sid in session_ids:
                 session_key = f"taskflow:session:{sid}"
                 await redis.delete(session_key)

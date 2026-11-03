@@ -154,7 +154,42 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).designation = token.designation as string;
       }
       (session as any).accessToken = token.accessToken;
+      (session as any).refreshToken = token.refreshToken;
       return session;
+    },
+  },
+  events: {
+    async signOut(message) {
+      try {
+        const token = message.token as any;
+        const refreshToken = token?.refreshToken;
+        const accessToken = token?.accessToken;
+        const rawBackendUrl =
+          process.env.BACKEND_URL ||
+          process.env.NEXT_PUBLIC_BACKEND_URL ||
+          process.env.NEXT_PUBLIC_API_URL ||
+          'http://127.0.0.1:8000';
+        const cleanUrl = rawBackendUrl
+          .trim()
+          .replace(/\/+$/, '')
+          .replace(/\/task_management\/api\/v1$/, '')
+          .replace(/\/api$/, '');
+
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
+        await fetch(`${cleanUrl}/task_management/api/v1/auth/logout`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ refreshToken: refreshToken || undefined }),
+        }).catch(() => {});
+      } catch (err) {
+        console.warn('[NextAuth] signOut event error:', err);
+      }
     },
   },
   pages: {

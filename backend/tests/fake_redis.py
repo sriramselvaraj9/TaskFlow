@@ -113,6 +113,17 @@ class FakeRedis:
         self._sets[key].update(members)
         return len(self._sets[key]) - prev_len
 
+    async def srem(self, key: str, *members: str) -> int:
+        self._is_expired(key)
+        if key not in self._sets:
+            return 0
+        removed = 0
+        for m in members:
+            if m in self._sets[key]:
+                self._sets[key].remove(m)
+                removed += 1
+        return removed
+
     async def smembers(self, key: str) -> Set[str]:
         if self._is_expired(key):
             return set()

@@ -23,6 +23,10 @@ logger = logging.getLogger("taskflow.main")
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager for startup and shutdown hooks."""
+    if settings.ENVIRONMENT == "testing":
+        yield
+        return
+
     # 1. Startup: Initialize Redis connection and verify database connectivity
     try:
         await init_redis_client()

@@ -24,7 +24,8 @@ def test_build_invite_html():
 @pytest.mark.asyncio
 async def test_send_invite_email_handles_smtp_failure():
     """Ensure SMTP connection errors do not raise uncaught exceptions and return False gracefully."""
-    with patch("smtplib.SMTP", side_effect=Exception("SMTP connection refused")), \
+    with patch("app.services.email_service._get_brevo_api_config", return_value=None), \
+         patch("smtplib.SMTP", side_effect=Exception("SMTP connection refused")), \
          patch("app.services.email_service._get_smtp_credentials", return_value=("smtp.example.com", 587, "user", "secret_pass", "noreply@example.com")):
         success = await send_invite_email(
             to_email="test@example.com",
@@ -39,7 +40,8 @@ async def test_send_invite_email_handles_smtp_failure():
 async def test_send_invite_email_success():
     """Verify successful SMTP dispatch flow."""
     mock_smtp_instance = MagicMock()
-    with patch("smtplib.SMTP", return_value=mock_smtp_instance), \
+    with patch("app.services.email_service._get_brevo_api_config", return_value=None), \
+         patch("smtplib.SMTP", return_value=mock_smtp_instance), \
          patch("app.services.email_service._get_smtp_credentials", return_value=("smtp.example.com", 587, "user", "secret_pass", "noreply@example.com")):
         success = await email_service.send_invite_email(
             to_email="test@example.com",

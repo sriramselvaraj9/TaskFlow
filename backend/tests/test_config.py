@@ -22,6 +22,7 @@ def test_database_url_custom_assembly():
         POSTGRES_SERVER="db.internal.net",
         POSTGRES_PORT=5433,
         POSTGRES_DB="custom_taskflow",
+        JWT_SECRET="a" * 32,
         _env_file=None,
     )
     expected_url = "postgresql+asyncpg://custom_user:custom_password@db.internal.net:5433/custom_taskflow"
@@ -48,3 +49,23 @@ def test_cors_origins_parsing():
     assert len(settings_str.CORS_ORIGINS) == 2
     assert "https://app.taskflow.dev" in settings_str.CORS_ORIGINS
     assert "https://staging.taskflow.dev" in settings_str.CORS_ORIGINS
+
+
+def test_jwt_secret_validation():
+    """Verify production security rules: JWT_SECRET must be provided and >= 32 chars."""
+    import pytest
+    from pydantic import ValidationError
+
+    # 1. Missing JWT_SECRET without environment/.env raises ValidationError
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)
+
+    # 2. Key too short (< 32 chars) must fail validation
+    with pytest.raises(ValidationError):
+        Settings(JWT_SECRET="too-short")
+
+    # 3. Valid 32+ char key succeeds
+    valid_key = "a-very-strong-unique-production-secret-key-123456"
+    settings = Settings(JWT_SECRET=valid_key)
+    assert settings.JWT_SECRET == valid_key
+

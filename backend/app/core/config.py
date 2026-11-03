@@ -1,15 +1,19 @@
 """Centralized application settings using Pydantic Settings."""
 
+from pathlib import Path
 from typing import List, Literal, Optional, Union
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
+_ENV_FILE_PATH = _BACKEND_DIR / ".env"
 
 
 class Settings(BaseSettings):
     """Application configuration and environment variable validator."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(str(_ENV_FILE_PATH), ".env"),
         env_file_encoding="utf-8",
         case_sensitive=True,
         extra="ignore",
@@ -108,8 +112,8 @@ class Settings(BaseSettings):
             return v
         return ["http://localhost:3000"]
 
-    # Security & Tokens
-    JWT_SECRET: str = "taskflow-super-secure-production-secret-key-32chars"
+    # Security & Tokens (Loaded strictly from environment / .env, never hardcoded)
+    JWT_SECRET: str
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
@@ -117,6 +121,14 @@ class Settings(BaseSettings):
     OTP_EXPIRE_MINUTES: int = 10
     LOGIN_RATE_LIMIT_MAX_ATTEMPTS: int = 5
     LOGIN_RATE_LIMIT_WINDOW_SECONDS: int = 300
+
+    @field_validator("JWT_SECRET")
+    @classmethod
+    def validate_jwt_secret(cls, v: str) -> str:
+        """Ensures secure JWT secret with minimum length requirements."""
+        if not v or len(v.strip()) < 32:
+            raise ValueError("JWT_SECRET must be at least 32 characters long.")
+        return v.strip()
 
     # Redis Cache & Sessions (Prepared for subsequent phase)
     REDIS_HOST: str = "localhost"

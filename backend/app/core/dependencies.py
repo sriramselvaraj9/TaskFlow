@@ -126,6 +126,18 @@ async def require_member(
     return current_user
 
 
+async def get_current_user_optional(
+    request: Request,
+    auth_credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    session: AsyncSession = Depends(get_db),
+) -> Optional[UserTokenPayload]:
+    """Dependency that returns authenticated user payload if valid, or None if unauthenticated."""
+    try:
+        return await get_current_user(request, auth_credentials, session)
+    except Exception:
+        return None
+
+
 def get_auth_service():
     """Dependency provider for AuthService."""
     from app.services.auth_service import auth_service
