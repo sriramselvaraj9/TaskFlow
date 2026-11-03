@@ -35,9 +35,11 @@ async def test_health_endpoint(async_client: AsyncClient):
     res = await async_client.get("/task_management/api/v1/health")
     assert res.status_code == 200
     data = res.json()
-    assert data["service"] == "TaskFlow"
-    assert data["message"] == "APIs are running successfully"
-    assert "timestamp" in data
+    assert data["appName"] == "TaskFlow"
+    assert data["apiHealth"] in ("operational", "degraded")
+    assert data["status"] in ("healthy", "degraded")
+    assert "dependencies" in data
+    assert "environment" in data
 
 
 @pytest.mark.asyncio
