@@ -45,11 +45,18 @@ function parseSender(rawFrom?: string, fallbackEmail?: string): ParsedSender {
 }
 
 function getBrevoApiConfig() {
-  const apiKey =
+  let apiKey =
     process.env.BREVO_API_KEY ||
     (process.env.BREVO_SMTP_KEY?.startsWith('xkeysib-') ? process.env.BREVO_SMTP_KEY : undefined);
 
-  if (!apiKey || (!apiKey.startsWith('xkeysib-') && apiKey.length < 20)) {
+  if (!apiKey) return null;
+  apiKey = apiKey.trim().replace(/^["']|["']$/g, '');
+
+  while (apiKey.startsWith('xkeysib-xkeysib-')) {
+    apiKey = `xkeysib-${apiKey.slice('xkeysib-xkeysib-'.length)}`;
+  }
+
+  if (!apiKey.startsWith('xkeysib-') && apiKey.length < 20) {
     return null;
   }
 
@@ -59,7 +66,7 @@ function getBrevoApiConfig() {
   );
 
   return {
-    apiKey: apiKey.trim(),
+    apiKey,
     fromEmail: sender.email,
     fromName: sender.name,
   };

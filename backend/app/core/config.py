@@ -169,6 +169,16 @@ class Settings(BaseSettings):
     BREVO_USER: Optional[str] = None
     BREVO_FROM: str = '"TaskFlow Admin" <sriramccbp@gmail.com>'
 
+    @field_validator("BREVO_API_KEY", mode="before")
+    @classmethod
+    def clean_brevo_api_key(cls, v: Optional[str]) -> Optional[str]:
+        if not v or not isinstance(v, str):
+            return v
+        cleaned = v.strip().strip('"\'')
+        while cleaned.startswith("xkeysib-xkeysib-"):
+            cleaned = "xkeysib-" + cleaned[len("xkeysib-xkeysib-") :]
+        return cleaned
+
     BREVO_SMTP_HOST: str = "smtp-relay.brevo.com"
     BREVO_SMTP_PORT: int = 587
     BREVO_SMTP_USER: Optional[str] = None

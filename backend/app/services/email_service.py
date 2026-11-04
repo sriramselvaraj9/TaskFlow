@@ -32,6 +32,8 @@ def _get_brevo_api_config() -> Optional[Tuple[str, str, str]]:
     if not api_key or "your_" in api_key.lower():
         return None
     api_key = api_key.strip().strip('"\'')
+    while api_key.startswith("xkeysib-xkeysib-"):
+        api_key = "xkeysib-" + api_key[len("xkeysib-xkeysib-") :]
     if not (api_key.startswith("xkeysib-") or len(api_key) > 20):
         return None
 
@@ -129,12 +131,16 @@ def _get_smtp_credentials() -> Tuple[str, int, str, str, str]:
         or getattr(settings, "BREVO_USER", None)
         or ""
     )
-    key = (
+    raw_key = (
         getattr(settings, "BREVO_SMTP_KEY", None)
         or getattr(settings, "BREVO_API_KEY", None)
         or getattr(settings, "SMTP_PASS", None)
         or ""
     )
+    key = raw_key.strip().strip('"\'') if raw_key else ""
+    while key.startswith("xkeysib-xkeysib-"):
+        key = "xkeysib-" + key[len("xkeysib-xkeysib-") :]
+
     sender = (
         getattr(settings, "BREVO_SENDER_EMAIL", None)
         or getattr(settings, "BREVO_USER", None)
@@ -142,9 +148,9 @@ def _get_smtp_credentials() -> Tuple[str, int, str, str, str]:
     )
 
     if "<" in sender and ">" in sender:
-        sender = sender.split("<")[1].split(">")[0].strip()
+        sender = sender.split("<")[1].split(">")[0].strip(' "\'')
 
-    return host, int(port), user.strip(), key.strip(), sender.strip()
+    return host, int(port), user.strip(), key, sender.strip(' "\'')
 
 
 def _send_smtp_sync(
