@@ -644,3 +644,5 @@ export async function setPasswordWithInviteToken(
   const result = await res.json();
   return result.user;
 }
+
+export { emailService } from '@/lib/emailService';

@@ -31,7 +31,7 @@ def _get_brevo_api_config() -> Optional[Tuple[str, str, str]]:
     api_key = getattr(settings, "BREVO_API_KEY", None) or getattr(settings, "BREVO_SMTP_KEY", None)
     if not api_key or "your_" in api_key.lower():
         return None
-    api_key = api_key.strip()
+    api_key = api_key.strip().strip('"\'')
     if not (api_key.startswith("xkeysib-") or len(api_key) > 20):
         return None
 
@@ -47,7 +47,7 @@ def _get_brevo_api_config() -> Optional[Tuple[str, str, str]]:
     if "<" in raw_sender and ">" in raw_sender:
         parts = raw_sender.split("<")
         sender_name = parts[0].strip(' "\'') or "TaskFlow Admin"
-        sender_email = parts[1].split(">")[0].strip()
+        sender_email = parts[1].split(">")[0].strip(' "\'')
     elif "@" in raw_sender:
         sender_email = raw_sender.strip(' "\'')
 
@@ -89,7 +89,7 @@ async def _send_brevo_api_async(
             "textContent": text_content,
         }
 
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=5.0) as client:
             resp = await client.post(url, headers=headers, json=payload)
             if resp.status_code in (200, 201, 202):
                 logger.info(
@@ -181,7 +181,7 @@ def _send_smtp_sync(
         msg.attach(MIMEText(text_content, "plain", "utf-8"))
         msg.attach(MIMEText(html_content, "html", "utf-8"))
 
-        server = smtplib.SMTP(host, port, timeout=10)
+        server = smtplib.SMTP(host, port, timeout=2.0)
         server.ehlo()
         server.starttls()
         server.ehlo()
@@ -388,7 +388,7 @@ async def send_password_reset_email(
                 "htmlContent": html_content,
                 "textContent": text_content,
             }
-            async with httpx.AsyncClient(timeout=15.0) as client:
+            async with httpx.AsyncClient(timeout=5.0) as client:
                 resp = await client.post(url, headers=headers, json=payload)
                 if resp.status_code in (200, 201, 202):
                     logger.info("Password reset email sent successfully to %s via Brevo REST API v3", to_email)
@@ -407,7 +407,7 @@ async def send_password_reset_email(
             msg["To"] = f'"{to_name}" <{to_email}>'
             msg.attach(MIMEText(text_content, "plain", "utf-8"))
             msg.attach(MIMEText(html_content, "html", "utf-8"))
-            server = smtplib.SMTP(host, port, timeout=10)
+            server = smtplib.SMTP(host, port, timeout=2.0)
             server.ehlo()
             server.starttls()
             server.ehlo()

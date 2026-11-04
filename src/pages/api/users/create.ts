@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { applyCors, getAuthenticatedUser, isAdmin, resolveBaseUrl } from '@/lib/authHelper';
 import { getUserByEmail, provisionUser } from '@/lib/db';
+import { emailService } from '@/lib/emailService';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (applyCors(req, res)) return;
@@ -56,6 +57,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       currentUser,
     );
+
+    // Zero-failure fallback: If backend email delivery could not complete directly
+    // (e.g. Render outbound SMTP ports blocked or API key only in Vercel env),
+    // dispatch immediately via Frontend Brevo REST API over HTTPS port 443
+    if (!result.emailSent && result.inviteUrl) {
+      try {
+        const dispatch = await emailService.sendInviteEmail({
+          to: cleanEmail,
+          userName: cleanName,
+          inviteUrl: result.inviteUrl,
+          inviterName: currentUser.name || 'Workspace Administrator',
+          designation: cleanDesignation,
+        });
+        if (dispatch.sent) {
+          result.emailSent = true;
+          delete result.emailError;
+        }
+      } catch (err: any) {
+        console.warn('[TaskFlow Frontend] Fallback invite email dispatch:', err?.message);
+      }
+    }
 
     return res.status(201).json(result);
   } catch (error: any) {
