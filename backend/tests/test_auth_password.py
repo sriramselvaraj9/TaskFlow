@@ -1,4 +1,4 @@
-"""Tests for password security, Argon2id hashing, verification, registration validation, and role protection."""
+"""Tests for password security, Bcrypt hashing, verification, registration validation, and role protection."""
 
 from httpx import AsyncClient
 import pytest
@@ -8,12 +8,12 @@ from app.core.security import hash_password, verify_password
 
 
 def test_password_hashing_and_verification():
-    """Verify password hashing produces Argon2id hashes and verifies correctly."""
+    """Verify password hashing produces Bcrypt hashes and verifies correctly."""
     password = "SuperSecretPassword123!"
     hashed = hash_password(password)
 
-    # 1. Produced hash must start with Argon2id prefix
-    assert hashed.startswith("$argon2id$")
+    # 1. Produced hash must start with standard Bcrypt prefix ($2a$ or $2b$)
+    assert hashed.startswith(("$2a$", "$2b$"))
     assert hashed != password
 
     # 2. Correct password verification succeeds

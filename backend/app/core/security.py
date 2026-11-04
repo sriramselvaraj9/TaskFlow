@@ -1,4 +1,4 @@
-"""Cryptographic security utilities: password hashing (Argon2id/bcrypt) and JWT token lifecycle."""
+"""Cryptographic security utilities: password hashing (bcrypt) and JWT token lifecycle."""
 
 from datetime import datetime, timedelta, timezone
 import hashlib
@@ -8,7 +8,6 @@ import uuid
 
 import jwt
 from pwdlib import PasswordHash
-from pwdlib.hashers.argon2 import Argon2Hasher
 from pwdlib.hashers.bcrypt import BcryptHasher
 
 from app.core.config import settings
@@ -16,15 +15,14 @@ from app.core.exceptions import AuthenticationException
 
 logger = logging.getLogger("taskflow.security")
 
-# Initialize password hasher with Argon2id primary and Bcrypt backward-compatibility
+# Initialize password hasher using Bcrypt
 password_hasher = PasswordHash((
-    Argon2Hasher(),
     BcryptHasher(),
 ))
 
 
 def hash_password(password: str) -> str:
-    """Hashes a plaintext password using Argon2id.
+    """Hashes a plaintext password using Bcrypt.
     
     Never logs passwords or returns raw passwords.
     """
@@ -34,7 +32,7 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: Optional[str]) -> bool:
     """Securely verifies a plaintext password attempt against stored hash.
     
-    Supports Argon2id and historical Bcrypt hashes without leaking algorithm details.
+    Supports Bcrypt hashes without leaking algorithm details.
     """
     if not plain_password or not hashed_password:
         return False

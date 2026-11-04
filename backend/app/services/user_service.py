@@ -93,15 +93,15 @@ class UserService:
         email: str,
         password: str,
     ) -> User:
-        """Authenticates user credentials using secure Argon2id/Bcrypt verification.
+        """Authenticates user credentials using secure Bcrypt verification.
         
         Avoids leaking whether email exists through timing and error message parity.
         """
         clean_email = email.strip().lower()
         user = await self.user_dao.get_by_email(session, clean_email)
 
-        # Constant-time mitigation against user enumeration
-        dummy_hash = "$argon2id$v=19$m=65536,t=3,p=4$c29tZXNhbHQxMjM0NTY3OA$9vYfFz8Bwz8..."
+        # Constant-time mitigation against user enumeration (Bcrypt format)
+        dummy_hash = "$2b$12$BMwF/N0JPAXKG8HOLVcrhOAAZP9A7pH55w7BplNDMTr2NiQZod7NS"
         target_hash = user.password_hash if (user and user.password_hash) else dummy_hash
 
         is_valid = verify_password(password, target_hash)
@@ -187,7 +187,7 @@ class UserService:
         if not user:
             raise NotFoundException("User account associated with invitation was not found")
 
-        # Hash new password with Argon2id
+        # Hash new password with Bcrypt
         user.password_hash = hash_password(password)
 
         # Update member's full name if provided during activation
