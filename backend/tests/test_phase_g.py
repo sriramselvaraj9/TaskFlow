@@ -267,26 +267,29 @@ def test_logging_filter_scrubs_records():
 @pytest.mark.asyncio
 async def test_cors_allowed_origin_and_preflight_headers():
     """Verify configured Next.js origin receives CORS headers and preflight approval."""
+    origins = settings.CORS_ORIGINS if isinstance(settings.CORS_ORIGINS, list) else [str(settings.CORS_ORIGINS)]
+    allowed_origin = origins[0] if origins else "http://localhost:3000"
+
     async with AsyncClient(transport=ASGITransport(app=main_app), base_url="http://test") as client:
         # Preflight OPTIONS request
         res_options = await client.options(
             "/task_management/api/v1/health",
             headers={
-                "Origin": "http://localhost:3000",
+                "Origin": allowed_origin,
                 "Access-Control-Request-Method": "GET",
                 "Access-Control-Request-Headers": "Authorization,Content-Type",
             },
         )
         assert res_options.status_code == 200
-        assert res_options.headers.get("access-control-allow-origin") == "http://localhost:3000"
+        assert res_options.headers.get("access-control-allow-origin") == allowed_origin
         assert res_options.headers.get("access-control-allow-credentials") == "true"
 
         # Standard GET with Origin
         res_get = await client.get(
             "/task_management/api/v1/health",
-            headers={"Origin": "http://localhost:3000"},
+            headers={"Origin": allowed_origin},
         )
-        assert res_get.headers.get("access-control-allow-origin") == "http://localhost:3000"
+        assert res_get.headers.get("access-control-allow-origin") == allowed_origin
         expose_headers = res_get.headers.get("access-control-expose-headers", "")
         assert "X-Request-ID" in expose_headers
         assert "X-Process-Time" in expose_headers
