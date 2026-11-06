@@ -23,5 +23,5 @@ echo "[4/5] Executing automated test suite..."
 pytest
 
 # Stage 5: Start FastAPI Application Server via Uvicorn
-echo "[5/5] Starting FastAPI application via Uvicorn..."
+echo "[5/5] Starting FastAPI application via Uvicorn on port ${PORT:-8000}..."
 exec uvicorn app.main:app --host "${HOST:-0.0.0.0}" --port "${PORT:-8000}"

@@ -68,9 +68,9 @@ USER appuser
 
 EXPOSE 8000
 
-# Container health check querying application health endpoint
-HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=5 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/task_management/api/v1/health')" || exit 1
+# Container health check querying application health endpoint using dynamic PORT and generous start period
+HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=5 \
+    CMD python -c "import os, urllib.request; port = os.getenv('PORT', '8000'); urllib.request.urlopen(f'http://localhost:{port}/task_management/api/v1/health')" || exit 1
 
 # Execute startup orchestrator script
 CMD ["sh", "/app/startup.sh"]
