@@ -40,14 +40,11 @@ else:
         if not os.getenv(var) or not os.getenv(var).strip():
             errors.append(f'Missing required environment variable: {var} (or provide full DATABASE_URL)')
 
-# 3. Redis configuration
+# 3. Redis configuration (validates scheme if explicit URL provided)
 redis_url = os.getenv('REDIS_URL')
 if redis_url and redis_url.strip():
     if not any(redis_url.strip().startswith(s) for s in ('redis://', 'rediss://')):
         errors.append('Invalid REDIS_URL scheme: Must start with redis:// or rediss://')
-else:
-    if not os.getenv('REDIS_HOST') or not os.getenv('REDIS_HOST').strip():
-        errors.append('Missing required environment variable: REDIS_HOST (or provide full REDIS_URL)')
 
 # 4. Port numbers validation if provided
 for port_var in ['POSTGRES_PORT', 'REDIS_PORT', 'PORT']:
