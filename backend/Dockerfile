@@ -20,12 +20,11 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends build-essential && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy dependency requirements
-COPY requirements.txt ./
+# Copy dependency specifications
+COPY pyproject.toml uv.lock ./
 
-# Create virtualenv and install dependencies via uv
-RUN uv venv /app/.venv && \
-    uv pip install --no-cache -r requirements.txt
+# Install dependencies via uv sync
+RUN uv sync --frozen --no-install-project --no-dev
 
 
 # Stage 2: Production Runtime
@@ -45,15 +44,12 @@ RUN groupadd --system --gid 1001 taskflow && \
     useradd --system --uid 1001 --gid taskflow --create-home appuser
 
 # Copy virtual environment from builder stage
-COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder --chown=appuser:taskflow /app/.venv /app/.venv
 
 # Copy Alembic configuration, migrations, and FastAPI application source
-COPY alembic.ini ./
-COPY alembic ./alembic
-COPY app ./app
-
-# Set non-root ownership across application files
-RUN chown -R appuser:taskflow /app
+COPY --chown=appuser:taskflow alembic.ini ./
+COPY --chown=appuser:taskflow alembic ./alembic
+COPY --chown=appuser:taskflow app ./app
 
 # Run container as non-root user
 USER appuser
