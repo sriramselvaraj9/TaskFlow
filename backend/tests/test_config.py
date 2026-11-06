@@ -14,14 +14,16 @@ def test_default_settings():
     assert "postgresql+asyncpg://" in str(settings.DATABASE_URL)
 
 
-def test_database_url_custom_assembly():
+def test_database_url_custom_assembly(monkeypatch):
     """Verify dynamic DATABASE_URL assembly from explicit database parameters."""
+    monkeypatch.delenv("DATABASE_URL", raising=False)
     settings = Settings(
         POSTGRES_USER="custom_user",
         POSTGRES_PASSWORD="custom_password",
         POSTGRES_SERVER="db.internal.net",
         POSTGRES_PORT=5433,
         POSTGRES_DB="custom_taskflow",
+        DATABASE_URL="",
         JWT_SECRET="a" * 32,
         _env_file=None,
     )
@@ -51,14 +53,15 @@ def test_cors_origins_parsing():
     assert "https://staging.taskflow.dev" in settings_str.CORS_ORIGINS
 
 
-def test_jwt_secret_validation():
+def test_jwt_secret_validation(monkeypatch):
     """Verify production security rules: JWT_SECRET must be provided and >= 32 chars."""
     import pytest
     from pydantic import ValidationError
 
     # 1. Missing JWT_SECRET without environment/.env raises ValidationError
+    monkeypatch.delenv("JWT_SECRET", raising=False)
     with pytest.raises(ValidationError):
-        Settings(_env_file=None)
+        Settings(JWT_SECRET="", _env_file=None)
 
     # 2. Key too short (< 32 chars) must fail validation
     with pytest.raises(ValidationError):

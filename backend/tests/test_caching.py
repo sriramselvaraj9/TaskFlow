@@ -485,11 +485,13 @@ async def test_pattern_invalidation_never_uses_flushdb():
 
 
 def is_live_redis_running() -> bool:
-    """Checks if a local Redis server is active on port 6379."""
+    """Checks if a Redis server is active on the configured host and port."""
     try:
+        host = settings.REDIS_HOST or "localhost"
+        port = int(settings.REDIS_PORT or 6379)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(0.5)
-            return s.connect_ex(("localhost", 6379)) == 0
+            return s.connect_ex((host, port)) == 0
     except Exception:
         return False
 

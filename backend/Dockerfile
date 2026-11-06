@@ -23,8 +23,8 @@ RUN apt-get update && \
 # Copy dependency specifications
 COPY pyproject.toml uv.lock ./
 
-# Install dependencies via uv sync
-RUN uv sync --frozen --no-install-project --no-dev
+# Install all dependencies (including pytest/test dependencies for in-container testing) via uv sync
+RUN uv sync --frozen --no-install-project
 
 
 # Stage 2: Production Runtime
@@ -41,7 +41,8 @@ ENV PATH="/app/.venv/bin:$PATH" \
 
 # Create a non-root system user and group for security
 RUN groupadd --system --gid 1001 taskflow && \
-    useradd --system --uid 1001 --gid taskflow --create-home appuser
+    useradd --system --uid 1001 --gid taskflow --create-home appuser && \
+    chown appuser:taskflow /app
 
 # Copy virtual environment from builder stage
 COPY --from=builder --chown=appuser:taskflow /app/.venv /app/.venv
@@ -50,6 +51,17 @@ COPY --from=builder --chown=appuser:taskflow /app/.venv /app/.venv
 COPY --chown=appuser:taskflow alembic.ini ./
 COPY --chown=appuser:taskflow alembic ./alembic
 COPY --chown=appuser:taskflow app ./app
+
+# Copy pytest configuration and test suite
+COPY --chown=appuser:taskflow pytest.ini ./
+COPY --chown=appuser:taskflow tests ./tests
+
+# Copy startup and pre-deployment scripts
+COPY --chown=appuser:taskflow startup.sh ./startup.sh
+COPY --chown=appuser:taskflow pre_deployment.sh ./pre_deployment.sh
+
+# Set executable permissions for shell scripts
+RUN chmod +x /app/startup.sh /app/pre_deployment.sh
 
 # Run container as non-root user
 USER appuser
@@ -60,5 +72,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=5 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/task_management/api/v1/health')" || exit 1
 
-# Run migrations, seed idempotent baseline data, and start FastAPI via uvicorn ASGI server
-CMD ["sh", "-c", "alembic upgrade head && python -m app.seed.seed_data && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Execute startup orchestrator script
+CMD ["sh", "/app/startup.sh"]

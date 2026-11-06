@@ -30,13 +30,11 @@ services:
       # CORS & Auth
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://localhost:3002}
-      JWT_SECRET: ${JWT_SECRET:-taskflow-super-secure-production-secret-key-32chars}
+      JWT_SECRET: ${JWT_SECRET}
       # Email Service (Brevo)
       BREVO_API_KEY: ${BREVO_API_KEY:-}
       BREVO_USER: ${BREVO_USER:-}
       BREVO_FROM: ${BREVO_FROM:-TaskFlow Admin <noreply@taskflow.com>}
-    command: >
-      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/task_management/api/v1/health')\""]
       interval: 10s
@@ -64,7 +62,7 @@ services:
       BACKEND_URL: http://backend:8000
       NEXT_PUBLIC_API_URL: http://localhost:8000/api
       NEXTAUTH_URL: http://localhost:3000
-      NEXTAUTH_SECRET: ${JWT_SECRET:-taskflow-super-secure-production-secret-key-32chars}
+      NEXTAUTH_SECRET: ${JWT_SECRET}
       BREVO_API_KEY: ${BREVO_API_KEY:-}
       BREVO_USER: ${BREVO_USER:-}
       BREVO_FROM: ${BREVO_FROM:-TaskFlow Admin <noreply@taskflow.com>}
