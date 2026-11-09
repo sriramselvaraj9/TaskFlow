@@ -118,7 +118,7 @@ export default function SetPasswordPage() {
         <div className="space-y-6 max-w-lg relative z-10 my-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>{isReset ? 'Corporate Security Portal' : 'Workspace Member Activation'}</span>
+            <span>{isReset ? 'Security Portal' : 'Workspace Member Activation'}</span>
           </div>
 
           <h1 className="text-4xl font-extrabold text-white tracking-tight leading-tight">
@@ -127,7 +127,7 @@ export default function SetPasswordPage() {
 
           <p className="text-sm text-slate-400 leading-relaxed">
             {isReset
-              ? 'Choose a strong, unique password for your corporate profile. Once updated, any existing sessions on other devices will be securely logged out.'
+              ? 'Choose a strong, unique password for your account profile. Once updated, any existing sessions on other devices will be securely logged out.'
               : 'You have been invited to join TaskFlow. Create your secure account password to access your team projects, boards, and workflows.'}
           </p>
 

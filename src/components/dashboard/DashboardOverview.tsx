@@ -226,15 +226,19 @@ export const DashboardOverview: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                    <PriorityBadge
-                      priority={task.priority}
-                      className="whitespace-nowrap px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-xs"
-                    />
-                    <StatusBadge
-                      status={task.status}
-                      className="whitespace-nowrap px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-xs"
-                    />
+                  <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+                    <div className="w-[78px] sm:w-[86px] flex justify-center">
+                      <PriorityBadge
+                        priority={task.priority}
+                        className="w-full justify-center whitespace-nowrap px-1.5 py-0.5 text-[10px] sm:text-xs"
+                      />
+                    </div>
+                    <div className="w-[92px] sm:w-[102px] flex justify-center">
+                      <StatusBadge
+                        status={task.status}
+                        className="w-full justify-center whitespace-nowrap px-1.5 py-0.5 text-[10px] sm:text-xs"
+                      />
+                    </div>
                   </div>
                 </div>
               ))

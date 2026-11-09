@@ -154,14 +154,6 @@ export const NotificationBell: React.FC = () => {
         aria-label="View notifications"
       >
         <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-
-        {/* Unread indicator dot */}
-        {hasUnread && activities.length > 0 && (
-          <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600" />
-          </span>
-        )}
       </button>
 
       {/* Dropdown Popover */}

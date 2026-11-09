@@ -56,13 +56,6 @@ COPY --chown=appuser:taskflow app ./app
 COPY --chown=appuser:taskflow pytest.ini ./
 COPY --chown=appuser:taskflow tests ./tests
 
-# Copy startup and pre-deployment scripts
-COPY --chown=appuser:taskflow startup.sh ./startup.sh
-COPY --chown=appuser:taskflow pre_deployment.sh ./pre_deployment.sh
-
-# Set executable permissions for shell scripts
-RUN chmod +x /app/startup.sh /app/pre_deployment.sh
-
 # Run container as non-root user
 USER appuser
 
@@ -72,5 +65,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=5 \
     CMD python -c "import os, urllib.request; port = os.getenv('PORT', '8000'); urllib.request.urlopen(f'http://localhost:{port}/task_management/api/v1/health')" || exit 1
 
-# Execute startup orchestrator script
-CMD ["sh", "/app/startup.sh"]
+# Start FastAPI application via Uvicorn
+CMD ["sh", "-c", "uvicorn app.main:app --host ${HOST:-0.0.0.0} --port ${PORT:-8000}"]

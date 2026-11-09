@@ -45,7 +45,7 @@ export default function SignInPage() {
   const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!forgotEmail.trim()) {
-      toast.error('Please enter your corporate email address.');
+      toast.error('Please enter your email address.');
       return;
     }
 
@@ -122,7 +122,7 @@ export default function SignInPage() {
           </div>
 
           <h1 className="text-4xl font-extrabold text-white tracking-tight leading-tight">
-            Corporate Team Portal
+            Team Portal
           </h1>
 
           <p className="text-sm text-slate-400 leading-relaxed">
@@ -168,7 +168,7 @@ export default function SignInPage() {
                 Sign in to Taskflow
               </h2>
               <p className="text-xs text-slate-500 font-medium">
-                Enter your corporate credentials to access your workspace.
+                Enter your credentials to access your workspace.
               </p>
             </div>
 
@@ -191,7 +191,7 @@ export default function SignInPage() {
               {/* Email Field */}
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                  Corporate Email Address
+                  Email Address
                 </label>
                 <input
                   id="signin-email"
@@ -264,7 +264,7 @@ export default function SignInPage() {
         isOpen={isForgotModalOpen}
         onClose={() => setIsForgotModalOpen(false)}
         title="Reset Account Password"
-        description="Enter your registered corporate email address. We will send you a secure 15-minute reset link."
+        description="Enter your registered email address. We will send you a secure 15-minute reset link."
         maxWidth="md"
       >
         {forgotSuccess ? (
@@ -289,7 +289,7 @@ export default function SignInPage() {
           <form onSubmit={handleForgotPasswordSubmit} className="space-y-4 py-2">
             <div className="space-y-1.5">
               <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                Corporate Email Address
+                Email Address
               </label>
               <div className="relative">
                 <input

@@ -157,14 +157,6 @@ export const TopBar: React.FC<TopBarProps> = ({ breadcrumb, onMenuClick }) => {
                       {userRole}
                     </span>
                   </div>
-
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
-                    <span className="text-slate-500 font-medium">Session Status</span>
-                    <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      Authenticated
-                    </span>
-                  </div>
                 </div>
 
                 {/* Footer: Logout Action */}

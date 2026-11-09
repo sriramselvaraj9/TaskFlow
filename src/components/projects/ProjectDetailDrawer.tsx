@@ -481,21 +481,28 @@ export const ProjectDetailDrawer: React.FC = () => {
                             </div>
 
                             <div className="flex items-center gap-2 shrink-0">
-                              <PriorityBadge priority={task.priority} />
-                              <span
-                                className={cn(
-                                  'text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase',
-                                  task.status === 'DONE'
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                    : task.status === 'IN_PROGRESS'
-                                      ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                      : task.status === 'IN_REVIEW'
-                                        ? 'bg-purple-50 text-purple-700 border-purple-200'
-                                        : 'bg-slate-100 text-slate-600 border-slate-200',
-                                )}
-                              >
-                                {task.status.replace('_', ' ')}
-                              </span>
+                              <div className="w-[78px] sm:w-[86px] flex justify-center">
+                                <PriorityBadge
+                                  priority={task.priority}
+                                  className="w-full justify-center whitespace-nowrap px-1.5 py-0.5 text-[10px] sm:text-xs"
+                                />
+                              </div>
+                              <div className="w-[88px] sm:w-[98px] flex justify-center">
+                                <span
+                                  className={cn(
+                                    'w-full text-center justify-center text-[10px] font-bold px-1.5 py-0.5 rounded-full border uppercase inline-flex items-center',
+                                    task.status === 'DONE'
+                                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                      : task.status === 'IN_PROGRESS'
+                                        ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                        : task.status === 'IN_REVIEW'
+                                          ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                          : 'bg-slate-100 text-slate-600 border-slate-200',
+                                  )}
+                                >
+                                  {task.status.replace('_', ' ')}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         );
