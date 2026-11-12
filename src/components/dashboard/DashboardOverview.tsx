@@ -189,9 +189,9 @@ export const DashboardOverview: React.FC = () => {
             </span>
           </div>
 
-          <div className="divide-y divide-slate-100">
+          <div className="flex flex-col gap-2.5 sm:gap-3">
             {effectiveTasks.length === 0 ? (
-              <div className="py-8 text-center text-xs text-slate-400">
+              <div className="py-8 text-center text-xs text-slate-400 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
                 No recent tasks in this workspace.
               </div>
             ) : (
@@ -199,29 +199,29 @@ export const DashboardOverview: React.FC = () => {
                 <div
                   key={task.id}
                   onClick={() => setSelectedTaskId(task.id)}
-                  className="py-2.5 sm:py-3 flex items-center justify-between hover:bg-slate-50 px-2 sm:px-2.5 rounded-xl cursor-pointer transition-colors gap-2.5 sm:gap-3"
+                  className="group p-3 sm:p-3.5 bg-slate-50/80 hover:bg-slate-100/90 border border-slate-200/80 hover:border-slate-300 rounded-xl cursor-pointer transition-all duration-150 flex items-center justify-between gap-3 shadow-xs hover:shadow-sm"
                 >
-                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <span
                       className={cn(
-                        'w-2 h-2 rounded-full shrink-0',
+                        'w-2.5 h-2.5 rounded-full shrink-0',
                         task.status === 'IN_PROGRESS'
-                          ? 'bg-indigo-500'
+                          ? 'bg-indigo-500 ring-2 ring-indigo-200'
                           : task.status === 'IN_REVIEW'
-                            ? 'bg-amber-500'
+                            ? 'bg-amber-500 ring-2 ring-amber-200'
                             : task.status === 'DONE'
-                              ? 'bg-emerald-500'
-                              : 'bg-slate-900',
+                              ? 'bg-emerald-500 ring-2 ring-emerald-200'
+                              : 'bg-slate-400 ring-2 ring-slate-200',
                       )}
                     />
                     <div className="min-w-0 flex-1">
                       <div
-                        className="text-xs font-semibold text-slate-800 truncate"
+                        className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors truncate"
                         title={task.title}
                       >
                         {task.title}
                       </div>
-                      <div className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">
+                      <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-0.5">
                         Due {formatDate(task.dueDate)}
                       </div>
                     </div>
@@ -255,9 +255,9 @@ export const DashboardOverview: React.FC = () => {
             </span>
           </div>
 
-          <div className="divide-y divide-slate-100">
+          <div className="flex flex-col gap-2.5 sm:gap-3">
             {projects.length === 0 ? (
-              <div className="py-8 text-center text-xs text-slate-400">
+              <div className="py-8 text-center text-xs text-slate-400 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
                 No active projects found.
               </div>
             ) : (
@@ -269,23 +269,23 @@ export const DashboardOverview: React.FC = () => {
                   <div
                     key={proj.id}
                     onClick={() => setSelectedProjectIdForDetail(proj.id)}
-                    className="py-2.5 sm:py-3 flex items-center justify-between hover:bg-slate-50 px-2 sm:px-2.5 rounded-xl cursor-pointer transition-colors gap-2.5 sm:gap-3 group"
+                    className="group p-3 sm:p-3.5 bg-slate-50/80 hover:bg-slate-100/90 border border-slate-200/80 hover:border-slate-300 rounded-xl cursor-pointer transition-all duration-150 flex items-center justify-between gap-3 shadow-xs hover:shadow-sm"
                   >
-                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-                      <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 shrink-0" />
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 ring-2 ring-indigo-200 shrink-0" />
                       <div className="min-w-0 flex-1">
                         <div
-                          className="text-xs font-bold text-slate-800 truncate"
+                          className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors truncate"
                           title={proj.name}
                         >
                           {proj.name}
                         </div>
-                        <div className="text-[10px] sm:text-[11px] text-slate-400">
-                          {projectTaskCount} tasks
+                        <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-0.5">
+                          {projectTaskCount} {projectTaskCount === 1 ? 'task' : 'tasks'}
                         </div>
                       </div>
                     </div>
-                    <span className="text-[9px] sm:text-[10px] font-mono font-bold px-1.5 sm:px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
+                    <span className="text-[10px] sm:text-xs font-mono font-bold px-2 py-0.5 rounded-lg bg-white text-slate-700 border border-slate-200/90 shadow-xs shrink-0 group-hover:border-slate-300">
                       {proj.key}
                     </span>
                   </div>
