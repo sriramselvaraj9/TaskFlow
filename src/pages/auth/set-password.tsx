@@ -198,25 +198,6 @@ export default function SetPasswordPage() {
             ) : (
               /* Set Password Form */
               <>
-                {/* Invited Member Account Card */}
-                {email && (
-                  <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
-                      {(name.trim() || (email as string) || 'U').charAt(0).toUpperCase()}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-xs font-bold text-slate-900 truncate">
-                        {name.trim() ||
-                          (isReset ? 'Account Password Reset' : 'Workspace Member Activation')}
-                      </div>
-                      <div className="text-[11px] text-slate-500 truncate">{email as string}</div>
-                    </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 shrink-0">
-                      {isReset ? 'Password Reset' : 'Member'}
-                    </span>
-                  </div>
-                )}
-
                 {/* Error / Success Alerts */}
                 {submitError && (
                   <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2.5 animate-shake">
